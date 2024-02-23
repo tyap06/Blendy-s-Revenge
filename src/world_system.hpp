@@ -40,9 +40,9 @@ public:
 
 	bool keys[GLFW_KEY_LAST] = { false };
 
-	// ÔÚWorldSystemÀàÖÐÌí¼ÓÒ»¸ö³ÉÔ±º¯Êý£¬ÓÃÓÚ´¦Àí°´¼ü×´Ì¬
+	// ï¿½ï¿½WorldSystemï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ú´ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬
 	void handle_key_states(GLFWwindow* window) {
-		// Ê¾Àý£º°´ÏÂW¼ü£¬¸üÐÂ×´Ì¬Êý×é
+		// Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
 			keys[GLFW_KEY_W] = true;
 		}
@@ -50,7 +50,7 @@ public:
 			keys[GLFW_KEY_W] = false;
 		}
 
-		// Ê¾Àý£º°´ÏÂA¼ü£¬¸üÐÂ×´Ì¬Êý×é
+		// Ê¾ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Aï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½×´Ì¬ï¿½ï¿½ï¿½ï¿½
 		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
 			keys[GLFW_KEY_A] = true;
 		}
@@ -58,11 +58,12 @@ public:
 			keys[GLFW_KEY_A] = false;
 		}
 
-		// Í¬Ê±°´ÏÂWºÍA¼üÊ±£¬¿ÉÒÔÖ´ÐÐÏàÓ¦µÄ²Ù×÷
+		// Í¬Ê±ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½Aï¿½ï¿½Ê±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö´ï¿½ï¿½ï¿½ï¿½Ó¦ï¿½Ä²ï¿½ï¿½ï¿½
 		if (keys[GLFW_KEY_W] && keys[GLFW_KEY_A]) {
-			// Ö´ÐÐÍ¬Ê±°´ÏÂWºÍA¼üµÄ²Ù×÷
+			// Ö´ï¿½ï¿½Í¬Ê±ï¿½ï¿½ï¿½ï¿½Wï¿½ï¿½Aï¿½ï¿½ï¿½Ä²ï¿½ï¿½ï¿½
 		}
 	}
+  
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);

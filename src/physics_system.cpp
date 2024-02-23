@@ -47,7 +47,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		motion.scale.x *= scaleChange;
 		motion.scale.y *= scaleChange;
 		(void)elapsed_ms; // placeholder to silence unused warning until implemented
-		// TODO M1£ºWhat else Key-frame/State Interpolation do we need? 
+		// TODO M1ï¿½ï¿½What else Key-frame/State Interpolation do we need? 
 	}
 
 	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead
@@ -55,9 +55,6 @@ void PhysicsSystem::step(float elapsed_ms)
 	bloodLossPercentage = std::max(0.0f, std::min(1.0f, bloodLossPercentage)) * 100.0f;
 	float alphaFactor = 1.0f - bloodLossPercentage / 100.0f;
 	//render_Screen(alphaFactor);
-
-
-	
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG UPDATES HERE

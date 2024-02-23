@@ -171,7 +171,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// Processing the chicken state
-
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
 
@@ -315,8 +314,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		}
 		motion.position = new_pos;
 	}
-	
-	
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
