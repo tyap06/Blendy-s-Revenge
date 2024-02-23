@@ -16,6 +16,8 @@ Entity createChicken(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = mesh.original_size * 300.f;
 	motion.scale.y *= -1; // point front to the right
+	//motion.type =EntityType::Player; 
+
 
 	// Create and (empty) Chicken component to be able to refer to all eagles
 	registry.players.emplace(entity);
@@ -42,6 +44,7 @@ Entity createBug(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0, 50 };
 	motion.position = position;
+	//motion.type = EntityType::Generic;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -BUG_BB_WIDTH, BUG_BB_HEIGHT });
@@ -57,7 +60,7 @@ Entity createBug(RenderSystem* renderer, vec2 position)
 	return entity;
 }
 
-Entity createEagle(RenderSystem* renderer, vec2 position)
+Entity createEagle(RenderSystem* renderer, vec2 position, float scale = 1)
 {
 	auto entity = Entity();
 
@@ -70,6 +73,7 @@ Entity createEagle(RenderSystem* renderer, vec2 position)
 	motion.angle = 0.f;
 	motion.velocity = { 0, 100.f };
 	motion.position = position;
+	//motion.type = EntityType::Generic;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -EAGLE_BB_WIDTH, EAGLE_BB_HEIGHT });
@@ -128,3 +132,4 @@ Entity createEgg(vec2 pos, vec2 size)
 
 	return entity;
 }
+

@@ -4,6 +4,11 @@
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
+enum class EntityType {
+	Generic,
+	Player,
+};
+
 // Player component
 struct Player
 {
@@ -28,6 +33,12 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	EntityType type = EntityType::Generic;
+};
+
+struct window {
+	vec2 position; 
+	vec2 size;
 };
 
 // Stucture to store collision information
@@ -36,6 +47,7 @@ struct Collision
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
 	Collision(Entity& other) { this->other = other; };
+
 };
 
 // Data structure for toggling debug mode
@@ -45,6 +57,10 @@ struct Debug {
 };
 extern Debug debugging;
 
+struct PowerUpTimer
+{
+	float counter_ms = 1000;
+};
 // Sets the brightness of the screen
 struct ScreenState
 {
