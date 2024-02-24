@@ -9,7 +9,23 @@
 #include "physics_system.hpp"
 
 // Game configuration
+const size_t MAX_MINIONS = 80;
+const size_t MINION_DELAY_MS = 200 * 3;
+const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 100.0f;
+
 // add max sprite values here
+
+// DEFAULT START POSITIONS
+const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
+const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
+const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
+const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
+
+// BOUNDS
+const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
+const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
+const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
+const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -119,6 +135,17 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     restart_game();
 }
 
+void WorldSystem::update_minions(float elapsed_ms_since_last_update)
+{
+	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
+
+	if (registry.minions.components.size() <= MAX_MINIONS && next_minion_spawn < 0.f) {
+		next_minion_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS / 2);
+
+		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	}
+}
+
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
@@ -139,6 +166,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
 	}
+
+	update_minions(elapsed_ms_since_last_update);
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
@@ -184,8 +213,12 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	player_blendy = createBlendy(renderer, { window_width_px / 2, window_height_px - 200 });
+	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
+	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
+	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN, DIRECTIONAL_LIGHT_BOUNDS);
 }
+
+
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
@@ -198,10 +231,10 @@ void WorldSystem::handle_collisions() {
 
 		// Only interested in collisions that involve Blendy
 		if (registry.players.has(entity)) {
-			//Player& player = registry.players.get(entity);
+			Player& player = registry.players.get(entity);
 
-			// Checking Player - Deadly collisions
-			if (registry.deadlys.has(entity_other)) {
+			// Checking Player - Minion collisions
+			if (registry.minions.has(entity_other)) {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
 					// Kill blendy and reset death timer
@@ -229,6 +262,27 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// key is of 'type' GLFW_KEY_
 	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+	if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
+		auto& motion = registry.motions.get(directional_light);
+		motion.position = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE};
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
+		auto& motion = registry.motions.get(directional_light);
+		motion.position = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_DOWN) {
+		auto& motion = registry.motions.get(directional_light);
+		motion.position = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
+		auto& motion = registry.motions.get(directional_light);
+		motion.position = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+	}
+	
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {

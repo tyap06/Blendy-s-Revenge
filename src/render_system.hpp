@@ -30,7 +30,13 @@ class RenderSystem {
 
 	// Make sure these paths remain in sync with the associated enumerators.
 	const std::array<std::string, texture_count> texture_paths = {
-			textures_path("blendy.png")};
+			textures_path("blendy.png"),
+			textures_path("blendy-nm.png"),
+			textures_path("minion-standing.png"),
+			textures_path("minion-standing-nm.png"),
+			textures_path("background.png"),
+			textures_path("directional-light.png"),
+	};
 
 	std::array<GLuint, effect_count> effects;
 	// Make sure these paths remain in sync with the associated enumerators.
@@ -57,6 +63,7 @@ public:
 	void initializeGlEffects();
 
 	void initializeGlMeshes();
+
 	Mesh& getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; };
 
 	void initializeGlGeometryBuffers();
@@ -73,10 +80,24 @@ public:
 
 	mat3 createProjectionMatrix();
 
+	// Directional Light
+	Entity& getDirectionalLight() { return directional_light; }
+
+	void setDirectionalLight(const Entity& light) { directional_light = light; }
+
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
+
+	
+	// Helpers for drawTexturedMesh
+	void handle_textured_rendering(Entity entity, GLuint program, const RenderRequest& render_request);
+	void handle_normal_map_uniform(Entity entity, GLuint program);
+	void setUsesNormalMap(bool cond, const GLuint program);
+	void handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, GLuint program);
+	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
+	                             RenderRequest& render_request);
 
 	// Window handle
 	GLFWwindow* window;
@@ -87,6 +108,7 @@ private:
 	GLuint off_screen_render_buffer_depth;
 
 	Entity screen_state_entity;
+	Entity directional_light;
 };
 
 bool loadEffectFromFile(
