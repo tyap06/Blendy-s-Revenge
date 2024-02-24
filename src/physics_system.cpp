@@ -47,7 +47,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		motion.scale.x *= scaleChange;
 		motion.scale.y *= scaleChange;
 		(void)elapsed_ms; // placeholder to silence unused warning until implemented
-		// TODO M1��What else Key-frame/State Interpolation do we need? 
+		// TODO Vicky M1: What else Key-frame/State Interpolation do we need? 
 	}
 
 	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead

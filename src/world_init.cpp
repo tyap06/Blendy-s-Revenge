@@ -3,13 +3,15 @@
 
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
 	auto entity = Entity();
-	// Store a reference to the potentially re-used mesh object
-	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	// Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	// registry.meshPtrs.emplace(entity, &mesh);
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
 	motion.velocity = velocity;
-	// Vicky TODO M1: set scale & 
+	// Vicky M1: scale could change after render decided 
+	motion.scale = vec2(1.0f, 1.0f);
 	return entity;
 }
 
@@ -25,7 +27,7 @@ Entity createChicken(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
-	motion.velocity = { 6,6 };
+	motion.velocity = { 6.0f,6.0f };
 	motion.scale = mesh.original_size * 300.f;
 	motion.scale.y *= -1; // point front to the right
 

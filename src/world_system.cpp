@@ -13,7 +13,7 @@ const size_t MAX_EAGLES = 15;
 const size_t MAX_BUG = 5;
 const size_t EAGLE_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
-bool is_dead = 0;
+bool is_dead = false;
 const float speed = 2.0f;
 
 // Create the bug world
@@ -220,7 +220,7 @@ void WorldSystem::restart_game() {
 	// Create a new chicken
 	player_chicken = createChicken(renderer, { window_width_px/2, window_height_px - 200 });
 	registry.colors.insert(player_chicken, {1, 0.8f, 0.8f});
-	is_dead = 0;
+	is_dead = false;
 
 	// !! TODO A2: Enable static eggs on the ground, for reference
 	// Create eggs on the floor, use this for reference
@@ -261,7 +261,7 @@ void WorldSystem::handle_collisions() {
 					// !!! TODO A1: change the chicken orientation and color on death
 					registry.colors.get(entity) = vec3(0, 0, 0);
 					registry.motions.get(entity).velocity = vec2(0, 0.5);
-					is_dead = 1;
+					is_dead = true;
 				}
 			}
 			// Checking Player - Eatable collisions
@@ -348,7 +348,7 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// xpos and ypos are relative to the top-left of the window, the chicken's
 	// default facing direction is (1, 0)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// Vicky TODO M1: I dont know if it works, createBullet is imcomplete
+	// Vicky TODO M1: I dont know if it works, createBullet is imcomplete, render bullet not added!
 	static bool left_button_pressed = false;  
 	static float bullet_creation_timer = 0.0f; 
 	const float bullet_creation_interval = 0.2f;  

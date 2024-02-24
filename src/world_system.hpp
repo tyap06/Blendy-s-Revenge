@@ -40,7 +40,7 @@ public:
 
 	bool keys[GLFW_KEY_LAST] = { false };
 
-	// ��WorldSystem��������һ����Ա���������ڴ�������״̬
+	
 	void handle_key_states(GLFWwindow* window) {
 		// ʾ��������W��������״̬����
 		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
