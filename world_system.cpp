@@ -312,6 +312,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_RIGHT) {
 			new_pos += vec2(motion.velocity.x, 0);
 		}
+		// check window boundary
+		if (new_pos.x < 0) new_pos.x = 0;
+		if (new_pos.y < 0) new_pos.y = 0;
+		if (new_pos.x > window_width_px) new_pos.x = window_width_px;
+		if (new_pos.y > window_height_px) new_pos.y = window_height_px;
+
 		motion.position = new_pos;
 	}
 	// Resetting game
