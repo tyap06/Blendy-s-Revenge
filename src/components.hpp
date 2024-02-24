@@ -102,6 +102,9 @@ struct LightSource
 
 	// Intensity of ambient light to add to scene b/w [0.0, 1.0]
 	float ambientIntensity;
+
+	// Z-depth of the light
+	float z_depth;
 };
 
 /**

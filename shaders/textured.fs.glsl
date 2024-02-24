@@ -35,6 +35,7 @@ void main()
     vec3 lightDir = normalize(lightPosition - vcsPosition);
 
     vec3 eyePosition = vec3(0.0, 0.0, 0.0);
+
     // Calculate view direction (assuming camera at (0, 0, 0))
     vec3 viewDir = normalize(eyePosition - vcsPosition);
 

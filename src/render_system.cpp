@@ -110,7 +110,7 @@ void RenderSystem::configure_base_uniforms(Entity entity, const mat3& projection
 
 	// Configuring lightPosition 
 	GLint lightPosition_uloc = glGetUniformLocation(program, "lightPosition");
-	glUniform3fv(lightPosition_uloc, 1, (float*)& vec3(motion.position, 1.0));
+	glUniform3fv(lightPosition_uloc, 1, (float*)& vec3(motion.position, directional_light_component.z_depth));
 	gl_has_errors();
 
 	// Configuring lightColor
