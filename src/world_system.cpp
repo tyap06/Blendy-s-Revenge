@@ -312,6 +312,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_RIGHT) {
 			new_pos += vec2(motion.velocity.x, 0);
 		}
+		// check window boundary
+		if (new_pos.x < 0) new_pos.x = 0;
+		if (new_pos.y < 0) new_pos.y = 0;
+		if (new_pos.x > window_width_px) new_pos.x = window_width_px;
+		if (new_pos.y > window_height_px) new_pos.y = window_height_px;
+
 		motion.position = new_pos;
 	}
 	// Resetting game
@@ -349,29 +355,23 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// default facing direction is (1, 0)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// Vicky TODO M1: I dont know if it works, createBullet is imcomplete, render bullet not added!
-	static bool left_button_pressed = false;  
-	static float bullet_creation_timer = 0.0f; 
-	const float bullet_creation_interval = 0.2f;  
 
+
+	float timer = 0.0f;
 	Motion& motion = registry.motions.get(player_chicken);
 	vec2& chicken_pos = motion.position;
 
 	if (!is_dead) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-			left_button_pressed = true;  
-		}
-		else if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
-			left_button_pressed = false;  
-			bullet_creation_timer = 0.0f;  
-		}
-
-		if (left_button_pressed) {
-			bullet_creation_timer += 0.016f;  
-			while (bullet_creation_timer > bullet_creation_interval) {
+		// Check if the left mouse button is pressed
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
+			if (timer == 0.0f) {
 				vec2 bullet_direction = normalize(chicken_pos - mouse_position);
 				createBullet(renderer, chicken_pos + bullet_direction, bullet_direction * speed);
-				bullet_creation_timer -= bullet_creation_interval;
+				timer = 5.0f;
 			}
+			timer -= 0.1f;
+			
 		}
 	}
+
 }
