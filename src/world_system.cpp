@@ -1,7 +1,7 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
-
+#include <iostream>
 // stlib
 #include <cassert>
 #include <sstream>
@@ -13,6 +13,8 @@ const size_t MAX_EAGLES = 15;
 const size_t MAX_BUG = 5;
 const size_t EAGLE_DELAY_MS = 2000 * 3;
 const size_t BUG_DELAY_MS = 5000 * 3;
+bool is_dead = false;
+const float speed = 2.0f;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -177,6 +179,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
 		counter.counter_ms -= elapsed_ms_since_last_update;
+		registry.motions.get(player_chicken).position += registry.motions.get(player_chicken).velocity;
 		if(counter.counter_ms < min_counter_ms){
 		    min_counter_ms = counter.counter_ms;
 		}
@@ -217,6 +220,7 @@ void WorldSystem::restart_game() {
 	// Create a new chicken
 	player_chicken = createChicken(renderer, { window_width_px/2, window_height_px - 200 });
 	registry.colors.insert(player_chicken, {1, 0.8f, 0.8f});
+	is_dead = false;
 
 	// !! TODO A2: Enable static eggs on the ground, for reference
 	// Create eggs on the floor, use this for reference
@@ -255,6 +259,9 @@ void WorldSystem::handle_collisions() {
 					Mix_PlayChannel(-1, chicken_dead_sound, 0);
 
 					// !!! TODO A1: change the chicken orientation and color on death
+					registry.colors.get(entity) = vec3(0, 0, 0);
+					registry.motions.get(entity).velocity = vec2(0, 0.5);
+					is_dead = true;
 				}
 			}
 			// Checking Player - Eatable collisions
@@ -277,7 +284,7 @@ void WorldSystem::handle_collisions() {
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window));
+	return bool(glfwWindowShouldClose(window)) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
 }
 
 // On key callback
@@ -287,7 +294,32 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// key is of 'type' GLFW_KEY_
 	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	Motion& motion = registry.motions.get(player_chicken);
+	vec2& chicken_pos = motion.position;
+	
+	if (!is_dead) {
+		vec2 new_pos = motion.position;
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_UP) {
+			new_pos -= vec2(0, motion.velocity.y);
+		}
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_DOWN) {
+			new_pos += vec2(0, motion.velocity.y);
+		}
 
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_LEFT) {
+			new_pos -= vec2(motion.velocity.x, 0);
+		}
+		if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_RIGHT) {
+			new_pos += vec2(motion.velocity.x, 0);
+		}
+		// check window boundary
+		if (new_pos.x < 0) new_pos.x = 0;
+		if (new_pos.y < 0) new_pos.y = 0;
+		if (new_pos.x > window_width_px) new_pos.x = window_width_px;
+		if (new_pos.y > window_height_px) new_pos.y = window_height_px;
+
+		motion.position = new_pos;
+	}
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
@@ -322,6 +354,24 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	// xpos and ypos are relative to the top-left of the window, the chicken's
 	// default facing direction is (1, 0)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// Vicky TODO M1: I dont know if it works, createBullet is imcomplete, render bullet not added!
 
-	(vec2)mouse_position; // dummy to avoid compiler warning
+
+	float timer = 0.0f;
+	Motion& motion = registry.motions.get(player_chicken);
+	vec2& chicken_pos = motion.position;
+
+	if (!is_dead) {
+		// Check if the left mouse button is pressed
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
+			if (timer == 0.0f) {
+				vec2 bullet_direction = normalize(chicken_pos - mouse_position);
+				createBullet(renderer, chicken_pos + bullet_direction, bullet_direction * speed);
+				timer = 5.0f;
+			}
+			timer -= 0.1f;
+			
+		}
+	}
+
 }

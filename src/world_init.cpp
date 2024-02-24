@@ -1,5 +1,31 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
+#include <iostream>
+
+Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	// Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	// registry.meshPtrs.emplace(entity, &mesh);
+	std::cout << "Left button pressed" << std::endl;  // Debug message
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = velocity;
+	// Vicky M1: scale could change after render decided 
+	motion.scale = vec2(1.0f, 1.0f);
+
+	// Create and (empty) Eagle component to be able to refer to all eagles
+	// TODO
+	//registry.deadlys.emplace(entity);
+	//registry.renderRequests.insert(
+		//entity,
+		//{ TEXTURE_ASSET_ID::EAGLE, // change EAGLE TO BULLET
+		 //EFFECT_ASSET_ID::TEXTURED,
+		 //GEOMETRY_BUFFER_ID::SPRITE });
+	// Vicky M1: Uncomment it later!! 
+	return entity;
+}
 
 Entity createChicken(RenderSystem* renderer, vec2 pos)
 {
@@ -13,7 +39,7 @@ Entity createChicken(RenderSystem* renderer, vec2 pos)
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
+	motion.velocity = { 6.0f,6.0f };
 	motion.scale = mesh.original_size * 300.f;
 	motion.scale.y *= -1; // point front to the right
 
