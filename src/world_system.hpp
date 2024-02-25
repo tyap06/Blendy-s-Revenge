@@ -88,8 +88,8 @@ private:
 
 	// music references
 	Mix_Music* background_music;
-	Mix_Chunk* chicken_dead_sound;
-	Mix_Chunk* chicken_eat_sound;
+	Mix_Chunk* dead_sound;
+	Mix_Chunk* get_point;
 
 	// C++ random number generator
 	std::default_random_engine rng;

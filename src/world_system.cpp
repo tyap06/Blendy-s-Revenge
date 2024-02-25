@@ -42,10 +42,10 @@ WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
-	if (chicken_dead_sound != nullptr)
-		Mix_FreeChunk(chicken_dead_sound);
-	if (chicken_eat_sound != nullptr)
-		Mix_FreeChunk(chicken_eat_sound);
+	if (dead_sound != nullptr)
+		Mix_FreeChunk(dead_sound);
+	if (get_point != nullptr)
+		Mix_FreeChunk(get_point);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -114,14 +114,14 @@ GLFWwindow* WorldSystem::create_window() {
 	}
 
 	background_music = Mix_LoadMUS(audio_path("music.wav").c_str());
-	chicken_dead_sound = Mix_LoadWAV(audio_path("chicken_dead.wav").c_str());
-	chicken_eat_sound = Mix_LoadWAV(audio_path("chicken_eat.wav").c_str());
+	dead_sound = Mix_LoadWAV(audio_path("dead_effect.wav").c_str());
+	get_point = Mix_LoadWAV(audio_path("get_point.wav").c_str());
 
-	if (background_music == nullptr || chicken_dead_sound == nullptr || chicken_eat_sound == nullptr) {
+	if (background_music == nullptr || dead_sound == nullptr || get_point == nullptr) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
-			audio_path("chicken_dead.wav").c_str(),
-			audio_path("chicken_eat.wav").c_str());
+			audio_path("dead_effect.wav").c_str(),
+			audio_path("get_point.wav").c_str());
 		return nullptr;
 	}
 
@@ -248,11 +248,9 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// Kill blendy and reset death timer
 					registry.deathTimers.emplace(entity);
-
 					// add some sound effect
 					// switch to dead animation
-					Mix_PlayChannel(-1, chicken_dead_sound, 0);
-
+					Mix_PlayChannel(-1, dead_sound, 0);
 					// !!! TODO A1: change the chicken orientation and color on death
 					//registry.colors.get(entity) = vec3(0, 0, 0);
 					is_dead = true;
@@ -260,7 +258,6 @@ void WorldSystem::handle_collisions() {
 			}
 		}
 	}
-
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }

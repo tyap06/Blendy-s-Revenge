@@ -41,6 +41,7 @@ Entity create_background(RenderSystem* renderer, vec2 position, vec2 bounds)
 
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
+	//motion.type = EntityType::Generic;
 
 
 	// Setting initial values, scale is negative to make it face the opposite way
@@ -58,6 +59,7 @@ Entity create_background(RenderSystem* renderer, vec2 position, vec2 bounds)
 	return entity;
 }
 
+
 Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
 {
 	auto entity = Entity();
@@ -71,6 +73,7 @@ Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, -10.f };
 	motion.position = position;
+	//motion.type = EntityType::Generic;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -151,3 +154,4 @@ Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds)
 
 	return entity;
 }
+
