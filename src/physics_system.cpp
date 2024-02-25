@@ -32,10 +32,16 @@ void PhysicsSystem::step(float elapsed_ms)
 	// having entities move at different speed based on the machine.
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
+
 	{	
-		// Vicky M1: idle animation
+		
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
+    // !!! TODO A1: update motion.position based on step_seconds and motion.velocity
+    float step_seconds = elapsed_ms / 1000.f;
+		motion.position.x += motion.velocity.x * step_seconds;
+		motion.position.y += motion.velocity.y * step_seconds;
+    // Vicky M1: idle animation
 		static float idleAnimationTime = 0.0f;
 		idleAnimationTime += elapsed_ms / 1000.0f;
 
@@ -48,6 +54,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		motion.scale.y *= scaleChange;
 		(void)elapsed_ms; // placeholder to silence unused warning until implemented
 		// TODO Vicky M1: What else Key-frame/State Interpolation do we need? 
+
 	}
 
 	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead

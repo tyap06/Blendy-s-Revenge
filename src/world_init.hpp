@@ -4,22 +4,29 @@
 #include "tiny_ecs.hpp"
 #include "render_system.hpp"
 
-// These are ahrd coded to the dimensions of the entity texture
-const float BUG_BB_WIDTH = 0.6f * 165.f;
-const float BUG_BB_HEIGHT = 0.6f * 165.f;
-const float EAGLE_BB_WIDTH = 0.6f * 300.f;
-const float EAGLE_BB_HEIGHT = 0.6f * 202.f;
+
+// ENTITY TEXTURE CONSTANTS
+const float BLENDY_BB_WIDTH = 0.2f * 771.f;
+const float BLENDY_BB_HEIGHT = 0.2F * 1511.f;
+const float MINION_BB_WIDTH = 0.2f * 346.f;
+const float MINION_BB_HEIGHT = 0.2f * 593.f;
+const float BACKGROUND_BB_WIDTH = 0.85f * 2131.f;
+const float BACKGROUND_BB_HEIGHT = 0.85f * 1563.f;
+const float DIRECTIONAL_LIGHT_BB_WIDTH = 0.1f * 512.f;
+const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
+
 
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity);
-// the player
-Entity createChicken(RenderSystem* renderer, vec2 pos);
-// the prey
-Entity createBug(RenderSystem* renderer, vec2 position);
-// the enemy
-Entity createEagle(RenderSystem* renderer, vec2 position);
-// a red line for debugging purposes
-Entity createLine(vec2 position, vec2 size);
-// a egg
-Entity createEgg(vec2 pos, vec2 size);
 
+// the background
+Entity create_background(RenderSystem* renderer, vec2 pos, vec2 bounds);
+
+// the player (Blendy)
+Entity create_blendy(RenderSystem* renderer, vec2 pos, vec2 bounds);
+
+// the directional light for Blinn-Phong
+Entity create_directional_light(RenderSystem* renderer, vec2 pos, vec2 bounds);
+
+// the minions
+Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds);
 
