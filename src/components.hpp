@@ -36,11 +36,6 @@ struct Motion {
 	EntityType type = EntityType::Generic;
 };
 
-struct window {
-	vec2 position; 
-	vec2 size;
-};
-
 // Stucture to store collision information
 struct Collision
 {

@@ -1,7 +1,14 @@
 // internal
 #include "physics_system.hpp"
 #include "world_init.hpp"
-
+#include <iostream>
+#include <vector>
+vec2 normalize(const vec2&);
+bool isParallel(const std::vector<vec2>&, const vec2&);
+std::pair<float, float> projectOntoAxis(const std::vector<vec2>&, const vec2&);
+bool projectionsOverlap(const std::pair<float, float>&, const std::pair<float, float>&);
+bool checkMeshCollisionSAT(Mesh*, const Motion&);
+std::vector<vec2> getRectangleEdge(const Motion&, std::vector<vec2>&);
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion& motion)
 {
@@ -12,78 +19,38 @@ vec2 get_bounding_box(const Motion& motion)
 // This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
 // if the center point of either object is inside the other's bounding-box-circle. You can
 // surely implement a more accurate detection
+
+
 bool collides(const Motion& motion1, const Motion& motion2)
 {
-	vec2 dp = motion1.position - motion2.position;
-	float dist_squared = dot(dp,dp);
-	const vec2 other_bonding_box = get_bounding_box(motion1) / 2.f;
-	const float other_r_squared = dot(other_bonding_box, other_bonding_box);
-	const vec2 my_bonding_box = get_bounding_box(motion2) / 2.f;
-	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
-	const float r_squared = max(other_r_squared, my_r_squared);
-	if (dist_squared < r_squared)
-		return true;
+	const vec2 other_halfBB = get_bounding_box(motion1) / 2.f;
+	const vec2 my_halfBB = get_bounding_box(motion2) / 2.f;
+	vec2 center_dis = motion1.position - motion2.position;
+
+	if (abs(center_dis.x) < (my_halfBB.x + other_halfBB.x)
+		&& abs(center_dis.y) < (my_halfBB.y + other_halfBB.y)) {
+
+		if (motion1.type == EntityType::Player) {
+			Entity& entity = registry.players.entities[0];
+			Mesh* mesh = registry.meshPtrs.get(entity);
+			mesh->vertices[0].position;
+
+			return checkMeshCollisionSAT(mesh, motion2);
+		}
+		else if(motion2.type == EntityType::Player) {
+			Entity& entity = registry.players.entities[0];
+			Mesh* mesh = registry.meshPtrs.get(entity);
+			return checkMeshCollisionSAT(mesh, motion1);
+		}
+		else {
+			return true;
+		}
+	}
+
 	return false;
+
 }
 
-// bool collides(const Motion& motion1, const Motion& motion2)
-// {
-
-// 	bool player1 = motion1.type == EntityType::Player;
-// 	bool player2 = motion2.type == EntityType::Player;
-// 	vec2 dp = motion1.position - motion2.position;
-// 	float dist_squared = dot(dp, dp);
-// 	const vec2 other_bonding_box = get_bounding_box(motion1) / 2.f;
-// 	const float other_r_squared = dot(other_bonding_box, other_bonding_box);
-// 	const vec2 my_bonding_box = get_bounding_box(motion2) / 2.f;
-// 	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
-// 	const float r_squared = max(other_r_squared, my_r_squared);
-
-// 	if (dist_squared < r_squared) {
-// 		if (player1 || player2) {
-// 			Mesh* mesh = registry.meshPtrs.components[0];
-// 			std::vector<vec2> windowPoints = {
-// 				{motion1.position.x - other_bonding_box.x, motion1.position.y - other_bonding_box.y},
-// 				{motion1.position.x + other_bonding_box.x, motion1.position.y - other_bonding_box.y},
-// 				{motion1.position.x - other_bonding_box.x, motion1.position.y + other_bonding_box.y},
-// 				{motion1.position.x + other_bonding_box.x, motion1.position.y + other_bonding_box.y},
-// 			};
-// 			for (const auto& point : windowPoints) {
-// 				if (pointInMesh(point, *mesh)) {
-// 					return true; 
-// 				}
-// 			}
-// 		} else {
-// 			return true;
-// 		}
-// 	}
-// 	return false;
-	
-// }
-
-// //reference: https://www.geeksforgeeks.org/how-to-check-if-a-given-point-lies-inside-a-polygon/
-// bool pointInMesh(vec2 point, const Mesh& mesh) {
-// 	bool inside = false;
-// 	double x = point.x, y = point.y;
-
-// 	for (size_t i = 0; i < mesh.vertex_indices.size(); i++) {
-// 		vec2 p1 = { mesh.vertices[mesh.vertex_indices[i]].position.x, mesh.vertices[mesh.vertex_indices[i]].position.y };
-// 		vec2 p2 = { mesh.vertices[mesh.vertex_indices[(i + 1) % mesh.vertex_indices.size()]].position.x, 
-// 			mesh.vertices[mesh.vertex_indices[(i + 1) % mesh.vertex_indices.size()]].position.y };
-// 		if (y > std::min(p1.y, p2.y)) {
-// 			if (y <= std::max(p1.y, p2.y)) {
-// 				if (x <= std::max(p1.x, p2.x)) {
-// 					double x_intersection = (y - p1.y) * (p2.x - p1.x) / (p2.y - p1.y) + p1.x;
-// 					if (p1.x == p2.x || x <= x_intersection) {
-// 						inside = !inside;
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-
-// 	return inside;
-// }
 
 
 void PhysicsSystem::step(float elapsed_ms)
@@ -93,11 +60,13 @@ void PhysicsSystem::step(float elapsed_ms)
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{
+
 		// !!! TODO A1: update motion.position based on step_seconds and motion.velocity
-		//Motion& motion = motion_registry.components[i];
-		//Entity entity = motion_registry.entities[i];
-		//float step_seconds = elapsed_ms / 1000.f;
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
+		Motion& motion = motion_registry.components[i];
+		Entity entity = motion_registry.entities[i];
+		float step_seconds = elapsed_ms / 1000.f;
+		motion.position += motion.velocity * step_seconds;
+		//(void)elapsed_ms; // placeholder to silence unused warning until implemented
 	}
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -131,4 +100,105 @@ void PhysicsSystem::step(float elapsed_ms)
 	// TODO A2: HANDLE EGG collisions HERE
 	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+}
+
+
+bool checkMeshCollisionSAT(Mesh* mesh, const Motion& motion) {
+	std::cout << "SAT check" << std::endl;
+
+	std::vector<vec2> axises;
+	std::vector<vec2> edges;
+	std::vector<vec2> rectangle_shape;
+	std::vector<vec2> rectangle = getRectangleEdge(motion, rectangle_shape);
+	std::vector<vec2> shape;
+	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
+		axises.clear();
+		edges.clear();
+		shape.clear();
+		axises = rectangle;
+		if (i + 2 < mesh->vertex_indices.size()) {
+			const ColoredVertex& v1 = mesh->vertices[mesh->vertex_indices[i]];
+			const ColoredVertex& v2 = mesh->vertices[mesh->vertex_indices[i + 1]];
+			const ColoredVertex& v3 = mesh->vertices[mesh->vertex_indices[i + 2]];
+			shape.push_back(v1.position);
+			shape.push_back(v2.position);
+			shape.push_back(v3.position);
+
+			edges.push_back({ v2.position.x - v1.position.x, v2.position.y - v1.position.y });
+			edges.push_back({ v3.position.x - v2.position.x, v3.position.y - v2.position.y });
+			edges.push_back({ v1.position.x - v3.position.x, v1.position.y - v3.position.y });
+			for (const auto& edge : edges) {
+				if (axises.size() == 0) {
+					axises.push_back(normalize(edge));
+				}
+				else if (!isParallel(axises, edge)) {
+					axises.push_back(normalize(edge));
+				}
+			}
+		}
+		for (const vec2 axis: axises) {
+			std::pair<float, float> polygonProjection = projectOntoAxis(shape, axis);
+			std::pair<float, float> rectangleProjection = projectOntoAxis(rectangle_shape, axis);
+			return projectionsOverlap(polygonProjection, rectangleProjection);
+		}
+		
+	}
+	return false;
+
+}
+
+vec2 normalize(const vec2& v) {
+	float length = std::sqrt(v.x * v.x + v.y * v.y);
+	return { v.x / length, v.y / length };
+}
+
+
+bool isParallel(const std::vector<vec2>& axis, const vec2& edge) {
+	std::cout << "check isParallel" << std::endl;
+
+	for (const auto& existing_axis : axis) {
+		float crossProduct = edge.x * existing_axis.y - edge.y * existing_axis.x;
+		if (std::abs(crossProduct) < 0.0000001) {
+			return true;
+		}
+	}
+	return false;
+}
+
+std::vector<vec2> getRectangleEdge(const Motion& motion, std::vector<vec2>& shape) {
+
+	std::cout << "check getRectangleEdge" << std::endl;
+	std::vector<vec2> rectangle(4);
+	float halfWidth = abs(motion.scale.x) / 2.0f;
+	float halfHeight = abs(motion.scale.y) / 2.0f;
+	vec2 topLeft = { motion.position.x - halfWidth, motion.position.y + halfHeight };
+	vec2 topRight = { motion.position.x + halfWidth, motion.position.y + halfHeight };
+	vec2 bottomLeft = { motion.position.x - halfWidth, motion.position.y - halfHeight };
+	vec2 bottomRight = { motion.position.x + halfWidth, motion.position.y - halfHeight };
+	shape.push_back(topLeft);
+	shape.push_back(topRight);
+	shape.push_back(bottomLeft);
+	shape.push_back(bottomRight);
+
+	rectangle[0] = normalize({ topRight.x - topLeft.x, topRight.y - topLeft.y }); // Top edge
+	rectangle[1] = normalize({ bottomRight.x - topRight.x, bottomRight.y - topRight.y }); // Right edge
+	rectangle[2] = normalize({ bottomLeft.x - bottomRight.x, bottomLeft.y - bottomRight.y }); // Bottom edge
+	rectangle[3] = normalize({ topLeft.x - bottomLeft.x, topLeft.y - bottomLeft.y }); // Left edge
+	return rectangle;
+}
+
+//projectOntoAxis function reference https://dyn4j.org/2010/01/sat/
+std::pair<float, float> projectOntoAxis(const std::vector<vec2>& shape, const vec2& axis) {
+	std::cout << "check projection" << std::endl;
+	float minProj = dot(shape[0], axis);
+	float maxProj = minProj;
+	for (const auto& point : shape) {
+		float proj = dot(point, axis);
+		minProj = std::min(minProj, proj);
+		maxProj = std::max(maxProj, proj);
+	}
+	return { minProj, maxProj };
+}
+bool projectionsOverlap(const std::pair<float, float>& proj1, const std::pair<float, float>& proj2) {
+	return !(proj1.second < proj2.first || proj2.second < proj1.first);
 }

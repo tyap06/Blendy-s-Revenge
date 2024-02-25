@@ -16,7 +16,7 @@ Entity createChicken(RenderSystem* renderer, vec2 pos)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = mesh.original_size * 300.f;
 	motion.scale.y *= -1; // point front to the right
-	//motion.type =EntityType::Player; 
+	motion.type =EntityType::Player; 
 
 
 	// Create and (empty) Chicken component to be able to refer to all eagles
