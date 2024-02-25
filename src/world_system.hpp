@@ -37,6 +37,33 @@ public:
 
 	// Should the game be over ?
 	bool is_over()const;
+
+	bool keys[GLFW_KEY_LAST] = { false };
+
+	
+	void handle_key_states(GLFWwindow* window) {
+		// ʾ��������W��������״̬����
+		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
+			keys[GLFW_KEY_W] = true;
+		}
+		else {
+			keys[GLFW_KEY_W] = false;
+		}
+
+		// ʾ��������A��������״̬����
+		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
+			keys[GLFW_KEY_A] = true;
+		}
+		else {
+			keys[GLFW_KEY_A] = false;
+		}
+
+		// ͬʱ����W��A��ʱ������ִ����Ӧ�Ĳ���
+		if (keys[GLFW_KEY_W] && keys[GLFW_KEY_A]) {
+			// ִ��ͬʱ����W��A���Ĳ���
+		}
+	}
+  
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
@@ -54,9 +81,10 @@ private:
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;
-	float next_eagle_spawn;
-	float next_bug_spawn;
-	Entity player_chicken;
+	Entity player_blendy;
+	Entity game_background;
+	Entity directional_light;
+	float next_minion_spawn;
 
 	// music references
 	Mix_Music* background_music;
@@ -66,4 +94,7 @@ private:
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+	// Private Helpers For Initialization
+	void update_minions(float elapsed_ms_since_last_update);
 };

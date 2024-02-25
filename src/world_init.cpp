@@ -1,66 +1,132 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
+#include <iostream>
 
-Entity createChicken(RenderSystem* renderer, vec2 pos)
-{
+Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
 	auto entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::CHICKEN);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	// Setting initial motion values
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	// Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	// registry.meshPtrs.emplace(entity, &mesh);
+	std::cout << "Left button pressed" << std::endl;  // Debug message
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = 0.f;
+	motion.velocity = velocity;
+	// Vicky M1: scale could change after render decided 
+	motion.scale = vec2(1.0f, 1.0f);
+
+	// Create and (empty) Eagle component to be able to refer to all eagles
+	// TODO
+	//registry.deadlys.emplace(entity);
+	//registry.renderRequests.insert(
+		//entity,
+		//{ TEXTURE_ASSET_ID::EAGLE, // change EAGLE TO BULLET
+		 //EFFECT_ASSET_ID::TEXTURED,
+		 //GEOMETRY_BUFFER_ID::SPRITE });
+	// Vicky M1: Uncomment it later!! 
+	return entity;
+}
+
+Entity create_background(RenderSystem* renderer, vec2 position, vec2 bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+
 	motion.velocity = { 0.f, 0.f };
-	motion.scale = mesh.original_size * 300.f;
-	motion.scale.y *= -1; // point front to the right
-	motion.type =EntityType::Player; 
+	motion.position = position;
+	//motion.type = EntityType::Generic;
 
 
-	// Create and (empty) Chicken component to be able to refer to all eagles
-	registry.players.emplace(entity);
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ bounds.x, bounds.y });
+
+	// Create an (empty) background
+	registry.backgrounds.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::CHICKEN,
-			GEOMETRY_BUFFER_ID::CHICKEN });
+		{ TEXTURE_ASSET_ID::BACKGROUND,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
 
-Entity createBug(RenderSystem* renderer, vec2 position)
+
+Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
 {
-	// Reserve en entity
 	auto entity = Entity();
 
-	// Store a reference to the potentially re-used mesh object
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	// Initialize the position, scale, and physics components
+	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 50 };
+	motion.velocity = { 0.f, -10.f };
 	motion.position = position;
 	//motion.type = EntityType::Generic;
 
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -BUG_BB_WIDTH, BUG_BB_HEIGHT });
+	motion.scale = vec2({ -bounds.x, bounds.y });
 
-	// Create an (empty) Bug component to be able to refer to all bug
-	registry.eatables.emplace(entity);
+	// Create an (empty) Blendy component to be able to refer to Blendy
+	registry.players.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::BUG,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
+		{ TEXTURE_ASSET_ID::BLENDY,
+			TEXTURE_ASSET_ID::BLENDY_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
 
-Entity createEagle(RenderSystem* renderer, vec2 position, float scale = 1)
+Entity create_directional_light(RenderSystem* renderer, vec2 position, vec2 bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+
+	// Create a directional light
+	auto& directional_light = registry.lightSources.emplace(entity);
+	directional_light.light_color = { 1.0f,1.0f,1.0f };
+	directional_light.shininess = 9.f;
+	directional_light.ambientIntensity = 0.05f;
+	directional_light.z_depth = 1000.f;
+
+	renderer->setDirectionalLight(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::DIRECTIONAL_LIGHT,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds)
 {
 	auto entity = Entity();
 
@@ -73,62 +139,18 @@ Entity createEagle(RenderSystem* renderer, vec2 position, float scale = 1)
 	motion.angle = 0.f;
 	motion.velocity = { 0, 100.f };
 	motion.position = position;
-	//motion.type = EntityType::Generic;
 
 	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -EAGLE_BB_WIDTH, EAGLE_BB_HEIGHT });
+	motion.scale = vec2({ -bounds.x, bounds.y });
 
-	// Create and (empty) Eagle component to be able to refer to all eagles
-	registry.deadlys.emplace(entity);
+	// Create and (empty) Minion component to be able to refer to all minions
+	registry.minions.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::EAGLE,
+		{ TEXTURE_ASSET_ID::MINION,
+			TEXTURE_ASSET_ID::MINION_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
-
-	return entity;
-}
-
-Entity createLine(vec2 position, vec2 scale)
-{
-	Entity entity = Entity();
-
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::EGG,
-		 GEOMETRY_BUFFER_ID::DEBUG_LINE });
-
-	// Create motion
-	Motion& motion = registry.motions.emplace(entity);
-	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
-	motion.position = position;
-	motion.scale = scale;
-
-	registry.debugComponents.emplace(entity);
-	return entity;
-}
-
-Entity createEgg(vec2 pos, vec2 size)
-{
-	auto entity = Entity();
-
-	// Setting initial motion values
-	Motion& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = size;
-
-	// Create and (empty) Chicken component to be able to refer to all eagles
-	registry.deadlys.emplace(entity);
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::TEXTURE_COUNT, // TEXTURE_COUNT indicates that no txture is needed
-			EFFECT_ASSET_ID::EGG,
-			GEOMETRY_BUFFER_ID::EGG });
 
 	return entity;
 }

@@ -1,7 +1,7 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
-
+#include <iostream>
 // stlib
 #include <cassert>
 #include <sstream>
@@ -9,16 +9,31 @@
 #include "physics_system.hpp"
 
 // Game configuration
-const size_t MAX_EAGLES = 15;
-const size_t MAX_BUG = 5;
-const size_t EAGLE_DELAY_MS = 2000 * 3;
-const size_t BUG_DELAY_MS = 5000 * 3;
+const size_t MAX_MINIONS = 80;
+const size_t MINION_DELAY_MS = 200 * 3;
+const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
+
+// add max sprite values here
+
+// DEFAULT START POSITIONS
+const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
+const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
+const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
+const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
+
+// BOUNDS
+const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
+const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
+const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
+const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
+bool is_dead = false;
+const vec2 death_movement = { 0, 0.5f };
+
 
 // Create the bug world
 WorldSystem::WorldSystem()
 	: points(0)
-	, next_eagle_spawn(0.f)
-	, next_bug_spawn(0.f) {
+{
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
 }
@@ -72,7 +87,7 @@ GLFWwindow* WorldSystem::create_window() {
 	glfwWindowHint(GLFW_RESIZABLE, 0);
 
 	// Create the main window (for rendering, keyboard, and mouse input)
-	window = glfwCreateWindow(window_width_px, window_height_px, "Chicken Game Assignment", nullptr, nullptr);
+	window = glfwCreateWindow(window_width_px, window_height_px, "Blendy's Revenge", nullptr, nullptr);
 	if (window == nullptr) {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
@@ -123,12 +138,19 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     restart_game();
 }
 
+void WorldSystem::update_minions(float elapsed_ms_since_last_update)
+{
+	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
+
+	if (registry.minions.components.size() <= MAX_MINIONS && next_minion_spawn < 0.f) {
+		next_minion_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS / 2);
+
+		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	}
+}
+
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-	// Updating window title with points
-	std::stringstream title_ss;
-	title_ss << "Points: " << points;
-	glfwSetWindowTitle(window, title_ss.str().c_str());
 
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
@@ -148,35 +170,21 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	// Spawning new eagles
-	next_eagle_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.deadlys.components.size() <= MAX_EAGLES && next_eagle_spawn < 0.f) {
-		// Reset timer
-		next_eagle_spawn = (EAGLE_DELAY_MS / 2) + uniform_dist(rng) * (EAGLE_DELAY_MS / 2);
-		// Create eagle with random initial position
-        createEagle(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 100.f));
-	}
+	update_minions(elapsed_ms_since_last_update);
 
-	// Spawning new bug
-	next_bug_spawn -= elapsed_ms_since_last_update * current_speed;
-	if (registry.eatables.components.size() <= MAX_BUG && next_bug_spawn < 0.f) {
-		// !!!  TODO A1: Create new bug with createBug({0,0}), as for the Eagles above
-	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG SPAWN HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	// Processing the chicken state
+	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
-
+	if (is_dead) {
+		registry.motions.get(player_blendy).position += death_movement;
+	}
     float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
 		counter.counter_ms -= elapsed_ms_since_last_update;
+		
+		//
 		if(counter.counter_ms < min_counter_ms){
 		    min_counter_ms = counter.counter_ms;
 		}
@@ -191,8 +199,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
-
-	// !!! TODO A1: update LightUp timers and remove if time drops below zero, similar to the death counter
 
 	return true;
 }
@@ -214,24 +220,14 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-	// Create a new chicken
-	player_chicken = createChicken(renderer, { window_width_px/2, window_height_px - 200 });
-	registry.colors.insert(player_chicken, {1, 0.8f, 0.8f});
+	is_dead = false;
+	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
+	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
+	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN, DIRECTIONAL_LIGHT_BOUNDS);
 
-	// !! TODO A2: Enable static eggs on the ground, for reference
-	// Create eggs on the floor, use this for reference
-	/*
-	for (uint i = 0; i < 20; i++) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-		float radius = 30 * (uniform_dist(rng) + 0.3f); // range 0.3 .. 1.3
-		Entity egg = createEgg({ uniform_dist(rng) * w, h - uniform_dist(rng) * 20 },
-			         { radius, radius });
-		float brightness = uniform_dist(rng) * 0.5 + 0.5;
-		registry.colors.insert(egg, { brightness, brightness, brightness});
-	}
-	*/
 }
+
+
 
 // Compute collisions between entities
 void WorldSystem::handle_collisions() {
@@ -242,39 +238,22 @@ void WorldSystem::handle_collisions() {
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// For now, we are only interested in collisions that involve the chicken
+		// Only interested in collisions that involve Blendy
 		if (registry.players.has(entity)) {
 			//Player& player = registry.players.get(entity);
 
-			// Checking Player - Deadly collisions
-			if (registry.deadlys.has(entity_other)) {
+			// Checking Player - Minion collisions
+			if (registry.minions.has(entity_other)) {
 				// initiate death unless already dying
 				if (!registry.deathTimers.has(entity)) {
-					// Scream, reset timer, and make the chicken sink
+					// Kill blendy and reset death timer
 					registry.deathTimers.emplace(entity);
+					// add some sound effect
+					// switch to dead animation
 					Mix_PlayChannel(-1, dead_sound, 0);
-					vec3& color = registry.colors.get(entity);
-					color = vec3(1.0f, 0.0f, 0.0f);
-					Motion& motion = registry.motions.get(entity);
-					motion.velocity = vec3(0.0f, 20.0f, 0.0f);
-					motion.angle = M_PI;
 					// !!! TODO A1: change the chicken orientation and color on death
-				}
-			}
-			// Checking Player - Eatable collisions
-			else if (registry.eatables.has(entity_other)) {
-				if (!registry.deathTimers.has(entity)) {
-					// chew, count points, and set the LightUp timer
-					// registry.remove_all_components_of(entity_other);
-					// Mix_PlayChannel(-1, chicken_eat_sound, 0);
-					// ++points;
-					// if (!registry.deathTimers.has(entity)) {
-					// 	registry.lightupTimers.emplace(entity);
-					// }
-					// LightUPTimer& timer = registry.lightupTimers.get(entity);
-					// timer.counter_ms = 1000;
-
-					//Power up the character
+					//registry.colors.get(entity) = vec3(0, 0, 0);
+					is_dead = true;
 				}
 			}
 		}
@@ -285,7 +264,7 @@ void WorldSystem::handle_collisions() {
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window));
+	return bool(glfwWindowShouldClose(window)) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
 }
 
 // On key callback
@@ -295,6 +274,33 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// key is of 'type' GLFW_KEY_
 	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+  if (!is_dead) {
+    auto& motion = registry.motions.get(player_blendy);
+    vec2 new_pos = motion.position;
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_UP) {
+      new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE};
+    }
+
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_LEFT) {
+      new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+    }
+
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_DOWN) {
+      new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
+    }
+
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_RIGHT) {
+
+      new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+    }
+	// check window boundary
+	if (new_pos.x < 0) new_pos.x = 0;
+	if (new_pos.y < 0) new_pos.y = 0;
+	if (new_pos.x > window_width_px) new_pos.x = window_width_px;
+	if (new_pos.y > window_height_px) new_pos.y = window_height_px;
+	motion.position = new_pos;
+  }
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
@@ -325,11 +331,31 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 }
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
+
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A1: HANDLE CHICKEN ROTATION HERE
 	// xpos and ypos are relative to the top-left of the window, the chicken's
 	// default facing direction is (1, 0)
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// Vicky TODO M1: I dont know if it works, createBullet is imcomplete, render bullet not added!
 
-	(vec2)mouse_position; // dummy to avoid compiler warning
+
+	float timer = 0.0f;
+	Motion& motion = registry.motions.get(player_blendy);
+	vec2& blendy_pos = motion.position;
+
+	if (!is_dead) {
+		// Check if the left mouse button is pressed
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
+			if (timer == 0.0f) {
+				vec2 bullet_direction = normalize(blendy_pos - mouse_position);
+				createBullet(renderer, blendy_pos + bullet_direction, bullet_direction * LIGHT_SOURCE_MOVEMENT_DISTANCE);
+				timer = 5.0f;
+			}
+			timer -= 0.1f;
+			
+		}
+	}
+
+
 }

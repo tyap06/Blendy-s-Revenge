@@ -16,7 +16,7 @@ struct Player
 };
 
 // Eagles have a hard shell
-struct Deadly
+struct Minion
 {
 
 };
@@ -93,6 +93,27 @@ struct Mesh
 	std::vector<uint16_t> vertex_indices;
 };
 
+// Background component for if an entity represents a background image
+struct Background
+{
+	
+};
+
+// LightSource component for entities that represent a LightSource
+struct LightSource
+{
+	vec3 light_color;
+
+	// Parameter for Blinn-Phong
+	float shininess;
+
+	// Intensity of ambient light to add to scene b/w [0.0, 1.0]
+	float ambientIntensity;
+
+	// Z-depth of the light
+	float z_depth;
+};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -118,9 +139,13 @@ struct Mesh
  */
 
 enum class TEXTURE_ASSET_ID {
-	BUG = 0,
-	EAGLE = BUG + 1,
-	TEXTURE_COUNT = EAGLE + 1
+	BLENDY = 0,
+	BLENDY_NM = BLENDY + 1,
+	MINION = BLENDY_NM + 1,
+	MINION_NM = MINION + 1,
+	BACKGROUND = MINION_NM + 1,
+	DIRECTIONAL_LIGHT = BACKGROUND + 1,
+	TEXTURE_COUNT = DIRECTIONAL_LIGHT + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -146,6 +171,7 @@ const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
+	TEXTURE_ASSET_ID used_normal_map = TEXTURE_ASSET_ID::TEXTURE_COUNT;
 	EFFECT_ASSET_ID used_effect = EFFECT_ASSET_ID::EFFECT_COUNT;
 	GEOMETRY_BUFFER_ID used_geometry = GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
 };
