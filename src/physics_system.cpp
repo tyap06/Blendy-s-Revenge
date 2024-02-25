@@ -32,14 +32,36 @@ void PhysicsSystem::step(float elapsed_ms)
 	// having entities move at different speed based on the machine.
 	auto& motion_registry = registry.motions;
 	for(uint i = 0; i< motion_registry.size(); i++)
-	{
-		// !!! TODO A1: update motion.position based on step_seconds and motion.velocity
+
+	{	
+		
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
-		float step_seconds = elapsed_ms / 1000.f;
+    // !!! TODO A1: update motion.position based on step_seconds and motion.velocity
+    float step_seconds = elapsed_ms / 1000.f;
 		motion.position.x += motion.velocity.x * step_seconds;
 		motion.position.y += motion.velocity.y * step_seconds;
+    // Vicky M1: idle animation
+		static float idleAnimationTime = 0.0f;
+		idleAnimationTime += elapsed_ms / 1000.0f;
+
+		float period = 10;  // time Period
+		float amplitude = 0.0008f;  // sizeChange
+
+		float scaleChange = 1.0f + amplitude * std::sin(2* M_PI * idleAnimationTime / period);
+
+		motion.scale.x *= scaleChange;
+		motion.scale.y *= scaleChange;
+		(void)elapsed_ms; // placeholder to silence unused warning until implemented
+		// TODO Vicky M1: What else Key-frame/State Interpolation do we need? 
+
 	}
+
+	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead
+	float bloodLossPercentage;
+	bloodLossPercentage = std::max(0.0f, std::min(1.0f, bloodLossPercentage)) * 100.0f;
+	float alphaFactor = 1.0f - bloodLossPercentage / 100.0f;
+	//render_Screen(alphaFactor);
 
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	// TODO A2: HANDLE EGG UPDATES HERE

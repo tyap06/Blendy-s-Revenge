@@ -1,7 +1,7 @@
 // Header
 #include "world_system.hpp"
 #include "world_init.hpp"
-
+#include <iostream>
 // stlib
 #include <cassert>
 #include <sstream>
@@ -26,6 +26,8 @@ const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
 const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
+bool is_dead = false;
+
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -178,6 +180,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
 		counter.counter_ms -= elapsed_ms_since_last_update;
+		registry.motions.get(player_chicken).position += registry.motions.get(player_chicken).velocity;
 		if(counter.counter_ms < min_counter_ms){
 		    min_counter_ms = counter.counter_ms;
 		}
@@ -213,9 +216,12 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
+
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
+  is_dead = false;
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN, DIRECTIONAL_LIGHT_BOUNDS);
+
 }
 
 
@@ -239,8 +245,15 @@ void WorldSystem::handle_collisions() {
 				if (!registry.deathTimers.has(entity)) {
 					// Kill blendy and reset death timer
 					registry.deathTimers.emplace(entity);
-					// add some sound effect
+
+          // add some sound effect
 					// switch to dead animation
+					//Mix_PlayChannel(-1, chicken_dead_sound, 0);
+
+					// !!! TODO A1: change the chicken orientation and color on death
+					registry.colors.get(entity) = vec3(0, 0, 0);
+					registry.motions.get(entity).velocity = vec2(0, 0.5);
+					is_dead = true;
 				}
 			}
 		}
@@ -252,7 +265,7 @@ void WorldSystem::handle_collisions() {
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window));
+	return bool(glfwWindowShouldClose(window)) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
 }
 
 // On key callback
@@ -262,28 +275,36 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// key is of 'type' GLFW_KEY_
 	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	
-	if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
-		auto& motion = registry.motions.get(directional_light);
-		motion.position = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE};
-	}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
-		auto& motion = registry.motions.get(directional_light);
-		motion.position = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
+  if (!is_dead) {
+    auto& motion = registry.motions.get(directional_light);
+    vec2 new_pos;
+    if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
+      new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE};
+    }
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_DOWN) {
-		auto& motion = registry.motions.get(directional_light);
-		motion.position = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
-	}
+    if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
+      new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+    }
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
-		auto& motion = registry.motions.get(directional_light);
-		motion.position = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
-	
+    if (action == GLFW_RELEASE && key == GLFW_KEY_DOWN) {
+      new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
+    }
 
+    if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
+
+      new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+    }
+  }
+  // check window boundary
+  if (new_pos.x < 0) new_pos.x = 0;
+  if (new_pos.y < 0) new_pos.y = 0;
+  if (new_pos.x > window_width_px) new_pos.x = window_width_px;
+  if (new_pos.y > window_height_px) new_pos.y = window_height_px;
+	motion.position = new_pos;
+
+		
+	}
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
@@ -314,5 +335,30 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
-	(vec2)mouse_position; // dummy to avoid compiler warning
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// TODO A1: HANDLE CHICKEN ROTATION HERE
+	// xpos and ypos are relative to the top-left of the window, the chicken's
+	// default facing direction is (1, 0)
+	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// Vicky TODO M1: I dont know if it works, createBullet is imcomplete, render bullet not added!
+
+
+	float timer = 0.0f;
+	Motion& motion = registry.motions.get(player_chicken);
+	vec2& chicken_pos = motion.position;
+
+	if (!is_dead) {
+		// Check if the left mouse button is pressed
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
+			if (timer == 0.0f) {
+				vec2 bullet_direction = normalize(chicken_pos - mouse_position);
+				createBullet(renderer, chicken_pos + bullet_direction, bullet_direction * speed);
+				timer = 5.0f;
+			}
+			timer -= 0.1f;
+			
+		}
+	}
+
+
 }
