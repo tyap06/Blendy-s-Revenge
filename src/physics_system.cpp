@@ -37,23 +37,23 @@ void PhysicsSystem::step(float elapsed_ms)
 		
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
+		if (!registry.backgrounds.has(entity)) {
+			// Vicky M1: idle animation
+			static float idleAnimationTime = 0.0f;
+			idleAnimationTime += elapsed_ms / 1000.0f;
+			float period = 30;  // time Period
+			float amplitude = 0.0003f;  // sizeChange
+			float scaleChange = 1.0f + amplitude * std::sin(2 * M_PI * idleAnimationTime / period);
+			motion.scale.x *= scaleChange;
+			motion.scale.y *= scaleChange;
+		}
+
     // !!! TODO A1: update motion.position based on step_seconds and motion.velocity
     float step_seconds = elapsed_ms / 1000.f;
 		motion.position.x += motion.velocity.x * step_seconds;
 		motion.position.y += motion.velocity.y * step_seconds;
-    // Vicky M1: idle animation
-		static float idleAnimationTime = 0.0f;
-		idleAnimationTime += elapsed_ms / 1000.0f;
-
-		float period = 10;  // time Period
-		float amplitude = 0.0008f;  // sizeChange
-
-		float scaleChange = 1.0f + amplitude * std::sin(2* M_PI * idleAnimationTime / period);
-
-		motion.scale.x *= scaleChange;
-		motion.scale.y *= scaleChange;
+    
 		(void)elapsed_ms; // placeholder to silence unused warning until implemented
-		// TODO Vicky M1: What else Key-frame/State Interpolation do we need? 
 
 	}
 

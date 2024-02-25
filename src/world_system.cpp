@@ -11,7 +11,7 @@
 // Game configuration
 const size_t MAX_MINIONS = 80;
 const size_t MINION_DELAY_MS = 200 * 3;
-const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 100.0f;
+const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 
 // add max sprite values here
 
@@ -27,6 +27,7 @@ const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 bool is_dead = false;
+const vec2 death_movement = { 0, 0.5f };
 
 
 // Create the bug world
@@ -174,13 +175,16 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
-
+	if (is_dead) {
+		registry.motions.get(player_blendy).position += death_movement;
+	}
     float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
 		counter.counter_ms -= elapsed_ms_since_last_update;
-		registry.motions.get(player_chicken).position += registry.motions.get(player_chicken).velocity;
+		
+		//
 		if(counter.counter_ms < min_counter_ms){
 		    min_counter_ms = counter.counter_ms;
 		}
@@ -216,10 +220,9 @@ void WorldSystem::restart_game() {
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
-
+	is_dead = false;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
-  is_dead = false;
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN, DIRECTIONAL_LIGHT_BOUNDS);
 
 }
@@ -237,7 +240,7 @@ void WorldSystem::handle_collisions() {
 
 		// Only interested in collisions that involve Blendy
 		if (registry.players.has(entity)) {
-			Player& player = registry.players.get(entity);
+			//Player& player = registry.players.get(entity);
 
 			// Checking Player - Minion collisions
 			if (registry.minions.has(entity_other)) {
@@ -246,13 +249,12 @@ void WorldSystem::handle_collisions() {
 					// Kill blendy and reset death timer
 					registry.deathTimers.emplace(entity);
 
-          // add some sound effect
+					// add some sound effect
 					// switch to dead animation
-					//Mix_PlayChannel(-1, chicken_dead_sound, 0);
+					Mix_PlayChannel(-1, chicken_dead_sound, 0);
 
 					// !!! TODO A1: change the chicken orientation and color on death
-					registry.colors.get(entity) = vec3(0, 0, 0);
-					registry.motions.get(entity).velocity = vec2(0, 0.5);
+					//registry.colors.get(entity) = vec3(0, 0, 0);
 					is_dead = true;
 				}
 			}
@@ -277,34 +279,32 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   if (!is_dead) {
-    auto& motion = registry.motions.get(directional_light);
-    vec2 new_pos;
-    if (action == GLFW_RELEASE && key == GLFW_KEY_UP) {
+    auto& motion = registry.motions.get(player_blendy);
+    vec2 new_pos = motion.position;
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_UP) {
       new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE};
     }
 
-    if (action == GLFW_RELEASE && key == GLFW_KEY_LEFT) {
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_LEFT) {
       new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
     }
 
-    if (action == GLFW_RELEASE && key == GLFW_KEY_DOWN) {
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_DOWN) {
       new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
     }
 
-    if (action == GLFW_RELEASE && key == GLFW_KEY_RIGHT) {
+    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_RIGHT) {
 
       new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
     }
-  }
-  // check window boundary
-  if (new_pos.x < 0) new_pos.x = 0;
-  if (new_pos.y < 0) new_pos.y = 0;
-  if (new_pos.x > window_width_px) new_pos.x = window_width_px;
-  if (new_pos.y > window_height_px) new_pos.y = window_height_px;
+	// check window boundary
+	if (new_pos.x < 0) new_pos.x = 0;
+	if (new_pos.y < 0) new_pos.y = 0;
+	if (new_pos.x > window_width_px) new_pos.x = window_width_px;
+	if (new_pos.y > window_height_px) new_pos.y = window_height_px;
 	motion.position = new_pos;
+  }
 
-		
-	}
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
 		int w, h;
@@ -344,15 +344,15 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
 
 	float timer = 0.0f;
-	Motion& motion = registry.motions.get(player_chicken);
-	vec2& chicken_pos = motion.position;
+	Motion& motion = registry.motions.get(player_blendy);
+	vec2& blendy_pos = motion.position;
 
 	if (!is_dead) {
 		// Check if the left mouse button is pressed
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
 			if (timer == 0.0f) {
-				vec2 bullet_direction = normalize(chicken_pos - mouse_position);
-				createBullet(renderer, chicken_pos + bullet_direction, bullet_direction * speed);
+				vec2 bullet_direction = normalize(blendy_pos - mouse_position);
+				createBullet(renderer, blendy_pos + bullet_direction, bullet_direction * LIGHT_SOURCE_MOVEMENT_DISTANCE);
 				timer = 5.0f;
 			}
 			timer -= 0.1f;
