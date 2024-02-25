@@ -52,10 +52,6 @@ struct Debug {
 };
 extern Debug debugging;
 
-struct PowerUpTimer
-{
-	float counter_ms = 1000;
-};
 // Sets the brightness of the screen
 struct ScreenState
 {
