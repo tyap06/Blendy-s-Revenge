@@ -26,6 +26,8 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	const vec2 other_halfBB = get_bounding_box(motion1) / 2.f;
 	const vec2 my_halfBB = get_bounding_box(motion2) / 2.f;
 	vec2 center_dis = motion1.position - motion2.position;
+	//std::cout << other_halfBB.x << std::endl;
+	//std::cout << other_halfBB.y << std::endl;
 
 	if (abs(center_dis.x) < (my_halfBB.x + other_halfBB.x)
 		&& abs(center_dis.y) < (my_halfBB.y + other_halfBB.y)) {
@@ -34,6 +36,8 @@ bool collides(const Motion& motion1, const Motion& motion2)
 			Entity& entity = registry.players.entities[0];
 			Mesh* mesh = registry.meshPtrs.get(entity);
 			mesh->vertices[0].position;
+			//std::cout << mesh->vertices[0].position.x << std::endl;
+			//std::cout << mesh->vertices[0].position.y << std::endl;
 
 			return checkMeshCollisionSAT(mesh, motion2);
 		}
@@ -104,13 +108,14 @@ void PhysicsSystem::step(float elapsed_ms)
 
 
 bool checkMeshCollisionSAT(Mesh* mesh, const Motion& motion) {
-	std::cout << "SAT check" << std::endl;
+	//std::cout << "SAT check" << std::endl;
 
 	std::vector<vec2> axises;
 	std::vector<vec2> edges;
 	std::vector<vec2> rectangle_shape;
 	std::vector<vec2> rectangle = getRectangleEdge(motion, rectangle_shape);
 	std::vector<vec2> shape;
+	bool collision = false;
 	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
 		axises.clear();
 		edges.clear();
@@ -134,16 +139,19 @@ bool checkMeshCollisionSAT(Mesh* mesh, const Motion& motion) {
 				else if (!isParallel(axises, edge)) {
 					axises.push_back(normalize(edge));
 				}
-			}
+			} 
 		}
 		for (const vec2 axis: axises) {
 			std::pair<float, float> polygonProjection = projectOntoAxis(shape, axis);
 			std::pair<float, float> rectangleProjection = projectOntoAxis(rectangle_shape, axis);
-			return projectionsOverlap(polygonProjection, rectangleProjection);
+			if (!projectionsOverlap(polygonProjection, rectangleProjection)) {
+				continue;
+			}
+			collision = true;
 		}
 		
 	}
-	return false;
+	return collision;
 
 }
 
@@ -154,7 +162,7 @@ vec2 normalize(const vec2& v) {
 
 
 bool isParallel(const std::vector<vec2>& axis, const vec2& edge) {
-	std::cout << "check isParallel" << std::endl;
+	//std::cout << "check isParallel" << std::endl;
 
 	for (const auto& existing_axis : axis) {
 		float crossProduct = edge.x * existing_axis.y - edge.y * existing_axis.x;
@@ -167,7 +175,7 @@ bool isParallel(const std::vector<vec2>& axis, const vec2& edge) {
 
 std::vector<vec2> getRectangleEdge(const Motion& motion, std::vector<vec2>& shape) {
 
-	std::cout << "check getRectangleEdge" << std::endl;
+	//std::cout << "check getRectangleEdge" << std::endl;
 	std::vector<vec2> rectangle(4);
 	float halfWidth = abs(motion.scale.x) / 2.0f;
 	float halfHeight = abs(motion.scale.y) / 2.0f;
@@ -189,7 +197,7 @@ std::vector<vec2> getRectangleEdge(const Motion& motion, std::vector<vec2>& shap
 
 //projectOntoAxis function reference https://dyn4j.org/2010/01/sat/
 std::pair<float, float> projectOntoAxis(const std::vector<vec2>& shape, const vec2& axis) {
-	std::cout << "check projection" << std::endl;
+	//std::cout << "check projection" << std::endl;
 	float minProj = dot(shape[0], axis);
 	float maxProj = minProj;
 	for (const auto& point : shape) {
