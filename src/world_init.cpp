@@ -71,7 +71,7 @@ Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0.f, -10.f };
+	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 	//motion.type = EntityType::Generic;
 
