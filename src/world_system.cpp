@@ -152,7 +152,7 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 
 // Update our game world
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-
+	update_player_movement();
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
 	    registry.remove_all_components_of(registry.debugComponents.entities.back());
@@ -266,74 +266,50 @@ void WorldSystem::handle_collisions() {
 bool WorldSystem::is_over() const {
 	return bool(glfwWindowShouldClose(window)) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
 }
-void WorldSystem::move_player(int sign, bool isX) {
-	if (is_dead) return;
+
+void WorldSystem::move_player(vec2 direction) {
 	auto& motions_registry = registry.motions;
 	Motion& player_motion = motions_registry.get(player_blendy);
-	vec2 direction;
 
-	if (isX) {
-		direction = { cos(player_motion.angle), -sin(player_motion.angle) };
-	}
-	else {
-		direction = { sin(player_motion.angle), cos(player_motion.angle) };
-	}
-	player_motion.velocity.x = -sign * 100 * direction.x;
-	player_motion.velocity.y = -sign * 100 * direction.y;
-	return;
+	player_motion.velocity.x = direction.x * 200; //can be replace with player speed in the future.
+	player_motion.velocity.y = direction.y * 200; 
 }
 
-void WorldSystem::stop_player(bool isX) {
-	
+
+
+void WorldSystem::update_player_movement() {
 	if (is_dead) return;
-	auto& motions_registry = registry.motions;
-	Motion& player_motion = motions_registry.get(player_blendy);
-	if (isX) {
-		player_motion.velocity.x = 0;
-		return;
+
+	vec2 direction = { 0, 0 };
+	if (keyWPressed) direction.y -= 1;
+	if (keySPressed) direction.y += 1;
+	if (keyAPressed) direction.x -= 1;
+	if (keyDPressed) direction.x += 1;
+
+	// Normalize direction to avoid faster diagonal movement
+	if (direction.x != 0 || direction.y != 0) {
+		float length = sqrt(direction.x * direction.x + direction.y * direction.y);
+		direction.x /= length;
+		direction.y /= length;
 	}
-	else {
-		player_motion.velocity.y = 0;
-		return;
+
+	move_player(direction);
+}
+
+
+void WorldSystem::handlePlayerMovement(int key, int action) {
+	bool isPressed = (action == GLFW_PRESS || action == GLFW_REPEAT);
+
+	switch (key) {
+	case GLFW_KEY_W: keyWPressed = isPressed; break;
+	case GLFW_KEY_S: keySPressed = isPressed; break;
+	case GLFW_KEY_A: keyAPressed = isPressed; break;
+	case GLFW_KEY_D: keyDPressed = isPressed; break;
 	}
 }
-// On key callback
+
 void WorldSystem::on_key(int key, int, int action, int mod) {
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE CHICKEN MOVEMENT HERE
-	// key is of 'type' GLFW_KEY_
-	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
-		switch (key) {
-		case GLFW_KEY_W:
-			move_player(2, false);
-			break;
-		case GLFW_KEY_S:
-			move_player(-2, false);
-			break;
-		case GLFW_KEY_A:
-			move_player(2, true);
-			break;
-		case GLFW_KEY_D:
-			move_player(-2, true);
-			break;
-		}
-	}
-
-	if (action == GLFW_RELEASE) {
-		switch (key) {
-		case GLFW_KEY_W:
-		case GLFW_KEY_S:
-			stop_player(false);
-			break;
-		case GLFW_KEY_A:
-		case GLFW_KEY_D:
-			stop_player(true);
-			break;
-		}
-	}
+	handlePlayerMovement(key, action);
 
 	auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;
@@ -390,20 +366,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 void WorldSystem::on_mouse_move(vec2 mouse_position) {
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A1: HANDLE CHICKEN ROTATION HERE
-	// xpos and ypos are relative to the top-left of the window, the chicken's
-	// default facing direction is (1, 0)
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// Vicky TODO M1: I dont know if it works, createBullet is imcomplete, render bullet not added!
-
-
 	float timer = 0.0f;
 	Motion& motion = registry.motions.get(player_blendy);
 	vec2& blendy_pos = motion.position;
 
 	if (!is_dead) {
-		// Check if the left mouse button is pressed
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
 			if (timer == 0.0f) {
 				vec2 bullet_direction = normalize(blendy_pos - mouse_position);

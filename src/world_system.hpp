@@ -68,6 +68,10 @@ private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
+	bool keyWPressed = false;
+	bool keySPressed = false;
+	bool keyAPressed = false;
+	bool keyDPressed = false;
 
 	// restart level
 	void restart_game();
@@ -97,8 +101,9 @@ private:
 
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);
-	void move_player(int sign, bool isX);
-	void stop_player(bool isX);
+	void handlePlayerMovement(int key, int action);
+	void update_player_movement();
+	void move_player(vec2 direction);
 };
 
 

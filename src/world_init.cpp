@@ -19,10 +19,10 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
 	// TODO
 	//registry.deadlys.emplace(entity);
 	//registry.renderRequests.insert(
-		//entity,
-		//{ TEXTURE_ASSET_ID::EAGLE, // change EAGLE TO BULLET
-		 //EFFECT_ASSET_ID::TEXTURED,
-		 //GEOMETRY_BUFFER_ID::SPRITE });
+	//	entity,
+	//	{ TEXTURE_ASSET_ID::EAGLE, // change EAGLE TO BULLET
+	//	 EFFECT_ASSET_ID::TEXTURED,
+	//	 GEOMETRY_BUFFER_ID::SPRITE });
 	// Vicky M1: Uncomment it later!! 
 	return entity;
 }
