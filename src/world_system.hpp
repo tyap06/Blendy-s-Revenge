@@ -81,16 +81,20 @@ private:
 	// Game state
 	RenderSystem* renderer;
 	float current_speed;
-	float next_eagle_spawn;
-	float next_bug_spawn;
-	Entity player_chicken;
+	Entity player_blendy;
+	Entity game_background;
+	Entity directional_light;
+	float next_minion_spawn;
 
 	// music references
 	Mix_Music* background_music;
-	Mix_Chunk* chicken_dead_sound;
-	Mix_Chunk* chicken_eat_sound;
+	Mix_Chunk* dead_sound;
+	Mix_Chunk* get_point;
 
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
+
+	// Private Helpers For Initialization
+	void update_minions(float elapsed_ms_since_last_update);
 };

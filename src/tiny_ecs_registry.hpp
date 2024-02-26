@@ -19,16 +19,16 @@ public:
 	ComponentContainer<Mesh*> meshPtrs;
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
-	ComponentContainer<Eatable> eatables;
-	ComponentContainer<Deadly> deadlys;
+	ComponentContainer<Minion> minions;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
-
+	ComponentContainer<Background> backgrounds;
+	ComponentContainer<LightSource> lightSources;
+  
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
 	{
-		// TODO: A1 add a LightUp component
 		registry_list.push_back(&deathTimers);
 		registry_list.push_back(&motions);
 		registry_list.push_back(&collisions);
@@ -36,10 +36,11 @@ public:
 		registry_list.push_back(&meshPtrs);
 		registry_list.push_back(&renderRequests);
 		registry_list.push_back(&screenStates);
-		registry_list.push_back(&eatables);
-		registry_list.push_back(&deadlys);
+		registry_list.push_back(&minions);
 		registry_list.push_back(&debugComponents);
 		registry_list.push_back(&colors);
+		registry_list.push_back(&backgrounds);
+		registry_list.push_back(&lightSources);
 	}
 
 	void clear_all_components() {
