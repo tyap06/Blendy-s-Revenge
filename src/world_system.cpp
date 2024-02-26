@@ -294,11 +294,26 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
       new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
     }
-	// check window boundary
-	if (new_pos.x < 0) new_pos.x = 0;
-	if (new_pos.y < 0) new_pos.y = 0;
-	if (new_pos.x > window_width_px) new_pos.x = window_width_px;
-	if (new_pos.y > window_height_px) new_pos.y = window_height_px;
+	vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
+	float half_width = bounding_box.x / 2.f;
+	float half_height = bounding_box.y / 2.f;
+	if (new_pos.x - half_width < 0) {
+		new_pos.x = half_width;
+
+	}
+	else if (new_pos.x + half_width > window_width_px) {
+		new_pos.x = window_width_px - half_width;
+
+	}
+
+	if (new_pos.y - half_height < 0) {
+		new_pos.y = half_height;
+
+	}
+	else if (new_pos.y + half_height > window_height_px) {
+		new_pos.y = window_height_px - half_height;
+
+	}
 	motion.position = new_pos;
   }
 

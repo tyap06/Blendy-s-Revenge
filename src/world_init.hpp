@@ -6,8 +6,8 @@
 
 
 // ENTITY TEXTURE CONSTANTS
-const float BLENDY_BB_WIDTH = 0.2f * 771.f;
-const float BLENDY_BB_HEIGHT = 0.2F * 1511.f;
+const float BLENDY_BB_WIDTH = 0.1f * 771.f;
+const float BLENDY_BB_HEIGHT = 0.1F * 1511.f;
 const float MINION_BB_WIDTH = 0.2f * 346.f;
 const float MINION_BB_HEIGHT = 0.2f * 593.f;
 const float BACKGROUND_BB_WIDTH = 0.85f * 2131.f;
