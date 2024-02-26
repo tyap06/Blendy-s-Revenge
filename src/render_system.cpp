@@ -96,6 +96,12 @@ void RenderSystem::handle_chicken_or_egg_effect_rendering(const RenderRequest& r
 
 void RenderSystem::configure_base_uniforms(Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const RenderRequest& render_request)
 {
+	
+	GLint blendy_uloc = glGetUniformLocation(program, "is_blendy");
+	const bool blendy = registry.players.has(entity);
+	glUniform1i(blendy_uloc, blendy);
+	gl_has_errors();
+	
 	// Getting uniform locations for glUniform* calls
 	GLint color_uloc = glGetUniformLocation(program, "fcolor");
 	const vec3 color = registry.colors.has(entity) ? registry.colors.get(entity) : vec3(1);
