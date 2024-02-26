@@ -19,6 +19,10 @@ uniform float ambientIntensity; // Strength of ambient lighting
 // Output color
 layout(location = 0) out  vec4 color;
 
+float lerp(float start, float end, float t) {
+    return start * (1-t) + end*t;
+}
+
 void main()
 {
     vec4 texColor = texture(sampler0, texcoord);
@@ -51,8 +55,17 @@ void main()
     vec3 diffuseColor = lightColor * diffuseIntensity;
     vec3 specularColor = lightColor * specularIntensity;
 
+    vec3 red = vec3(1.0, 0.5, 0.5);
+    vec3 blue = vec3(0.5, 0.5, 1.0);
+    
+    float redInterpolated = lerp(red.x, blue.x, texcoord.x);
+    float greenInterpolated = lerp(red.y, blue.y, texcoord.x);
+    float blueInterpolated = lerp(red.z, blue.z, texcoord.x);
+
+    vec3 interpolatedColAlongX = vec3(redInterpolated, greenInterpolated, blueInterpolated);
+
     // Calculate final color
-    vec3 finalColor =  ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor;
+    vec3 finalColor =  (ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor) * interpolatedColAlongX;
 
     color = vec4(finalColor, texColor.a);
 
@@ -61,3 +74,4 @@ void main()
         //color = vec4(0.0,0.0,0.0,1.0);
     //}
 }
+
