@@ -19,6 +19,7 @@ const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
 const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
+const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
 
 // BOUNDS
@@ -223,8 +224,7 @@ void WorldSystem::restart_game() {
 	is_dead = false;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
-	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN, DIRECTIONAL_LIGHT_BOUNDS);
-
+	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS);
 }
 
 
@@ -301,6 +301,31 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	if (new_pos.y > window_height_px) new_pos.y = window_height_px;
 	motion.position = new_pos;
   }
+
+	auto& motion = registry.motions.get(directional_light);
+	vec2& new_pos = motion.position;
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I) {
+		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
+	}
+
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_J) {
+		new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+	}
+
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_K) {
+		new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
+	}
+
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L) {
+		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+	}
+
+	// check window boundary
+	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
+	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
+	if (new_pos.x > window_width_px) new_pos.x = window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2;
+	if (new_pos.y > window_height_px) new_pos.y = window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
+	motion.position = new_pos;
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
