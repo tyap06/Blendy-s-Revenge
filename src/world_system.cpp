@@ -266,7 +266,37 @@ void WorldSystem::handle_collisions() {
 bool WorldSystem::is_over() const {
 	return bool(glfwWindowShouldClose(window)) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
 }
+void WorldSystem::move_player(int sign, bool isX) {
+	if (is_dead) return;
+	auto& motions_registry = registry.motions;
+	Motion& player_motion = motions_registry.get(player_blendy);
+	vec2 direction;
 
+	if (isX) {
+		direction = { cos(player_motion.angle), -sin(player_motion.angle) };
+	}
+	else {
+		direction = { sin(player_motion.angle), cos(player_motion.angle) };
+	}
+	player_motion.velocity.x = -sign * 100 * direction.x;
+	player_motion.velocity.y = -sign * 100 * direction.y;
+	return;
+}
+
+void WorldSystem::stop_player(bool isX) {
+	
+	if (is_dead) return;
+	auto& motions_registry = registry.motions;
+	Motion& player_motion = motions_registry.get(player_blendy);
+	if (isX) {
+		player_motion.velocity.x = 0;
+		return;
+	}
+	else {
+		player_motion.velocity.y = 0;
+		return;
+	}
+}
 // On key callback
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -275,47 +305,35 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// action can be GLFW_PRESS GLFW_RELEASE GLFW_REPEAT
 	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-  if (!is_dead) {
-    auto& motion = registry.motions.get(player_blendy);
-    vec2 new_pos = motion.position;
-    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_UP) {
-      new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE};
-    }
-
-    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_LEFT) {
-      new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-    }
-
-    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_DOWN) {
-      new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
-    }
-
-    if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_RIGHT) {
-
-      new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-    }
-	vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
-	float half_width = bounding_box.x / 2.f;
-	float half_height = bounding_box.y / 2.f;
-	if (new_pos.x - half_width < 0) {
-		new_pos.x = half_width;
-
-	}
-	else if (new_pos.x + half_width > window_width_px) {
-		new_pos.x = window_width_px - half_width;
-
+	if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+		switch (key) {
+		case GLFW_KEY_W:
+			move_player(2, false);
+			break;
+		case GLFW_KEY_S:
+			move_player(-2, false);
+			break;
+		case GLFW_KEY_A:
+			move_player(2, true);
+			break;
+		case GLFW_KEY_D:
+			move_player(-2, true);
+			break;
+		}
 	}
 
-	if (new_pos.y - half_height < 0) {
-		new_pos.y = half_height;
-
+	if (action == GLFW_RELEASE) {
+		switch (key) {
+		case GLFW_KEY_W:
+		case GLFW_KEY_S:
+			stop_player(false);
+			break;
+		case GLFW_KEY_A:
+		case GLFW_KEY_D:
+			stop_player(true);
+			break;
+		}
 	}
-	else if (new_pos.y + half_height > window_height_px) {
-		new_pos.y = window_height_px - half_height;
-
-	}
-	motion.position = new_pos;
-  }
 
 	auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;

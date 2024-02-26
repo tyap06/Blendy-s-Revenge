@@ -97,4 +97,8 @@ private:
 
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);
+	void move_player(int sign, bool isX);
+	void stop_player(bool isX);
 };
+
+
