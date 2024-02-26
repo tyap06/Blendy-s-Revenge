@@ -78,12 +78,29 @@ void PhysicsSystem::step(float elapsed_ms)
 			motion.scale.y *= scaleChange;
 		}
 
-    // !!! TODO A1: update motion.position based on step_seconds and motion.velocity
-    float step_seconds = elapsed_ms / 1000.f;
-		motion.position.x += motion.velocity.x * step_seconds;
-		motion.position.y += motion.velocity.y * step_seconds;
-    
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
+		float step_seconds = elapsed_ms / 1000.f;
+		if (registry.players.has(entity)) {
+			float new_x = motion.velocity.x * step_seconds + motion.position.x;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
+			float half_width = bounding_box.x / 2.f;
+			float half_height = bounding_box.y / 2.f;
+			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
+				motion.position.x = new_x;
+			}
+
+			if (new_y - half_height > 0 && new_y + half_height < window_height_px) {
+				motion.position.y = new_y;
+			}
+		}
+		else {
+			motion.position.x += motion.velocity.x * step_seconds;
+			motion.position.y += motion.velocity.y * step_seconds;
+		}
+		
+
+
+		
 	}
 
 	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead

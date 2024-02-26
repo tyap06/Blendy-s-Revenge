@@ -160,13 +160,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
 
-	// Remove entities that leave the screen on the left side
-	// Iterate backwards to be able to remove without unterfering with the next object to visit
-	// (the containers exchange the last element with the current)
+	//CORE LOOP
 	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
 	    Motion& motion = motions_registry.components[i];
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
-			if(!registry.players.has(motions_registry.entities[i])) // don't remove the player
+			if(!registry.players.has(motions_registry.entities[i])) 
 				registry.remove_all_components_of(motions_registry.entities[i]);
 		}
 	}
@@ -270,9 +268,10 @@ bool WorldSystem::is_over() const {
 void WorldSystem::move_player(vec2 direction) {
 	auto& motions_registry = registry.motions;
 	Motion& player_motion = motions_registry.get(player_blendy);
+	float& speed = registry.players.get(player_blendy).max_speed;
 
-	player_motion.velocity.x = direction.x * 200; //can be replace with player speed in the future.
-	player_motion.velocity.y = direction.y * 200; 
+	player_motion.velocity.x = direction.x * speed;
+	player_motion.velocity.y = direction.y * speed;
 }
 
 
