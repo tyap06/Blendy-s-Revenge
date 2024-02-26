@@ -28,7 +28,9 @@ const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 bool is_dead = false;
-const vec2 death_movement = { 0, 0.5f };
+const vec2 dead_velocity = { 0, 200.0f };
+const float dead_angle = 3.0f;
+const vec2 dead_scale = { 0, 0 };
 
 
 // Create the bug world
@@ -160,7 +162,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
 
-	//CORE LOOP
+	//Main LOOP
 	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
 	    Motion& motion = motions_registry.components[i];
 		if (motion.position.x + abs(motion.scale.x) < 0.f) {
@@ -169,14 +171,20 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	if (is_dead) {
+		Motion& player_motion = registry.motions.get(player_blendy);
+		float sec_passed = elapsed_ms_since_last_update / 1000;
+		player_motion.velocity = player_motion.velocity*(1 - sec_passed) + dead_velocity * sec_passed;
+		player_motion.angle = player_motion.angle * (1 - sec_passed) + dead_angle * sec_passed;
+		player_motion.scale= player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
+	}
+
 	update_minions(elapsed_ms_since_last_update);
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
     ScreenState &screen = registry.screenStates.components[0];
-	if (is_dead) {
-		registry.motions.get(player_blendy).position += death_movement;
-	}
+
     float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
 		// progress timer
@@ -225,6 +233,15 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS);
 }
 
+void WorldSystem::dead_player() {
+	is_dead = true;
+	auto& motions_registry = registry.motions;
+	Motion& motion = motions_registry.get(player_blendy);
+	motion.velocity.x = 0;
+	motion.velocity.y = 0;
+	motion.angle = { 0.0f };
+}
+
 
 
 // Compute collisions between entities
@@ -249,9 +266,7 @@ void WorldSystem::handle_collisions() {
 					// add some sound effect
 					// switch to dead animation
 					Mix_PlayChannel(-1, dead_sound, 0);
-					// !!! TODO A1: change the chicken orientation and color on death
-					//registry.colors.get(entity) = vec3(0, 0, 0);
-					is_dead = true;
+					dead_player();
 				}
 			}
 		}

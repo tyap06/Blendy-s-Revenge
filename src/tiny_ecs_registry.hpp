@@ -20,6 +20,7 @@ public:
 	ComponentContainer<RenderRequest> renderRequests;
 	ComponentContainer<ScreenState> screenStates;
 	ComponentContainer<Minion> minions;
+	ComponentContainer<Eatable> eatables;
 	ComponentContainer<DebugComponent> debugComponents;
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Background> backgrounds;
