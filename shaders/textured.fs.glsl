@@ -25,13 +25,16 @@ float lerp(float start, float end, float t) {
 void main()
 {
     vec4 texColor = texture(sampler0, texcoord);
+    vec3 ambientColor = lightColor * ambientIntensity;
     
     vec3 N;
     if (usesNormalMap) {
         N = normalize(texture(normal_map, texcoord).xyz * 2.0 - 1.0); // Normalize N map
     } else {
         // TODO: This is supposed to cause undefined behavior, but it works somehow???
-        N = normalize(texture(normal_map, texcoord).xyz * 2.0 - 1.0); // Normalize N map
+        //N = normalize(texture(normal_map, texcoord).xyz * 2.0 - 1.0); // Normalize N map
+        color = vec4(fcolor + ambientColor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
+        return;
     }
         
     // Calculate light direction
@@ -50,7 +53,6 @@ void main()
     float specularIntensity = pow(max(dot(N, halfwayDir), 0.0), shininess);
 
     // Combine ambient, diffuse, and specular components with light color
-    vec3 ambientColor = lightColor * ambientIntensity;
     vec3 diffuseColor = lightColor * diffuseIntensity;
     vec3 specularColor = lightColor * specularIntensity;
     vec3 finalColor;

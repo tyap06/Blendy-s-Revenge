@@ -111,7 +111,7 @@ Entity create_directional_light(RenderSystem* renderer, vec2 position, vec2 boun
 	auto& directional_light = registry.lightSources.emplace(entity);
 	directional_light.light_color = { 1.0f,1.0f,1.0f };
 	directional_light.shininess = 9.f;
-	directional_light.ambientIntensity = 0.05f;
+	directional_light.ambientIntensity = 0.00f;
 	directional_light.z_depth = 1000.f;
 
 	renderer->setDirectionalLight(entity);
