@@ -9,7 +9,7 @@
 #include "physics_system.hpp"
 
 // Game configuration
-const size_t MAX_MINIONS = 80;
+const size_t MAX_MINIONS = 800;
 const size_t MINION_DELAY_MS = 200 * 3;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 
@@ -229,6 +229,7 @@ void WorldSystem::restart_game() {
 	registry.list_all_components();
 
 	is_dead = false;
+	registry.is_dead = false;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS);
@@ -236,6 +237,7 @@ void WorldSystem::restart_game() {
 
 void WorldSystem::dead_player() {
 	is_dead = true;
+	registry.is_dead = true;
 	auto& motions_registry = registry.motions;
 	Motion& motion = motions_registry.get(player_blendy);
 	motion.velocity.x = 0;

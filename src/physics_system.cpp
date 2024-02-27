@@ -76,23 +76,26 @@ void PhysicsSystem::step(float elapsed_ms)
 		
 		if (registry.players.has(entity)) {
 			// Vicky M1: idle animation
-			const float cycleDuration = 4000.0f;
-			float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
+			if (!registry.is_dead) {
+				const float cycleDuration = 4000.0f;
+				float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
 
 
-			float normalizedTime;
-			if (cycleTime < 0.5f) {
-				normalizedTime = cycleTime / 0.5f;
+				float normalizedTime;
+				if (cycleTime < 0.5f) {
+					normalizedTime = cycleTime / 0.5f;
+				}
+				else {
+					normalizedTime = (1.0f - cycleTime) / 0.5f;
+				}
+
+
+				const float maxScale = 1.1f;
+
+				motion.scale.x = lerp(BLENDY_BB_WIDTH, maxScale * BLENDY_BB_WIDTH, normalizedTime);
+				motion.scale.y = lerp(BLENDY_BB_HEIGHT, maxScale * BLENDY_BB_HEIGHT, normalizedTime);
 			}
-			else {
-				normalizedTime = (1.0f - cycleTime) / 0.5f;
-			}
-
-
-			const float maxScale = 1.1f;
-
-			motion.scale.x = lerp(BLENDY_BB_WIDTH, maxScale * BLENDY_BB_WIDTH, normalizedTime);
-			motion.scale.y = lerp(BLENDY_BB_HEIGHT, maxScale * BLENDY_BB_HEIGHT, normalizedTime);
+			
 			
 			
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
