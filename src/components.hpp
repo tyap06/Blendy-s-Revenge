@@ -9,22 +9,40 @@ enum class EntityType {
 	Player,
 };
 
+enum class POWERUP_TYPE {
+
+	PAC_FRUIT = 0,
+	LASER = PAC_FRUIT + 1,
+	PROTIEN = LASER + 1,
+};
+
 // Player component
 struct Player
 {
-
+	float max_speed = 200.f;
+	int health = 5;
+	int max_effect = 3;
+	int current_effect = 0;
+	bool pac_mode = false;
 };
 
-// Eagles have a hard shell
+
+
+struct PowerUp
+{
+	POWERUP_TYPE type;
+	float duration_ms = 0.0f;
+	int count = 0;
+};
+
 struct Minion
 {
 
 };
 
-// Bug and Chicken have a soft shell
 struct Eatable
 {
-
+	int power_up_id = -1;
 };
 
 // All data relevant to the shape and motion of entities
