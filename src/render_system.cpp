@@ -18,7 +18,7 @@ void RenderSystem::handle_normal_map_uniform(Entity entity, const GLuint program
 	// Getting uniform locations for glUniform* calls
 	GLint normal_map_uloc = glGetUniformLocation(program, "normal_map");
 	assert(normal_map_uloc >= 0);
-	glUniform1i(normal_map_uloc, 0);
+	glUniform1i(normal_map_uloc, 1);
 	gl_has_errors();
 }
 
