@@ -9,7 +9,6 @@ uniform sampler2D sampler0;
 uniform sampler2D normal_map;
 uniform bool usesNormalMap;
 uniform vec3 fcolor;
-uniform bool is_blendy;
 // Lighting information
 uniform vec3 lightPosition;     // Position of the light source
 uniform vec3 lightColor;        // Color of the light source
@@ -55,24 +54,9 @@ void main()
     vec3 diffuseColor = lightColor * diffuseIntensity;
     vec3 specularColor = lightColor * specularIntensity;
     vec3 finalColor;
-    if (is_blendy) {
-        vec3 red = vec3(1.0, 0.5, 0.5);
-        vec3 blue = vec3(0.5, 0.5, 1.0);
     
-        float redInterpolated = lerp(red.x, blue.x, texcoord.x);
-        float greenInterpolated = lerp(red.y, blue.y, texcoord.x);
-        float blueInterpolated = lerp(red.z, blue.z, texcoord.x);
-
-        vec3 interpolatedColAlongX = vec3(redInterpolated, greenInterpolated, blueInterpolated);
-
-        // Calculate final color
-        finalColor =  (ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor) * interpolatedColAlongX;
-        color = vec4(finalColor, texColor.a);
-
-    } else {
-        finalColor =  ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor;
-        color = vec4(finalColor, texColor.a);
-    }
+    finalColor =  ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor;
+    color = vec4(finalColor, texColor.a);
     
     
 
