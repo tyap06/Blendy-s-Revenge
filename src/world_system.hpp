@@ -38,36 +38,17 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
-	bool keys[GLFW_KEY_LAST] = { false };
 
 	
-	void handle_key_states(GLFWwindow* window) {
-		// ʾ��������W��������״̬����
-		if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS) {
-			keys[GLFW_KEY_W] = true;
-		}
-		else {
-			keys[GLFW_KEY_W] = false;
-		}
-
-		// ʾ��������A��������״̬����
-		if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS) {
-			keys[GLFW_KEY_A] = true;
-		}
-		else {
-			keys[GLFW_KEY_A] = false;
-		}
-
-		// ͬʱ����W��A��ʱ������ִ����Ӧ�Ĳ���
-		if (keys[GLFW_KEY_W] && keys[GLFW_KEY_A]) {
-			// ִ��ͬʱ����W��A���Ĳ���
-		}
-	}
   
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	void on_mouse_move(vec2 pos);
+	bool keyWPressed = false;
+	bool keySPressed = false;
+	bool keyAPressed = false;
+	bool keyDPressed = false;
 
 	// restart level
 	void restart_game();
@@ -95,6 +76,13 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
+	void dead_player();
+
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);
+	void handlePlayerMovement(int key, int action);
+	void update_player_movement();
+	void move_player(vec2 direction);
 };
+
+

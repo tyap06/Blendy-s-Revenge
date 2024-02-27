@@ -54,7 +54,10 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	return false;
 
 }
+float lerp(float start, float end, float t) {
 
+	return start * (1 - t) + end * t;
+}
 
 
 void PhysicsSystem::step(float elapsed_ms)
@@ -62,28 +65,44 @@ void PhysicsSystem::step(float elapsed_ms)
 	// Move bug based on how much time has passed, this is to (partially) avoid
 	// having entities move at different speed based on the machine.
 	auto& motion_registry = registry.motions;
+	static float accumulatedTime = 0.0f;
+	accumulatedTime += elapsed_ms;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{	
-		
+		int elapsed_ms_as_int = static_cast<int>(elapsed_ms);
+		float idleAnimationTime = static_cast<float>(elapsed_ms_as_int % 1000 / 1000.0f);
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
-		if (!registry.backgrounds.has(entity)) {
+		float step_seconds = elapsed_ms / 1000.f;
+		
+		if (registry.players.has(entity)) {
 			// Vicky M1: idle animation
-			static float idleAnimationTime = 0.0f;
-			idleAnimationTime += elapsed_ms / 1000.0f;
-			float period = 30;  // time Period
-			float amplitude = 0.0003f;  // sizeChange
-			float scaleChange = 1.0f + amplitude * std::sin(2 * M_PI * idleAnimationTime / period);
-			motion.scale.x *= scaleChange;
-			motion.scale.y *= scaleChange;
-		}
+			float idleAnimationTime = fmod(accumulatedTime / 2000.0f, 1.0f);
+			float scaleChangex = lerp(BLENDY_BB_WIDTH, BLENDY_BB_WIDTH * 1.1, idleAnimationTime);
+			float scaleChangey = lerp(BLENDY_BB_HEIGHT, BLENDY_BB_HEIGHT * 1.1, idleAnimationTime);
+			motion.scale.x = scaleChangex;
+			motion.scale.y = scaleChangey;
+			float new_x = motion.velocity.x * step_seconds + motion.position.x;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
+			float half_width = bounding_box.x / 2.f;
+			float half_height = bounding_box.y / 2.f;
+			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
+				motion.position.x = new_x;
+			}
 
-    // !!! TODO A1: update motion.position based on step_seconds and motion.velocity
-    float step_seconds = elapsed_ms / 1000.f;
-		motion.position.x += motion.velocity.x * step_seconds;
-		motion.position.y += motion.velocity.y * step_seconds;
-    
-		(void)elapsed_ms; // placeholder to silence unused warning until implemented
+			if (new_y - half_height > 0 && new_y + half_height < window_height_px) {
+				motion.position.y = new_y;
+			}
+		}
+		else {
+			motion.position.x += motion.velocity.x * step_seconds;
+			motion.position.y += motion.velocity.y * step_seconds;
+		}
+		
+
+
+		
 	}
 
 	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead

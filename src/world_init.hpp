@@ -30,3 +30,5 @@ Entity create_directional_light(RenderSystem* renderer, vec2 pos, vec2 bounds);
 // the minions
 Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds);
 
+Entity create_powerup(RenderSystem* renderer, vec2 position, vec2 bounds);
+
