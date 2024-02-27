@@ -153,6 +153,7 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 }
 
 // Update our game world
+
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	update_player_movement();
 	// Remove debug info from the last step
@@ -284,7 +285,6 @@ void WorldSystem::move_player(vec2 direction) {
 	auto& motions_registry = registry.motions;
 	Motion& player_motion = motions_registry.get(player_blendy);
 	float& speed = registry.players.get(player_blendy).max_speed;
-
 	player_motion.velocity.x = direction.x * speed;
 	player_motion.velocity.y = direction.y * speed;
 }

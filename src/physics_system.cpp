@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 vec2 normalize(const vec2&);
+float duration = 0;
 bool isParallel(const std::vector<vec2>&, const vec2&);
 std::pair<float, float> projectOntoAxis(const std::vector<vec2>&, const vec2&);
 bool projectionsOverlap(const std::pair<float, float>&, const std::pair<float, float>&);
@@ -69,19 +70,31 @@ void PhysicsSystem::step(float elapsed_ms)
 	accumulatedTime += elapsed_ms;
 	for(uint i = 0; i< motion_registry.size(); i++)
 	{	
-		int elapsed_ms_as_int = static_cast<int>(elapsed_ms);
-		float idleAnimationTime = static_cast<float>(elapsed_ms_as_int % 1000 / 1000.0f);
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = elapsed_ms / 1000.f;
 		
 		if (registry.players.has(entity)) {
 			// Vicky M1: idle animation
-			float idleAnimationTime = fmod(accumulatedTime / 2000.0f, 1.0f);
-			float scaleChangex = lerp(BLENDY_BB_WIDTH, BLENDY_BB_WIDTH * 1.1, idleAnimationTime);
-			float scaleChangey = lerp(BLENDY_BB_HEIGHT, BLENDY_BB_HEIGHT * 1.1, idleAnimationTime);
-			motion.scale.x = scaleChangex;
-			motion.scale.y = scaleChangey;
+			const float cycleDuration = 4000.0f;
+			float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
+
+
+			float normalizedTime;
+			if (cycleTime < 0.5f) {
+				normalizedTime = cycleTime / 0.5f;
+			}
+			else {
+				normalizedTime = (1.0f - cycleTime) / 0.5f;
+			}
+
+
+			const float maxScale = 1.1f;
+
+			motion.scale.x = lerp(BLENDY_BB_WIDTH, maxScale * BLENDY_BB_WIDTH, normalizedTime);
+			motion.scale.y = lerp(BLENDY_BB_HEIGHT, maxScale * BLENDY_BB_HEIGHT, normalizedTime);
+			
+			
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
