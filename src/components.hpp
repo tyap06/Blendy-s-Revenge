@@ -24,6 +24,11 @@ struct Player
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
+	//int frame_stage = 1;
+	//bool left = false;
+	//bool right = false;
+	//bool up = false;
+	//bool down = true;
 };
 
 
@@ -163,6 +168,12 @@ enum class TEXTURE_ASSET_ID {
 	MINION_NM = MINION + 1,
 	BACKGROUND = MINION_NM + 1,
 	DIRECTIONAL_LIGHT = BACKGROUND + 1,
+	//LFRAME_0 = DIRECTIONAL_LIGHT + 1,
+	//LFRAME_1 = LFRAME_0 + 1,
+	//LFRAME_2 = LFRAME_1 + 1,
+	//LFRAME_3 = LFRAME_2 + 1,
+	//LFRAME_4 = LFRAME_3 + 1,
+	//TEXTURE_COUNT = LFRAME_4 + 1
 	TEXTURE_COUNT = DIRECTIONAL_LIGHT + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
@@ -175,6 +186,7 @@ enum class EFFECT_ASSET_ID {
 	WIND = TEXTURED + 1,
 	EFFECT_COUNT = WIND + 1
 };
+
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
