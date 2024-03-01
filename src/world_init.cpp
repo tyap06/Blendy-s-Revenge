@@ -90,7 +90,7 @@ Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
 	return entity;
 }
 
-Entity create_directional_light(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_directional_light(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& camera_position)
 {
 	auto entity = Entity();
 
