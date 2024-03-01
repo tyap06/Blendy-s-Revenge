@@ -27,7 +27,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
 	return entity;
 }
 
-Entity create_background(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_background(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
@@ -60,7 +60,7 @@ Entity create_background(RenderSystem* renderer, vec2 position, vec2 bounds)
 }
 
 
-Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
@@ -110,9 +110,10 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 	// Create a directional light
 	auto& directional_light = registry.lightSources.emplace(entity);
 	directional_light.light_color = { 1.0f,1.0f,1.0f };
-	directional_light.shininess = 9.f;
+	directional_light.shininess = 4.f;
 	directional_light.ambientIntensity = 0.00f;
-	directional_light.z_depth = 1000.f;
+	directional_light.z_depth = 500.f;
+	directional_light.camera_position = camera_position;
 
 	renderer->setDirectionalLight(entity);
 
@@ -126,7 +127,7 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 	return entity;
 }
 
-Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
@@ -155,7 +156,8 @@ Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds)
 	return entity;
 }
 
-Entity create_powerup(RenderSystem* renderer, vec2 position, vec2 bounds) {
+Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
