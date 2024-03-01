@@ -51,6 +51,8 @@ private:
 	bool keyDPressed = false;
 	float bullet_timer = 0.0f;
 	float elapsed_ms = 0.0f;
+	float bullet_speed = 500.f;
+	float bullet_launch_interval = 0.5f;
 	// restart level
 	void restart_game();
 

@@ -2,7 +2,7 @@
 #include "tiny_ecs_registry.hpp"
 #include <iostream>
 
-Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
+Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
 	auto entity = Entity();
 	// Store a reference to the potentially re-used mesh object, like createChicken
 	// Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
@@ -10,7 +10,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
 	std::cout << "Left button pressed" << std::endl;  // Debug message
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
-	motion.angle = 0.f;
+	motion.angle = angle;
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
 	motion.scale = vec2(100.0f, 100.0f);
@@ -18,8 +18,8 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
 	registry.bullets.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::BLENDY,
-			TEXTURE_ASSET_ID::BLENDY_NM,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;

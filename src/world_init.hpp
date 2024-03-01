@@ -16,7 +16,7 @@ const float DIRECTIONAL_LIGHT_BB_WIDTH = 0.1f * 512.f;
 const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
 
-Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity);
+Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 // the background
 Entity create_background(RenderSystem* renderer, vec2 pos, vec2 bounds);
