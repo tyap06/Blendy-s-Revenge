@@ -25,6 +25,7 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LightSource> lightSources;
+	ComponentContainer<Bullet> bullets;
 	bool is_dead;
   
 	// constructor that adds all containers for looping over them

@@ -273,6 +273,22 @@ void WorldSystem::handle_collisions() {
 				}
 			}
 		}
+		else if (registry.bullets.has(entity)) {
+			if (registry.minions.has(entity_other)) {
+				registry.motions.remove(entity);
+				registry.motions.remove(entity_other);
+				registry.minions.remove(entity_other);
+				registry.bullets.remove(entity);
+			}
+		}
+		else if (registry.bullets.has(entity_other)) {
+			if (registry.minions.has(entity)) {
+				registry.motions.remove(entity);
+				registry.motions.remove(entity_other);
+				registry.minions.remove(entity);
+				registry.bullets.remove(entity_other);
+			}
+		}
 	}
 	// Remove all collisions from this simulation step
 	registry.collisions.clear();
@@ -389,8 +405,8 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	if (!is_dead) {
 		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
 			if (timer == 0.0f) {
-				vec2 bullet_direction = normalize(blendy_pos - mouse_position);
-				createBullet(renderer, blendy_pos + bullet_direction, bullet_direction * LIGHT_SOURCE_MOVEMENT_DISTANCE);
+				vec2 bullet_direction = normalize(mouse_position - blendy_pos);
+				createBullet(renderer, blendy_pos, bullet_direction * 500.f);
 				timer = 5.0f;
 			}
 			timer -= 0.1f;

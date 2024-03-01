@@ -13,17 +13,15 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity) {
 	motion.angle = 0.f;
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
-	motion.scale = vec2(1.0f, 1.0f);
-
-	// Create and (empty) Eagle component to be able to refer to all eagles
-	// TODO
-	//registry.deadlys.emplace(entity);
-	//registry.renderRequests.insert(
-	//	entity,
-	//	{ TEXTURE_ASSET_ID::EAGLE, // change EAGLE TO BULLET
-	//	 EFFECT_ASSET_ID::TEXTURED,
-	//	 GEOMETRY_BUFFER_ID::SPRITE });
-	// Vicky M1: Uncomment it later!! 
+	motion.scale = vec2(100.0f, 100.0f);
+	motion.type = EntityType::Bullet;
+	registry.bullets.emplace(entity);
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BLENDY,
+			TEXTURE_ASSET_ID::BLENDY_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 
@@ -73,7 +71,7 @@ Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-	//motion.type = EntityType::Generic;
+	//motion.type = EntityType::Player;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -139,7 +137,6 @@ Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds)
 	motion.angle = 0.f;
 	motion.velocity = { 0, 100.f };
 	motion.position = position;
-
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
 
