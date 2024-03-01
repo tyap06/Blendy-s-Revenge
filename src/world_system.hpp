@@ -49,7 +49,8 @@ private:
 	bool keySPressed = false;
 	bool keyAPressed = false;
 	bool keyDPressed = false;
-
+	float bullet_timer = 0.0f;
+	float elapsed_ms = 0.0f;
 	// restart level
 	void restart_game();
 
@@ -83,6 +84,8 @@ private:
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
+	vec2 getCurrentMousePosition();
+	void update_bullets(float elapsed_ms_since_last_update);
 };
 
 

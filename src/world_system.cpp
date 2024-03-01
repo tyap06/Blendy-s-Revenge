@@ -101,9 +101,9 @@ GLFWwindow* WorldSystem::create_window() {
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
-	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	//auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
 	glfwSetKeyCallback(window, key_redirect);
-	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	//glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -143,6 +143,7 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 
 void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 {
+	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.minions.components.size() <= MAX_MINIONS && next_minion_spawn < 0.f) {
@@ -153,8 +154,27 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 }
 
 // Update our game world
-
+vec2 WorldSystem::getCurrentMousePosition() {
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos); 
+	return vec2{ (float)xpos, (float)ypos }; 
+}
+void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
+	Motion& motion = registry.motions.get(player_blendy);
+	vec2& blendy_pos = motion.position;
+	vec2 mouse_position = getCurrentMousePosition();
+	if (!is_dead) {
+		if (bullet_timer <= 0.0f) {
+			vec2 bullet_direction = normalize(mouse_position - blendy_pos);
+			createBullet(renderer, blendy_pos, bullet_direction * 500.f);
+			bullet_timer = 0.5f;
+		}
+		bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
+	}
+	return;
+}
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
@@ -396,23 +416,6 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	current_speed = fmax(0.f, current_speed);
 }
 
-void WorldSystem::on_mouse_move(vec2 mouse_position) {
-
-	float timer = 0.0f;
-	Motion& motion = registry.motions.get(player_blendy);
-	vec2& blendy_pos = motion.position;
-
-	if (!is_dead) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
-			if (timer == 0.0f) {
-				vec2 bullet_direction = normalize(mouse_position - blendy_pos);
-				createBullet(renderer, blendy_pos, bullet_direction * 500.f);
-				timer = 5.0f;
-			}
-			timer -= 0.1f;
-			
-		}
-	}
-
-
-}
+//void WorldSystem::on_mouse_move(vec2 mouse_position) {
+//
+//}
