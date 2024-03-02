@@ -9,6 +9,10 @@ uniform sampler2D sampler0;
 uniform sampler2D normal_map;
 uniform bool usesNormalMap;
 uniform vec3 fcolor;
+
+// Eye Position
+uniform vec3 cameraPosition;       // The position of the eye
+
 // Lighting information
 uniform vec3 lightPosition;     // Position of the light source
 uniform vec3 lightColor;        // Color of the light source
@@ -31,8 +35,6 @@ void main()
     if (usesNormalMap) {
         N = normalize(texture(normal_map, texcoord).xyz * 2.0 - 1.0); // Normalize N map
     } else {
-        // TODO: This is supposed to cause undefined behavior, but it works somehow???
-        //N = normalize(texture(normal_map, texcoord).xyz * 2.0 - 1.0); // Normalize N map
         color = vec4(fcolor + ambientColor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
         return;
     }
@@ -40,10 +42,8 @@ void main()
     // Calculate light direction
     vec3 lightDir = normalize(lightPosition - vcsPosition);
 
-    vec3 eyePosition = vec3(0.0, 0.0, 0.0);
-
-    // Calculate view direction (assuming camera at (0, 0, 0))
-    vec3 viewDir = normalize(eyePosition - vcsPosition);
+    // Calculate view direction (assuming camera at cameraPosition)
+    vec3 viewDir = normalize(cameraPosition - vcsPosition);
 
     // Calculate halfway vector
     vec3 halfwayDir = normalize(lightDir + viewDir);
@@ -59,12 +59,5 @@ void main()
     
     finalColor =  ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor;
     color = vec4(finalColor, texColor.a);
-    
-    
-
-    //} else {
-    //    color = vec4(fcolor + ambientColor, 1.0) * texture(sampler0, vec2(texcoord.x, texcoord.y));
-        //color = vec4(0.0,0.0,0.0,1.0);
-    //}
 }
 

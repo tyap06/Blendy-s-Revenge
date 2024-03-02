@@ -32,6 +32,10 @@ const vec2 dead_velocity = { 0, 200.0f };
 const float dead_angle = 3.0f;
 const vec2 dead_scale = { 0, 0 };
 
+// EYE POSITION (For Lighting Purposes)
+const float CAMERA_Z_DEPTH = 1500.f;
+const vec3 CAMERA_POSITION = {window_width_px / 2, window_height_px / 2, CAMERA_Z_DEPTH};
+
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -262,7 +266,7 @@ void WorldSystem::restart_game() {
 	registry.is_dead = false;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
-	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS);
+	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 }
 
 void WorldSystem::dead_player() {
