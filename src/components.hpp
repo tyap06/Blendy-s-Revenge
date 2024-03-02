@@ -24,9 +24,13 @@ struct Player
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
-	float frame_rate = 50.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
+	bool up;
+	bool down;
+	bool left;
+	bool right;
+	bool going_up = true;
 };
 
 
