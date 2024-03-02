@@ -207,7 +207,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			}
 		}
 	}
-	printf(" %i ", blendy.frame_stage);
 	// get what the render request status should be
 	if (blendy_motion.velocity.x == 0 && blendy_motion.velocity.y == 0) {
 		// just keep the current image
@@ -225,21 +224,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		// blendy is moving - calculate appropriate frame to put in render request
 		registry.renderRequests.remove(player_blendy);
 		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
-		if (blendy.frame_stage == 0) {
-			blendy_motion.y_animate = 0.f * blendy.going_up;
-		}
-		else if (blendy.frame_stage == 1) {
-			blendy_motion.y_animate = 1.f * blendy.going_up;
-		}
-		else if (blendy.frame_stage == 2) {
-			blendy_motion.y_animate = 2.f * blendy.going_up;
-		}
-		else if (blendy.frame_stage == 3) {
-			blendy_motion.y_animate = 6.f * blendy.going_up;
-		}
-		else if (blendy.frame_stage == 4) {
-			blendy_motion.y_animate = 7.f * blendy.going_up;
-		}
+		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up);
 	}
 
 	// Processing the blendy state
@@ -484,6 +469,27 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 			timer -= 0.1f;
 			
 		}
+	}
+}
+
+float WorldSystem::get_y_animate(int stage, int going_up) {
+	if (stage == 0) {
+		return 0.f * going_up;
+	}
+	else if (stage == 1) {
+		return 1.f * going_up;
+	}
+	else if (stage == 2) {
+		return 2.f * going_up;
+	}
+	else if (stage == 3) {
+		return 6.f * going_up;
+	}
+	else if (stage == 4) {
+		return 7.f * going_up;
+	}
+	else {
+		return 0.f * going_up;
 	}
 }
 

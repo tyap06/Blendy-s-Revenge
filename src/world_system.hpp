@@ -84,6 +84,7 @@ private:
 	void update_player_movement();
 	void move_player(vec2 direction);
 	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
+	float get_y_animate(int stage, int going_up);
 };
 
 
