@@ -36,11 +36,11 @@ class RenderSystem {
 			textures_path("minion-standing-nm.png"),
 			textures_path("background.png"),
 			textures_path("directional-light.png"),
-		/*	textures_path("blendy_frame_0.png"),
-			textures_path("blendy_frame_1.png"),
-			textures_path("blendy_frame_2.png"),
-			textures_path("blendy_frame_3.png"),
-			textures_path("blendy_frame_4.png")*/
+			textures_path("blendy_left_0.png"),
+			textures_path("blendy_left_1.png"),
+			textures_path("blendy_left_2.png"),
+			textures_path("blendy_left_3.png"),
+			textures_path("blendy_left_4.png")
 	};
 
 	std::array<GLuint, effect_count> effects;

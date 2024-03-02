@@ -68,14 +68,15 @@ void PhysicsSystem::step(float elapsed_ms)
 	auto& motion_registry = registry.motions;
 	static float accumulatedTime = 0.0f;
 	accumulatedTime += elapsed_ms;
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{	
+	for (uint i = 0; i < motion_registry.size(); i++)
+	{
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = elapsed_ms / 1000.f;
-		
+
 		if (registry.players.has(entity)) {
 			// Vicky M1: idle animation
+			// blendy animation
 			if (!registry.is_dead) {
 				const float cycleDuration = 4000.0f;
 				float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
@@ -95,9 +96,7 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.scale.x = lerp(BLENDY_BB_WIDTH, maxScale * BLENDY_BB_WIDTH, normalizedTime);
 				motion.scale.y = lerp(BLENDY_BB_HEIGHT, maxScale * BLENDY_BB_HEIGHT, normalizedTime);
 			}
-			
-			
-			
+
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
@@ -108,18 +107,16 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 
 			if (new_y - half_height > 0 && new_y + half_height < window_height_px) {
-				motion.position.y = new_y;
+				motion.position.y = new_y + motion.y_animate;
 			}
 		}
 		else {
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}
-		
 
-
-		
 	}
+
 
 	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead
 	float bloodLossPercentage;
@@ -127,20 +124,16 @@ void PhysicsSystem::step(float elapsed_ms)
 	float alphaFactor = 1.0f - bloodLossPercentage / 100.0f;
 	//render_Screen(alphaFactor);
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 	// Check for collisions between all moving entities
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	for (uint i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
 		Entity entity_i = motion_container.entities[i];
-		
+
 		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for(uint j = i+1; j<motion_container.components.size(); j++)
+		for (uint j = i + 1; j < motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
 			if (collides(motion_i, motion_j))
@@ -153,13 +146,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
-
 
 bool checkMeshCollisionSAT(Mesh* mesh, const Motion& motion) {
 	//std::cout << "SAT check" << std::endl;

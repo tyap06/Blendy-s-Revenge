@@ -58,6 +58,8 @@ private:
 
 	// Number of bug eaten by the chicken, displayed in the window title
 	unsigned int points;
+	float blendy_counter_ms;
+	unsigned int blendy_frame_stage;
 
 	// Game state
 	RenderSystem* renderer;
@@ -83,6 +85,7 @@ private:
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
+	void setBlendyRenderRequest(bool up, bool down, bool left, bool right, float stage, Entity blendy);
 };
 
 
