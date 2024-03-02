@@ -129,6 +129,11 @@ void RenderSystem::configure_base_uniforms(Entity entity, const mat3& projection
 	glUniform1f(ambientIntensity_uloc, (float)directional_light_component.ambientIntensity);
 	gl_has_errors();
 
+	// Configuring eyePosition
+	GLint cameraPosition_uloc = glGetUniformLocation(program, "cameraPosition");
+	glUniform3fv(cameraPosition_uloc, 1, (float*)&directional_light_component.camera_position);
+	gl_has_errors();
+
 	// Get number of indices from index buffer, which has elements uint16_t
 	GLint size = 0;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);

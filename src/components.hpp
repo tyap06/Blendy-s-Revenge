@@ -135,6 +135,9 @@ struct LightSource
 
 	// Z-depth of the light
 	float z_depth;
+
+	// Position of camera for doing lighting calculations
+	vec3 camera_position;
 };
 
 /**
