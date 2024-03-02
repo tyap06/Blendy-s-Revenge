@@ -33,7 +33,7 @@ const float dead_angle = 3.0f;
 const vec2 dead_scale = { 0, 0 };
 
 // ANIMATION VALUES
-const size_t BLENDY_FRAME_DELAY = 300 * 3;
+const size_t BLENDY_FRAME_DELAY = 20 * 3;
 
 
 // Create the bug world
@@ -192,17 +192,22 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	blendy.counter_ms -= elapsed_ms_since_last_update;
 	if (blendy.counter_ms < 0.f) {
 		blendy.counter_ms = BLENDY_FRAME_DELAY;
-		if (blendy.going_up) {
+		if (blendy.going_up < 0) {
 			blendy.frame_stage += 1;
-			if (blendy.frame_stage > 4) blendy.frame_stage = 4;
-			blendy.going_up = false;
+			if (blendy.frame_stage > 4) {
+				blendy.frame_stage = 4;
+				blendy.going_up = 1;
+			}
 		}
 		else {
 			blendy.frame_stage -= 1;
-			if (blendy.frame_stage < 0) blendy.frame_stage = 0;
-			blendy.going_up = true;
+			if (blendy.frame_stage < 0) {
+				blendy.frame_stage = 0;
+				blendy.going_up = -1;
+			}
 		}
 	}
+	printf(" %i ", blendy.frame_stage);
 	// get what the render request status should be
 	if (blendy_motion.velocity.x == 0 && blendy_motion.velocity.y == 0) {
 		// just keep the current image
@@ -213,13 +218,28 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 				TEXTURE_ASSET_ID::BLENDY_NM,
 			 EFFECT_ASSET_ID::TEXTURED,
 			 GEOMETRY_BUFFER_ID::SPRITE });
-		blendy.going_up = true;
+		blendy.going_up = 1;
 		blendy_motion.y_animate = 0.f;
 	}
 	else {
 		// blendy is moving - calculate appropriate frame to put in render request
 		registry.renderRequests.remove(player_blendy);
 		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
+		if (blendy.frame_stage == 0) {
+			blendy_motion.y_animate = 0.f * blendy.going_up;
+		}
+		else if (blendy.frame_stage == 1) {
+			blendy_motion.y_animate = 1.f * blendy.going_up;
+		}
+		else if (blendy.frame_stage == 2) {
+			blendy_motion.y_animate = 2.f * blendy.going_up;
+		}
+		else if (blendy.frame_stage == 3) {
+			blendy_motion.y_animate = 6.f * blendy.going_up;
+		}
+		else if (blendy.frame_stage == 4) {
+			blendy_motion.y_animate = 7.f * blendy.going_up;
+		}
 	}
 
 	// Processing the blendy state
@@ -467,12 +487,12 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 	}
 }
 
-void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool left, float stage) {
-	// BLENDY ANIMTION
+void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool left, int stage) {
+	// BLENDY ANIMATION
 	if (up) {
 		// going up
 		// TODO: add correct images for going up
-		if (stage == 0.f) {
+		if (stage == 0) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -480,7 +500,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 1.f) {
+		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -488,7 +508,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 2.f) {
+		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -496,7 +516,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 3.f) {
+		else if (stage == 3) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -504,7 +524,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 4.f) {
+		else if (stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -516,7 +536,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 	else if (down) {
 		// going down
 		// TODO: add correct images for going down
-		if (stage == 0.f) {
+		if (stage == 0) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -524,7 +544,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 1.f) {
+		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -532,7 +552,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 2.f) {
+		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -540,7 +560,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 3.f) {
+		else if (stage == 3) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -548,7 +568,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 4.f) {
+		else if (stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -560,7 +580,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 	else if (right) {
 		// going right
 		// TODO: add correct images for going right
-		if (stage == 0.f) {
+		if (stage == 0) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -568,7 +588,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 1.f) {
+		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -576,7 +596,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 2.f) {
+		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -584,7 +604,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 3.f) {
+		else if (stage == 3) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -592,7 +612,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 4.f) {
+		else if (stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::BLENDY,
@@ -604,7 +624,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 	else if (left) {
 		// going left
 		// only direction that is currently implemented
-		if (stage == 0.f) {
+		if (stage == 0) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_0,
@@ -612,7 +632,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 1.f) {
+		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_1,
@@ -620,7 +640,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 2.f) {
+		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_2,
@@ -628,7 +648,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 3.f) {
+		else if (stage == 3) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_3,
@@ -636,7 +656,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
-		else if (stage == 4.f) {
+		else if (stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_4,

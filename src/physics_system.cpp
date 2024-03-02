@@ -77,6 +77,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		if (registry.players.has(entity)) {
 			// Vicky M1: idle animation
 			// blendy animation
+			Player& blendy = registry.players.get(entity);
 			if (!registry.is_dead) {
 				const float cycleDuration = 4000.0f;
 				float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
@@ -102,7 +103,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
+			if (new_x - half_width > 0 && new_x + half_width < window_width_px && blendy.frame_stage != 0) {
 				motion.position.x = new_x;
 			}
 

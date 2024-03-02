@@ -30,7 +30,7 @@ struct Player
 	bool down;
 	bool left;
 	bool right;
-	bool going_up = true;
+	int going_up = -1;
 };
 
 
