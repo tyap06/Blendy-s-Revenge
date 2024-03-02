@@ -30,8 +30,8 @@ void AISystem::step(float elapsed_ms)
 
 
 			if (frame_count % update_frequency != 0) return;
-			vec2 flee_direction = normalize(minions_pos - predicted_player_pos);
-			motion.velocity = -flee_direction * original_speed;
+			vec2 chase_direction = normalize(predicted_player_pos-minions_pos);
+			motion.velocity = chase_direction * original_speed;
 		}
 
 	}
