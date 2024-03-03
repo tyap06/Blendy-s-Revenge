@@ -16,6 +16,11 @@
 #include <glm/ext/vector_int2.hpp>  // ivec2
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
+
+// matrices
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 using namespace glm;
 
 #include "tiny_ecs.hpp"
