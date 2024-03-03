@@ -31,6 +31,7 @@ int main()
 
 	// initialize the main systems
 	renderer.init(window);
+	renderer.fontInit_Wrapper(window);
 	world.init(&renderer);
 
 	// variable timestep loop
@@ -50,6 +51,9 @@ int main()
 		world.handle_collisions();
 
 		renderer.draw();
+
+		// draw text
+		renderer.renderText("Test - press R to rotate", 0.0f, 0.0f, 1.0f, glm::vec3(1.0, 1.0, 1.0), renderer.createProjectionMatrix());
 	}
 
 	return EXIT_SUCCESS;
