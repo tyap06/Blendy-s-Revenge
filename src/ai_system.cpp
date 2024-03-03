@@ -50,9 +50,20 @@ void AISystem::step(float elapsed_ms)
 			}
 			shooter.time_since_last_shot_ms += elapsed_ms;
 			if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
+				vec2 bullet_direction = normalize(player_position - motion.position);
+
+				vec2 up_vector{ 0.0f, -1.0f };
+				float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+				float up_angle = std::atan2(up_vector.y, up_vector.x);
+				float angle_diff = bullet_angle - up_angle;
+				if (angle_diff < -M_PI) {
+					angle_diff += 2 * M_PI;
+				}
+				else if (angle_diff > M_PI) {
+					angle_diff -= 2 * M_PI;
+				}
 				shooter.time_since_last_shot_ms = 0.0f;
-				vec2 bullet_velocity = normalize(player_position - motion.position) * 300.0f; // Example bullet speed
-				create_enemy_bullet(renderer, motion.position, bullet_velocity, 0.0f); // Angle is 0 for simplicity
+				create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff); 
 			}
 		}
 
