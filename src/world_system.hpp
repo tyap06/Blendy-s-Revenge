@@ -70,6 +70,8 @@ private:
 	Entity directional_light;
 	float next_minion_spawn;
 	Entity health_bar;
+	Entity help_screen;
+	bool showHelpScreen;
 
 	// music references
 	Mix_Music* background_music;

@@ -38,6 +38,7 @@ class RenderSystem {
 			textures_path("directional-light.png"),
 			textures_path("bullet.png"),
 			textures_path("fullHealthBar.png"),
+			textures_path("HelpScreen.png"),
 		/*	textures_path("blendy_frame_0.png"),
 			textures_path("blendy_frame_1.png"),
 			textures_path("blendy_frame_2.png"),

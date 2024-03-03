@@ -29,6 +29,7 @@ const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 200.f, 40.f };
+const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 200.0f };
 const float dead_angle = 3.0f;
@@ -392,6 +393,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
+	}
+
+	// Toggle the help screen visibility when "H" is pressed
+	if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+		if (!showHelpScreen) {
+			// Create the help screen if it's not already shown
+			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
+		}
+		else {
+			// Destroy the help screen if it's already shown
+			registry.remove_all_components_of(help_screen);
+		}
+
+		// Toggle the showHelpScreen flag
+		showHelpScreen = !showHelpScreen;
 	}
 
 	// check window boundary
