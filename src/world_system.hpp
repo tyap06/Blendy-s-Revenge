@@ -80,7 +80,8 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
-	void dead_player();
+	void hit_player(int damage);
+	void hit_enemy(Entity& target, int damage);
 
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);

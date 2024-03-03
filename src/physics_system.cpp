@@ -112,13 +112,25 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.position.y = new_y;
 			}
 		}
+
+		else if(registry.minions.has(entity)){
+			float new_x = motion.velocity.x * step_seconds + motion.position.x;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
+			float half_width = bounding_box.x / 2.f;
+			float half_height = bounding_box.y / 2.f;
+			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
+				motion.position.x = new_x;
+			}
+
+			if (new_y> 0 && new_y + half_height < window_height_px) {
+				motion.position.y = new_y;
+			}
+		}
 		else {
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}
-		
-
-
 		
 	}
 

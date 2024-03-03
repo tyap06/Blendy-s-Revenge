@@ -28,7 +28,7 @@ enum class Enemy_TYPE {
 struct Player
 {
 	float max_speed = 200.f;
-	int health = 5;
+	int health = 100;
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
@@ -45,12 +45,21 @@ struct PowerUp
 
 struct Minion
 {
+	int health = 50;
+	int damage = 20;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
 };
 
 struct Shooter {
 	float shoot_interval_ms = 50.0f; 
 	float time_since_last_shot_ms = 0.0f;
+};
+
+struct Bullet
+{
+	bool friendly = true;
+	int penetration = 1;
+	int damage = 25;
 };
 
 struct Eatable
@@ -146,12 +155,7 @@ struct LightSource
 	// Position of camera for doing lighting calculations
 	vec3 camera_position;
 };
-struct Bullet
-{
-	bool friendly = true;
-	int penetration = 1;
-	int damage = 1;
-};
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
