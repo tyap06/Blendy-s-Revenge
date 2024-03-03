@@ -321,6 +321,7 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other)) {
 				int damage = registry.minions.get(entity_other).damage;
 				hit_player(damage);
+				registry.remove_all_components_of(entity_other);
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {

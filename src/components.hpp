@@ -32,6 +32,8 @@ struct Player
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
+	float invisible_counter = 0.0f;
+	float max_invisible_duraion = 100.f;
 };
 
 
@@ -46,7 +48,7 @@ struct PowerUp
 struct Minion
 {
 	int health = 50;
-	int damage = 20;
+	int damage = 50;
 	float armor = 0;
 	int score = 10;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
@@ -108,7 +110,7 @@ struct DebugComponent
 // A timer that will be associated to dying chicken
 struct DeathTimer
 {
-	float counter_ms = 3000;
+	float counter_ms = 2000;
 };
 
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
