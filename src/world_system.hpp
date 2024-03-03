@@ -69,6 +69,7 @@ private:
 	Entity game_background;
 	Entity directional_light;
 	float next_minion_spawn;
+	float next_dodger_spawn;
 
 	// music references
 	Mix_Music* background_music;

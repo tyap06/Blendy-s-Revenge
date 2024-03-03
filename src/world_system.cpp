@@ -10,6 +10,7 @@
 
 // Game configuration
 const size_t MAX_MINIONS = 800;
+const size_t MAX_DODGERS = 10;
 const size_t MINION_DELAY_MS = 200 * 3;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 
@@ -149,11 +150,16 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.minions.components.size() <= MAX_MINIONS && next_minion_spawn < 0.f) {
 		next_minion_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS / 2);
-
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	}
+
+	if (registry.shooters.components.size() <= MAX_DODGERS && next_dodger_spawn < 0.f) {
+		next_dodger_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS/2);
+		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
 	}
 }
 

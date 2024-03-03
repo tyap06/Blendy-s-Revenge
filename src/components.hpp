@@ -17,6 +17,11 @@ enum class POWERUP_TYPE {
 	PROTIEN = LASER + 1,
 };
 
+enum class Enemy_TYPE {
+	BASIC = 0,
+	SHOOTER = BASIC + 1,
+};
+
 // Player component
 struct Player
 {
@@ -25,11 +30,6 @@ struct Player
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
-	//int frame_stage = 1;
-	//bool left = false;
-	//bool right = false;
-	//bool up = false;
-	//bool down = true;
 };
 
 
@@ -43,7 +43,12 @@ struct PowerUp
 
 struct Minion
 {
+	Enemy_TYPE type = Enemy_TYPE::BASIC;
+};
 
+struct Shooter {
+	float shoot_interval_ms = 1000.0f; 
+	float time_since_last_shot_ms = 0.0f;
 };
 
 struct Eatable
@@ -66,7 +71,6 @@ struct Collision
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
 	Collision(Entity& other) { this->other = other; };
-
 };
 
 // Data structure for toggling debug mode

@@ -183,3 +183,31 @@ Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& 
 	return entity;
 }
 
+Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
+	auto entity = Entity();
+
+	
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	minion.type = Enemy_TYPE::SHOOTER;
+	motion.angle = 0.f;
+	motion.velocity = { 0, 100.f };
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y});
+	vec3 color = { 1,0,0 };
+	registry.colors.insert(entity, color);
+
+	auto& dodger = registry.shooters.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MINION, 
+		  TEXTURE_ASSET_ID::MINION_NM, 
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+

@@ -26,6 +26,8 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LightSource> lightSources;
 	ComponentContainer<Bullet> bullets;
+	ComponentContainer<Shooter> shooters;
+
 	bool is_dead;
   
 	// constructor that adds all containers for looping over them

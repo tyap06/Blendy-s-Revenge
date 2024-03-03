@@ -1,16 +1,20 @@
 #include "ai_system.hpp"
 
-const float safe_bug_distance = 300.0f;
-const int update_frequency = 100;
+const int update_frequency = 50;
+const float ideal_range_from_player = 450.0f; 
+const float approach_speed_factor = 1.0f; // Speed factor when approaching
+const float dodge_speed_factor = 1.5f; // Speed factor when dodging
+static int frame_count = 0;
 
 
 void AISystem::step(float elapsed_ms)
 {
-	static int frame_count = 0;
 	frame_count++;
+	if (frame_count % update_frequency != 0) return;
 
 	auto& motions_registry = registry.motions;
 	auto& player_registry = registry.players;
+	auto& enemy_registry = registry.minions;
 	Motion& player_motion = motions_registry.get(player_registry.entities[0]);
 	vec2 player_position = player_motion.position;
 	vec2 player_velocity = player_motion.velocity;
@@ -19,20 +23,31 @@ void AISystem::step(float elapsed_ms)
 	float prediction_time = update_frequency / 1000;
 	vec2 predicted_player_pos = player_position + player_velocity * prediction_time;
 
-	for (int i = 0; i < motions_registry.components.size(); ++i) {
-		Motion& motion = motions_registry.components[i];
 
+	for (Entity enemy_enitiy : registry.minions.entities) {
+		Motion& motion = motions_registry.get(enemy_enitiy);
+		Minion& enemy = enemy_registry.get(enemy_enitiy);
+		vec2 minions_pos = motion.position;
+		vec2 direction_to_player = predicted_player_pos - minions_pos;
+		float original_speed = length(motion.velocity);
+		vec2 chase_direction = normalize(predicted_player_pos - minions_pos);
 
-		if (registry.minions.has(motions_registry.entities[i])) {
-			vec2 minions_pos = motion.position;
-			vec2 direction_to_player = direction_to_player - minions_pos;
-			float original_speed = length(motion.velocity);
-
-
-			if (frame_count % update_frequency != 0) return;
-			vec2 chase_direction = normalize(predicted_player_pos-minions_pos);
+		if (enemy.type == Enemy_TYPE::BASIC) {
 			motion.velocity = chase_direction * original_speed;
 		}
+		else if (enemy.type == Enemy_TYPE::SHOOTER) {
+
+			float distance_to_player = length(predicted_player_pos - minions_pos);
+			if (distance_to_player > ideal_range_from_player) {
+				motion.velocity = chase_direction * original_speed;
+			}
+			else if (distance_to_player < ideal_range_from_player) {
+				motion.velocity = -chase_direction * original_speed;
+			}
+		}
+
 
 	}
+
+	
 }
