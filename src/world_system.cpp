@@ -7,6 +7,9 @@
 #include <sstream>
 
 #include "physics_system.hpp"
+#include <fstream>
+
+
 
 // Game configuration
 const size_t MAX_MINIONS = 800;
@@ -159,6 +162,8 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 // Update our game world
 
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+
+	// start here
 	update_player_movement();
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)

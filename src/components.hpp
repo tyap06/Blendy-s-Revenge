@@ -56,7 +56,13 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
-	EntityType type = EntityType::Generic;
+
+	bool operator==(const Motion& other) const {
+		return position == other.position &&
+			angle == other.angle &&
+			velocity == other.velocity &&
+			scale == other.scale;
+	}
 };
 
 // Stucture to store collision information
@@ -98,6 +104,9 @@ struct ColoredVertex
 {
 	vec3 position;
 	vec3 color;
+	bool operator==(const ColoredVertex& other) const {
+		return position == other.position && color == other.color;
+	}
 };
 
 // Single Vertex Buffer element for textured sprites (textured.vs.glsl)
@@ -140,6 +149,10 @@ struct LightSource
 	vec3 camera_position;
 };
 
+struct box {
+	vec2 center;
+	vec2 scale;
+};
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -193,14 +206,15 @@ enum class EFFECT_ASSET_ID {
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
-	CHICKEN = 0,
-	SPRITE = CHICKEN + 1,
+	BLENDY = 0,
+	SPRITE = BLENDY + 1,
 	EGG = SPRITE + 1,
 	DEBUG_LINE = EGG + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
+	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1,
+	MINION = GEOMETRY_COUNT + 1,
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::MINION + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
