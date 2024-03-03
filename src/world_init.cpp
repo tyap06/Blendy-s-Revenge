@@ -191,12 +191,14 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::SHOOTER;
+	minion.score = 25;
 	motion.angle = 0.f;
 	motion.velocity = { 0, 100.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y});
 	vec3 color = { 1,0,0 };
 	registry.colors.insert(entity, color);
+
 
 	auto& dodger = registry.shooters.emplace(entity);
 

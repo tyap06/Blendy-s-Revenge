@@ -47,6 +47,8 @@ struct Minion
 {
 	int health = 50;
 	int damage = 20;
+	float armor = 0;
+	int score = 10;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
 };
 

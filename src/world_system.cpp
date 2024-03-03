@@ -29,7 +29,7 @@ const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 bool is_dead = false;
-const vec2 dead_velocity = { 0, 200.0f };
+const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
 const vec2 dead_scale = { 0, 0 };
 
@@ -269,6 +269,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
+	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
@@ -298,6 +299,9 @@ void WorldSystem::hit_enemy(Entity& target, int damage) {
 	Minion& minion = registry.minions.get(target);
 	minion.health -= damage;
 	if (minion.health <= 0) {
+		registry.score += minion.score;
+
+		std::cout << registry.score << std::endl;
 		registry.remove_all_components_of(target);
 	}
 }

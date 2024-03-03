@@ -160,16 +160,16 @@ void PhysicsSystem::step(float elapsed_ms)
 				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
 				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
 				if (registry.bullets.has(entity_i) && registry.minions.has(entity_j)) {
-					std::cout << "minion bullet collision" << std::endl;
+					/*std::cout << "minion bullet collision" << std::endl;*/
 					if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-						std::cout << "collision added" << std::endl;
+						/*std::cout << "collision added" << std::endl;*/
 					}
 
 				}
 				else if (registry.bullets.has(entity_j) && registry.minions.has(entity_i)) {
-					std::cout << "minion bullet collision" << std::endl;
+					/*std::cout << "minion bullet collision" << std::endl;*/
 					if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-						std::cout << "collision added" << std::endl;
+						/*std::cout << "collision added" << std::endl;*/
 					}
 				}
 				

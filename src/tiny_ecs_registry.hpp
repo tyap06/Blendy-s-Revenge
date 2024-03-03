@@ -28,6 +28,8 @@ public:
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
 
+	int score;
+
 	bool is_dead;
   
 	// constructor that adds all containers for looping over them

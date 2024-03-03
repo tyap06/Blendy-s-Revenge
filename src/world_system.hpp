@@ -44,7 +44,6 @@ public:
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
-	void on_mouse_move(vec2 pos);
 	bool keyWPressed = false;
 	bool keySPressed = false;
 	bool keyAPressed = false;
