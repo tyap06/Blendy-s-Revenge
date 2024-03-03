@@ -37,6 +37,7 @@ class RenderSystem {
 			textures_path("background.png"),
 			textures_path("directional-light.png"),
 			textures_path("bullet.png"),
+			textures_path("fullHealthBar.png"),
 		/*	textures_path("blendy_frame_0.png"),
 			textures_path("blendy_frame_1.png"),
 			textures_path("blendy_frame_2.png"),
@@ -51,7 +52,8 @@ class RenderSystem {
 		shader_path("egg"),
 		shader_path("chicken"),
 		shader_path("textured"),
-		shader_path("wind") };
+		shader_path("wind"),
+		shader_path("healthBar")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -104,6 +106,9 @@ private:
 	void handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, GLuint program);
 	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
 	                             RenderRequest& render_request);
+	void handle_health_bar_rendering(const RenderRequest& render_request, GLuint program);
+	void drawQuad(float x, float y, float width, float height, const glm::vec3& color);
+	void handle_health_bar_rendering(float health);
 
 	// Window handle
 	GLFWwindow* window;

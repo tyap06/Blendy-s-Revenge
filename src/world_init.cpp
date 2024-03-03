@@ -2,6 +2,33 @@
 #include "tiny_ecs_registry.hpp"
 #include <iostream>
 
+Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = bounds;
+
+	// Create a render request for the health bar
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::FULL_HEALTH_BAR, 
+			TEXTURE_ASSET_ID::TEXTURE_COUNT, 
+		EFFECT_ASSET_ID::TEXTURED, 
+		GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
 	auto entity = Entity();
 	// Store a reference to the potentially re-used mesh object, like createChicken

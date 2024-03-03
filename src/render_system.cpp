@@ -3,6 +3,67 @@
 #include <SDL.h>
 
 #include "tiny_ecs_registry.hpp"
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+
+
+void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_request, GLuint program)
+{
+	
+
+	GLuint health_bar_texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::FULL_HEALTH_BAR];
+
+	GLuint health_bar_effect_id = effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR];
+
+	// Use the health bar shader program
+	glUseProgram(health_bar_effect_id);
+	gl_has_errors();
+	
+	GLint in_position_loc = glGetAttribLocation(program, "in_position");
+
+	gl_has_errors();
+
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 2, GL_FLOAT, GL_FALSE,
+		sizeof(vec2), (void*)0);
+	gl_has_errors();
+
+	// Set the health bar texture as the active texture on texture unit 2
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, health_bar_texture_id);
+
+	// Set uniform locations
+	GLint bar_color_loc = glGetUniformLocation(program, "barColor");
+	GLint health_percentage_loc = glGetUniformLocation(program, "healthPercentage");
+
+
+	if //(bar_color_loc != -1 && health_percentage_loc != -1)
+		(render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
+	{
+		// Set the bar color (e.g., red)
+		glUniform3f(bar_color_loc, 1.0f, 0.0f, 0.0f);
+
+		// Set the health percentage 
+		glUniform1f(health_percentage_loc, 0.75f);
+	}
+	else
+	{
+		// Handle error: barColor or healthPercentage uniform not found
+		std::cerr << "Error: barColor or healthPercentage uniform not found in health bar shader" << std::endl;
+	}
+
+	// Render the health bar geometry 
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+	gl_has_errors();
+
+	// Disable vertex attribute array
+	glDisableVertexAttribArray(in_position_loc);
+	gl_has_errors();
+
+}
+
+
+
 
 void RenderSystem::handle_normal_map_uniform(Entity entity, const GLuint program)
 {
@@ -64,6 +125,7 @@ void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program
 	{
 		handle_normal_map_uniform(entity, program);
 	}
+
 }
 
 void RenderSystem::handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, const GLuint program)
@@ -189,6 +251,12 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	else if (render_request.used_effect == EFFECT_ASSET_ID::CHICKEN || render_request.used_effect == EFFECT_ASSET_ID::EGG)
 	{
 		handle_chicken_or_egg_effect_rendering(render_request, program);
+	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
+	{
+		//glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR]);
+		handle_health_bar_rendering(render_request, program);
+		
 	}
 	else
 	{
