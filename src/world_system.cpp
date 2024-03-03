@@ -156,7 +156,6 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 		next_minion_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS / 2);
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
 	}
-
 	if (registry.shooters.components.size() <= MAX_DODGERS && next_dodger_spawn < 0.f) {
 		next_dodger_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS/2);
 		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
@@ -276,13 +275,17 @@ void WorldSystem::restart_game() {
 }
 
 void WorldSystem::dead_player() {
-	is_dead = true;
-	registry.is_dead = true;
-	auto& motions_registry = registry.motions;
-	Motion& motion = motions_registry.get(player_blendy);
-	motion.velocity.x = 0;
-	motion.velocity.y = 0;
-	motion.angle = { 0.0f };
+	if (!registry.deathTimers.has(player_blendy)) {
+		is_dead = true;
+		registry.is_dead = true;
+		auto& motions_registry = registry.motions;
+		Motion& motion = motions_registry.get(player_blendy);
+		motion.velocity.x = 0;
+		motion.velocity.y = 0;
+		motion.angle = { 0.0f };
+		registry.deathTimers.emplace(player_blendy);
+		Mix_PlayChannel(-1, dead_sound, 0);
+	}
 }
 
 
@@ -296,41 +299,25 @@ void WorldSystem::handle_collisions() {
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// Only interested in collisions that involve Blendy
 		if (registry.players.has(entity)) {
-			//Player& player = registry.players.get(entity);
-
-			// Checking Player - Minion collisions
 			if (registry.minions.has(entity_other)) {
-				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {
-					// Kill blendy and reset death timer
-					registry.deathTimers.emplace(entity);
-					// add some sound effect
-					// switch to dead animation
-					Mix_PlayChannel(-1, dead_sound, 0);
+				dead_player();
+			}
+			else if (registry.bullets.has(entity_other)) {
+				if (!registry.bullets.get(entity_other).friendly) {
+					registry.remove_all_components_of(entity_other);
 					dead_player();
 				}
 			}
 		}
 		else if (registry.bullets.has(entity)) {
-			if (registry.minions.has(entity_other)) {
-				registry.motions.remove(entity);
-				registry.motions.remove(entity_other);
-				registry.minions.remove(entity_other);
-				registry.bullets.remove(entity);
-			}
-		}
-		else if (registry.bullets.has(entity_other)) {
-			if (registry.minions.has(entity)) {
-				registry.motions.remove(entity);
-				registry.motions.remove(entity_other);
-				registry.minions.remove(entity);
-				registry.bullets.remove(entity_other);
+			auto& bullet = registry.bullets.get(entity);
+			if (registry.minions.has(entity_other)&&bullet.friendly) {
+				registry.remove_all_components_of(entity);
+				registry.remove_all_components_of(entity_other);
 			}
 		}
 	}
-	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
 

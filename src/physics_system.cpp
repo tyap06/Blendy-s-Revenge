@@ -39,14 +39,14 @@ bool collides(const Motion& motion1, const Motion& motion2)
 			mesh->vertices[0].position;
 			//std::cout << mesh->vertices[0].position.x << std::endl;
 			//std::cout << mesh->vertices[0].position.y << std::endl;
-
 			return checkMeshCollisionSAT(mesh, motion2);
 		}
-		else if(motion2.type == EntityType::Player) {
+		//not need
+	/*	else if(motion2.type == EntityType::Player) {
 			Entity& entity = registry.players.entities[0];
 			Mesh* mesh = registry.meshPtrs.get(entity);
 			return checkMeshCollisionSAT(mesh, motion1);
-		}
+		}*/
 		else {
 
 			return true;
@@ -54,8 +54,8 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	}
 
 	return false;
-
 }
+
 float lerp(float start, float end, float t) {
 
 	return start * (1 - t) + end * t;

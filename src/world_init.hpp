@@ -33,3 +33,5 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);

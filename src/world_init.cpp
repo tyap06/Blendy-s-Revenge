@@ -7,7 +7,6 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	// Store a reference to the potentially re-used mesh object, like createChicken
 	// Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	// registry.meshPtrs.emplace(entity, &mesh);
-	std::cout << "Left button pressed" << std::endl;  // Debug message
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = angle;
@@ -208,6 +207,28 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 
+	return entity;
+}
+
+Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity; 
+	motion.scale = vec2(100.0f, 100.0f);
+	motion.type = EntityType::Bullet;
+	auto& bullet = registry.bullets.emplace(entity);
+	bullet.friendly = false;
+	vec3 color = { 0,40,0 };
+	registry.colors.insert(entity, color);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 

@@ -8,6 +8,8 @@ enum class EntityType {
 	Generic,
 	Player,
 	Bullet,
+	ENEMY,
+	ALL
 };
 
 enum class POWERUP_TYPE {
@@ -47,7 +49,7 @@ struct Minion
 };
 
 struct Shooter {
-	float shoot_interval_ms = 1000.0f; 
+	float shoot_interval_ms = 50.0f; 
 	float time_since_last_shot_ms = 0.0f;
 };
 
@@ -146,7 +148,9 @@ struct LightSource
 };
 struct Bullet
 {
-
+	bool friendly = true;
+	int penetration = 1;
+	int damage = 1;
 };
 /**
  * The following enumerators represent global identifiers refering to graphic
