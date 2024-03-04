@@ -255,6 +255,28 @@ RenderSystem::~RenderSystem()
 	    registry.remove_all_components_of(registry.renderRequests.entities.back());
 }
 
+void RenderSystem::debug_fps(const mat3& projection)
+{
+	if (debugging.show_game_fps)
+	{
+		for (Entity entity : registry.fpsCounters.entities)
+		{
+			auto& fps_component = registry.fpsCounters.get(entity);
+			std::string display_text = std::to_string(fps_component.current_fps);
+
+			auto& color_component = registry.colors.get(entity);
+
+			auto& motion = registry.motions.get(entity);
+
+			if (debugging.show_game_fps)
+			{
+				renderText(display_text, motion.position.x, motion.position.y, fps_component.scale, color_component, glm::mat4(1.f));
+			}
+		}
+
+	}
+}
+
 // Initialize the screen texture from a standard sprite
 bool RenderSystem::initScreenTexture()
 {

@@ -25,6 +25,7 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LightSource> lightSources;
+	ComponentContainer<FpsCounter> fpsCounters;
 	bool is_dead;
   
 	// constructor that adds all containers for looping over them
@@ -43,6 +44,7 @@ public:
 		registry_list.push_back(&colors);
 		registry_list.push_back(&backgrounds);
 		registry_list.push_back(&lightSources);
+		registry_list.push_back(&fpsCounters);
 	}
 
 	void clear_all_components() {

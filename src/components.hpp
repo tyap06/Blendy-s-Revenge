@@ -71,6 +71,7 @@ struct Collision
 // Data structure for toggling debug mode
 struct Debug {
 	bool in_debug_mode = 0;
+	bool show_game_fps = 0;
 	bool in_freeze_mode = 0;
 };
 extern Debug debugging;
@@ -79,6 +80,13 @@ extern Debug debugging;
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+};
+
+// Sets the brightness of the screen
+struct FpsCounter
+{
+	unsigned int current_fps = 0;
+	float scale = 1.f;
 };
 
 // A struct to refer to debugging graphics in the ECS

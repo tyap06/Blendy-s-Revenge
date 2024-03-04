@@ -567,6 +567,9 @@ void RenderSystem::draw()
 		// albeit iterating through all Sprites in sequence. A good point to optimize
 		drawTexturedMesh(entity, projection_2D);
 	}
+
+	debug_fps(projection_2D);
+
 	// Rebinding dummy_vao here
 	glBindVertexArray(dummy_vao);
 	gl_has_errors();

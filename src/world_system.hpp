@@ -52,6 +52,11 @@ private:
 
 	// restart level
 	void restart_game();
+	void console_debug_fps();
+
+	// Update Fps
+	
+	
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -65,12 +70,18 @@ private:
 	Entity player_blendy;
 	Entity game_background;
 	Entity directional_light;
+	Entity fps_counter;
 	float next_minion_spawn;
 
 	// music references
 	Mix_Music* background_music;
 	Mix_Chunk* dead_sound;
 	Mix_Chunk* get_point;
+
+	// fps variables
+	unsigned int fps = 0;
+	unsigned int frame_count = 0;
+	float time_accumulator = 0.f;
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -83,6 +94,7 @@ private:
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
+	void update_fps(float elapsed_ms_since_last_update);
 };
 
 

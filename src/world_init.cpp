@@ -127,6 +127,27 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 	return entity;
 }
 
+Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& color)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+
+	// Create an Fps Counter component to be able to refer to Blendy
+	registry.fpsCounters.emplace(entity);
+	auto& fps_text_color = registry.colors.emplace(entity);
+	fps_text_color = color;
+
+	return entity;
+}
+
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();

@@ -27,6 +27,9 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 // the directional light for Blinn-Phong
 Entity create_directional_light(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& camera_position);
 
+// the fps counter on the screen
+Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& color);
+
 // the minions
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 

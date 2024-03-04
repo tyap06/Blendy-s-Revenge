@@ -13,12 +13,14 @@ const size_t MAX_MINIONS = 800;
 const size_t MINION_DELAY_MS = 200 * 3;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 
-// add max sprite values here
+// UI
+const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
 
 // DEFAULT START POSITIONS
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
 const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
+const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
 const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
 
@@ -36,6 +38,10 @@ const vec2 dead_scale = { 0, 0 };
 const float CAMERA_Z_DEPTH = 1500.f;
 const vec3 CAMERA_POSITION = {window_width_px / 2, window_height_px / 2, CAMERA_Z_DEPTH};
 
+// FPS COUNTER
+const vec2 FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { 0.f, 0.f};
+const vec2 FPS_COUNTER_SCALE = { 1.f,1.f };
+const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -159,6 +165,9 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 // Update our game world
 
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+	
+	update_fps(elapsed_ms_since_last_update);
+
 	update_player_movement();
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
@@ -237,6 +246,31 @@ void WorldSystem::restart_game() {
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
+	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
+}
+
+void WorldSystem::console_debug_fps()
+{
+	if (debugging.show_game_fps)
+	{
+		std::cout << "FPS: " << fps << std::endl;
+	}
+}
+
+void WorldSystem::update_fps(float elapsed_ms_since_last_update)
+{
+	frame_count++;
+	time_accumulator += elapsed_ms_since_last_update;
+	if (time_accumulator >= 1000.0f) {
+		fps = frame_count * 1000.0f / time_accumulator;
+		frame_count = 0;
+		time_accumulator = 0.0f;
+
+		auto& fps_component = registry.fpsCounters.get(fps_counter);
+		fps_component.current_fps = fps;
+
+		console_debug_fps();
+	}
 }
 
 void WorldSystem::dead_player() {
@@ -370,6 +404,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = false;
 		else
 			debugging.in_debug_mode = true;
+	}
+
+	// FPS Toggle
+	if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+		debugging.show_game_fps = !debugging.show_game_fps;
 	}
 
 	// Control the current speed with `<` `>`
