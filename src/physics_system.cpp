@@ -45,11 +45,13 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
 	int index_one = it_one - registry.motions.components.begin();
 
-	// only works between player and minions
-	// change in the future for collision with other object
-	if ((registry.players.has(registry.motions.entities[index_one]) || registry.minions.has(registry.motions.entities[index_one]) 
-		|| registry.players.has(registry.motions.entities[index_two]) || registry.players.has(registry.motions.entities[index_two])) 
-		&& registry.players.has(registry.motions.entities[index_one]) || registry.players.has(registry.motions.entities[index_two]))
+
+	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])))
+	{
+		return false;
+	}
+
+	if ((registry.mesh_collision.has(registry.motions.entities[index_one]) && registry.mesh_collision.has(registry.motions.entities[index_two])))
 	{
 		// pass
 	}
@@ -274,16 +276,21 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 			otherShape.clear();
 			edges.clear();
 			axises_copy = axises;
-			for (int j = 0; j < 3; j++) {
-				const ColoredVertex& v = mesh->vertices[otherMesh->vertex_indices[index + j]];
-				// Transform the vertex position
-				vec3 worldPos = transform_two.mat * vec3(v.position.x, v.position.y , 1.0f);
-				positions_2[j] = vec2(worldPos.x, worldPos.y);
-			}
-			// only check polygons with indices that inside the overlap box 
-			for (vec2 point : positions_2) {
-				if (!isPointInBox(point, overlapBox)) {
-					continue;
+			if (index + 2 < otherMesh->vertex_indices.size()) {
+				for (int j = 0; j < 3; j++) {
+					if (otherMesh->vertex_indices[index + j] < mesh->vertices.size()) {
+						const ColoredVertex& v = mesh->vertices[otherMesh->vertex_indices[index + j]];
+						// Transform the vertex position
+						vec3 worldPos = transform_two.mat * vec3(v.position.x, v.position.y, 1.0f);
+						positions_2[j] = vec2(worldPos.x, worldPos.y);
+					}
+					
+				}
+				// only check polygons with indices that inside the overlap box 
+				for (vec2 point : positions_2) {
+					if (!isPointInBox(point, overlapBox)) {
+						continue;
+					}
 				}
 			}
 			vec2 v1 = positions_2[0];

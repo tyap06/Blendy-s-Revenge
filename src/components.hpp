@@ -36,7 +36,10 @@ struct Player
 	float max_invisible_duraion = 100.f;
 };
 
+struct Mesh_collision
+{
 
+};
 
 struct PowerUp
 {
@@ -235,8 +238,9 @@ enum class GEOMETRY_BUFFER_ID {
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1,
 	MINION = GEOMETRY_COUNT + 1,
+	BULLET = MINION + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::MINION + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BULLET + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;

@@ -172,6 +172,7 @@ vec2 WorldSystem::getCurrentMousePosition() {
 	return vec2{ (float)xpos, (float)ypos }; 
 }
 void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
+
 	Motion& motion = registry.motions.get(player_blendy);
 	vec2& blendy_pos = motion.position;
 	vec2 mouse_position = getCurrentMousePosition();

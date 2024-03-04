@@ -27,6 +27,8 @@ public:
 	ComponentContainer<LightSource> lightSources;
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
+	ComponentContainer<Mesh_collision> mesh_collision;
+	
 
 	int score;
 
