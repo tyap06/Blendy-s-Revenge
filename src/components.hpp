@@ -7,6 +7,9 @@
 enum class EntityType {
 	Generic,
 	Player,
+	Bullet,
+	ENEMY,
+	ALL
 };
 
 enum class POWERUP_TYPE {
@@ -16,19 +19,21 @@ enum class POWERUP_TYPE {
 	PROTIEN = LASER + 1,
 };
 
+enum class Enemy_TYPE {
+	BASIC = 0,
+	SHOOTER = BASIC + 1,
+};
+
 // Player component
 struct Player
 {
 	float max_speed = 200.f;
-	int health = 5;
+	int health = 100;
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
-	//int frame_stage = 1;
-	//bool left = false;
-	//bool right = false;
-	//bool up = false;
-	//bool down = true;
+	float invisible_counter = 0.0f;
+	float max_invisible_duraion = 100.f;
 };
 
 
@@ -42,7 +47,23 @@ struct PowerUp
 
 struct Minion
 {
+	int health = 50;
+	int damage = 50;
+	float armor = 0;
+	int score = 10;
+	Enemy_TYPE type = Enemy_TYPE::BASIC;
+};
 
+struct Shooter {
+	float shoot_interval_ms = 50.0f; 
+	float time_since_last_shot_ms = 0.0f;
+};
+
+struct Bullet
+{
+	bool friendly = true;
+	int penetration = 1;
+	int damage = 25;
 };
 
 struct Eatable
@@ -71,7 +92,6 @@ struct Collision
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
 	Collision(Entity& other) { this->other = other; };
-
 };
 
 // Data structure for toggling debug mode
@@ -96,7 +116,7 @@ struct DebugComponent
 // A timer that will be associated to dying chicken
 struct DeathTimer
 {
-	float counter_ms = 3000;
+	float counter_ms = 2000;
 };
 
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
@@ -184,13 +204,15 @@ enum class TEXTURE_ASSET_ID {
 	MINION_NM = MINION + 1,
 	BACKGROUND = MINION_NM + 1,
 	DIRECTIONAL_LIGHT = BACKGROUND + 1,
+	BULLET = DIRECTIONAL_LIGHT + 1,
 	//LFRAME_0 = DIRECTIONAL_LIGHT + 1,
 	//LFRAME_1 = LFRAME_0 + 1,
 	//LFRAME_2 = LFRAME_1 + 1,
 	//LFRAME_3 = LFRAME_2 + 1,
 	//LFRAME_4 = LFRAME_3 + 1,
 	//TEXTURE_COUNT = LFRAME_4 + 1
-	TEXTURE_COUNT = DIRECTIONAL_LIGHT + 1
+	TEXTURE_COUNT = BULLET + 1
+	
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
