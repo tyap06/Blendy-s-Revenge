@@ -103,7 +103,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			if (new_x - half_width > 0 && new_x + half_width < window_width_px && blendy.frame_stage != 0) {
+			if (new_x - half_width > 0 && new_x + half_width < window_width_px && blendy.frame_stage != 0 && !registry.deathTimers.has(entity)) {
 				motion.position.x = new_x;
 			}
 

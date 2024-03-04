@@ -473,6 +473,9 @@ void WorldSystem::on_mouse_move(vec2 mouse_position) {
 }
 
 float WorldSystem::get_y_animate(int stage, int going_up) {
+	if (registry.deathTimers.has(player_blendy)) {
+		return 0;
+	}
 	if (stage == 0) {
 		return 0.f * going_up;
 	}
