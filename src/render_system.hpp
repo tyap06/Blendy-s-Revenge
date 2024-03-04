@@ -40,7 +40,22 @@ class RenderSystem {
 			textures_path("blendy_left_1.png"),
 			textures_path("blendy_left_2.png"),
 			textures_path("blendy_left_3.png"),
-			textures_path("blendy_left_4.png")
+			textures_path("blendy_left_4.png"),
+			textures_path("blendy_right_0.png"),
+			textures_path("blendy_right_1.png"),
+			textures_path("blendy_right_2.png"),
+			textures_path("blendy_right_3.png"),
+			textures_path("blendy_right_4.png"),
+			textures_path("blendy_down_0.png"),
+			textures_path("blendy_down_1.png"),
+			textures_path("blendy_down_2.png"),
+			textures_path("blendy_down_3.png"),
+			textures_path("blendy_down_4.png"),
+			textures_path("blendy_up_0.png"),
+			textures_path("blendy_up_1.png"),
+			textures_path("blendy_up_2.png"),
+			textures_path("blendy_up_3.png"),
+			textures_path("blendy_up_4.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
