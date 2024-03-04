@@ -13,7 +13,6 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.type = EntityType::Bullet;
 	registry.bullets.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -219,7 +218,6 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.angle = angle;
 	motion.velocity = velocity; 
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.type = EntityType::Bullet;
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
 	vec3 color = { 0,40,0 };
