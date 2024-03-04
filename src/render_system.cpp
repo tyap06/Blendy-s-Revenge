@@ -34,7 +34,7 @@ const char* fontFragmentShaderSource =
 "    color = vec4(textColor, 1.0) * sampled;\n"
 "}\0";
 
-bool RenderSystem::fontInit(GLFWwindow* window, const std::string& font_filename, unsigned int font_default_size)
+bool RenderSystem::fontInit_internal(const std::string& font_filename, unsigned font_default_size)
 {
 	// font buffer setup
 	glGenVertexArrays(1, &m_font_VAO);
@@ -181,9 +181,9 @@ bool RenderSystem::fontInit(GLFWwindow* window, const std::string& font_filename
 	return true;
 }
 
-bool RenderSystem::fontInit_Wrapper(GLFWwindow* window)
+bool RenderSystem::initializeFonts()
 {
-	return fontInit(window, FONT_FOLDER_PATH + Kenney_Future_Narrow + DOT_TTF, FONT_DEFAULT_SIZE);
+	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Pixel_Square + DOT_TTF, FONT_DEFAULT_SIZE);
 }
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color,
@@ -234,9 +234,12 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 			{ xpos + w, ypos + h,   1.0f, 0.0f }
 		};
 
+		// Set the active texture (without this texture may be overriden)
+		glActiveTexture(GL_TEXTURE0);
+
 		// render glyph texture over quad
 		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
-		// std::cout << "binding texture: " << ch.character << " = " << ch.TextureID << std::endl;
+		//std::cout << "binding texture: " << ch.character << " = " << ch.TextureID << std::endl;
 
 		// update content of VBO memory
 		glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
@@ -287,8 +290,8 @@ void RenderSystem::setUsesNormalMap(bool cond, const GLuint program)
 void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program, const RenderRequest& render_request)
 {
 	// Redundantly ensuring program is as expected
-	glUseProgram(program);
-	gl_has_errors();
+	/*glUseProgram(program);
+	gl_has_errors();*/
 
 	GLint in_position_loc = glGetAttribLocation(program, "in_position");
 	GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
@@ -299,7 +302,7 @@ void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program
 	gl_has_errors();
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
 	                      sizeof(TexturedVertex), (void *)0);
-	gl_has_errors();
+ 	gl_has_errors();
 
 	glEnableVertexAttribArray(in_texcoord_loc);
 	glVertexAttribPointer(
@@ -514,6 +517,7 @@ void RenderSystem::drawToScreen()
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
+	gl_has_errors();
 
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
@@ -548,6 +552,11 @@ void RenderSystem::draw()
 							  // and alpha blending, one would have to sort
 							  // sprites back to front
 	gl_has_errors();
+
+	// Rebinding dummy_vao here
+	glBindVertexArray(dummy_vao);
+	gl_has_errors();
+
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
@@ -558,6 +567,9 @@ void RenderSystem::draw()
 		// albeit iterating through all Sprites in sequence. A good point to optimize
 		drawTexturedMesh(entity, projection_2D);
 	}
+	// Rebinding dummy_vao here
+	glBindVertexArray(dummy_vao);
+	gl_has_errors();
 	
 	// Truely render to the screen
 	drawToScreen();

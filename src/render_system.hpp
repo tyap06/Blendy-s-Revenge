@@ -83,6 +83,10 @@ class RenderSystem {
 	const std::string Kenney_Future_Narrow = "Kenney_Future_Narrow";
 	const unsigned int FONT_DEFAULT_SIZE = 48;
 
+
+	// Dummy VAO
+	GLuint dummy_vao;
+
 public:
 	// Initialize the window
 	bool init(GLFWwindow* window);
@@ -118,8 +122,8 @@ public:
 	void setDirectionalLight(const Entity& light) { directional_light = light; }
 
 	// Fonts
-	bool fontInit_Wrapper(GLFWwindow* window);
-	bool fontInit(GLFWwindow* window, const std::string& font_filename, unsigned font_default_size);
+	bool initializeFonts();
+	bool fontInit_internal(const std::string& font_filename, unsigned font_default_size);
 	void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
 
@@ -127,7 +131,6 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
-
 	
 	// Helpers for drawTexturedMesh
 	void handle_textured_rendering(Entity entity, GLuint program, const RenderRequest& render_request);
@@ -136,6 +139,9 @@ private:
 	void handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, GLuint program);
 	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
 	                             RenderRequest& render_request);
+
+	// Debugging FPS
+	void debug_fps(const mat3& projection);
 
 	// Window handle
 	GLFWwindow* window;

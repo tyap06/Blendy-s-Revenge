@@ -13,6 +13,11 @@
 #include <iostream>
 #include <sstream>
 
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+
 // World initialization
 bool RenderSystem::init(GLFWwindow* window_arg)
 {
@@ -48,17 +53,19 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	// code to use OpenGL 4.3 (not suported on mac) and add additional .h and .cpp
 	// glDebugMessageCallback((GLDEBUGPROC)errorCallback, nullptr);
 
+	
+
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	glGenVertexArrays(1, &dummy_vao);
+	glBindVertexArray(dummy_vao);
 	gl_has_errors();
 
 	initScreenTexture();
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	initializeFonts();
 
 	return true;
 }
