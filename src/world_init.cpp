@@ -218,18 +218,18 @@ Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& 
 	auto& motion = registry.motions.emplace(entity);
 	registry.eatables.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 0 };
+	motion.velocity = { 0, 0};
 	motion.position = position;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
 
-	// Create and (empty) Minion component to be able to refer to all minions
-	registry.minions.emplace(entity);
+	// Create and (empty) powerup component to be able to refer to all minions
+	registry.powerUps.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::MINION,
-			TEXTURE_ASSET_ID::MINION_NM,
+		{ TEXTURE_ASSET_ID::BLENDY,
+			TEXTURE_ASSET_ID::BLENDY_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 

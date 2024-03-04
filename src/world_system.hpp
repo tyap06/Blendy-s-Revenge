@@ -72,6 +72,7 @@ private:
 	Entity help_screen;
 	bool showHelpScreen;
 	float next_dodger_spawn;
+	float next_powerup_spawn;
 
 	// music references
 	Mix_Music* background_music;
@@ -92,6 +93,7 @@ private:
 	void move_player(vec2 direction);
 	vec2 getCurrentMousePosition();
 	void update_bullets(float elapsed_ms_since_last_update);
+	void update_powerups(float elapsed_ms_since_last_update);
 };
 
 

@@ -13,6 +13,8 @@ const size_t MAX_MINIONS = 800;
 const size_t MAX_DODGERS = 5;
 const size_t MINION_DELAY_MS = 200 * 3;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
+const size_t MAX_POWERUPS = 25;
+const size_t POWERUP_DELAY_MS = 200 * 3;
 
 // add max sprite values here
 
@@ -149,6 +151,19 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     restart_game();
 }
 
+// make powerups spawn randomly on the map
+void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
+{
+	next_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+
+	if (registry.powerUps.components.size() <= MAX_POWERUPS && next_powerup_spawn < 0.f) {
+		next_powerup_spawn = (POWERUP_DELAY_MS / 2) + uniform_dist(rng) * (POWERUP_DELAY_MS / 2);
+
+		create_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 50.f + uniform_dist(rng) * (window_width_px - 100.f)), MINION_BOUNDS);
+	}
+}
+
+
 void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
@@ -223,6 +238,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	update_minions(elapsed_ms_since_last_update);
+	update_powerups(elapsed_ms_since_last_update);
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);

@@ -19,9 +19,12 @@ enum class POWERUP_TYPE {
 	PROTIEN = LASER + 1,
 };
 
+
+
 enum class Enemy_TYPE {
 	BASIC = 0,
 	SHOOTER = BASIC + 1,
+	ROAMER = SHOOTER + 1,
 };
 
 // Player component
