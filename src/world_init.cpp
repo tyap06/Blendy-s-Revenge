@@ -38,7 +38,6 @@ Entity create_background(RenderSystem* renderer, const vec2& position, const vec
 
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-	//motion.type = EntityType::Generic;
 
 
 	// Setting initial values, scale is negative to make it face the opposite way
@@ -62,7 +61,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BLENDY);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Initialize the motion
@@ -70,7 +69,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
-	//motion.type = EntityType::Player;
+
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -129,7 +128,8 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Initialize the motion
