@@ -10,6 +10,7 @@
 
 // Game configuration
 const size_t MAX_MINIONS = 800;
+const size_t MAX_DODGERS = 5;
 const size_t MINION_DELAY_MS = 200 * 3;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 
@@ -31,9 +32,13 @@ const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 200.f, 40.f };
 const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
 bool is_dead = false;
-const vec2 dead_velocity = { 0, 200.0f };
+const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
 const vec2 dead_scale = { 0, 0 };
+
+// EYE POSITION (For Lighting Purposes)
+const float CAMERA_Z_DEPTH = 1500.f;
+const vec3 CAMERA_POSITION = {window_width_px / 2, window_height_px / 2, CAMERA_Z_DEPTH};
 
 
 // Create the bug world
@@ -148,11 +153,15 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.minions.components.size() <= MAX_MINIONS && next_minion_spawn < 0.f) {
-		next_minion_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS / 2);
-
+	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f) {
+		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	}
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f) {
+		next_dodger_spawn = MINION_DELAY_MS*3 + uniform_dist(rng) * (MINION_DELAY_MS);
+		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
 	}
 }
 
@@ -263,20 +272,42 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
+	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS);
 	health_bar = createHealthBar(renderer, HEALTH_BAR_POSITION, HEALTH_BAR_BOUNDS);
 }
 
-void WorldSystem::dead_player() {
-	is_dead = true;
-	registry.is_dead = true;
-	auto& motions_registry = registry.motions;
-	Motion& motion = motions_registry.get(player_blendy);
-	motion.velocity.x = 0;
-	motion.velocity.y = 0;
-	motion.angle = { 0.0f };
+void WorldSystem::hit_player(int damage) {
+	if (!registry.deathTimers.has(player_blendy)) {
+		auto& player = registry.players.get(player_blendy);
+		if (player.health - damage <= 0) {
+			is_dead = true;
+			registry.is_dead = true;
+			auto& motions_registry = registry.motions;
+			Motion& motion = motions_registry.get(player_blendy);
+			motion.velocity.x = 0;
+			motion.velocity.y = 0;
+			motion.angle = { 0.0f };
+			registry.deathTimers.emplace(player_blendy);
+			Mix_PlayChannel(-1, dead_sound, 0);
+		}
+		else {
+			player.health -= damage;
+		}
+	}
+}
+
+void WorldSystem::hit_enemy(Entity& target, int damage) {
+	Minion& minion = registry.minions.get(target);
+	minion.health -= damage;
+	if (minion.health <= 0) {
+		registry.score += minion.score;
+
+		std::cout << registry.score << std::endl;
+		registry.remove_all_components_of(target);
+	}
 }
 
 
@@ -290,41 +321,29 @@ void WorldSystem::handle_collisions() {
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// Only interested in collisions that involve Blendy
 		if (registry.players.has(entity)) {
-			//Player& player = registry.players.get(entity);
-
-			// Checking Player - Minion collisions
 			if (registry.minions.has(entity_other)) {
-				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {
-					// Kill blendy and reset death timer
-					registry.deathTimers.emplace(entity);
-					// add some sound effect
-					// switch to dead animation
-					Mix_PlayChannel(-1, dead_sound, 0);
-					dead_player();
+				int damage = registry.minions.get(entity_other).damage;
+				hit_player(damage);
+				registry.remove_all_components_of(entity_other);
+			}
+			else if (registry.bullets.has(entity_other)) {
+				if (!registry.bullets.get(entity_other).friendly) {
+					int damage = registry.bullets.get(entity_other).damage;
+					registry.remove_all_components_of(entity_other);
+					hit_player(damage);
 				}
 			}
 		}
 		else if (registry.bullets.has(entity)) {
-			if (registry.minions.has(entity_other)) {
-				registry.motions.remove(entity);
-				registry.motions.remove(entity_other);
-				registry.minions.remove(entity_other);
-				registry.bullets.remove(entity);
-			}
-		}
-		else if (registry.bullets.has(entity_other)) {
-			if (registry.minions.has(entity)) {
-				registry.motions.remove(entity);
-				registry.motions.remove(entity_other);
-				registry.minions.remove(entity);
-				registry.bullets.remove(entity_other);
+			auto& bullet = registry.bullets.get(entity);
+			if (registry.minions.has(entity_other)&&bullet.friendly) {
+				int damage = registry.bullets.get(entity).damage;
+				hit_enemy(entity_other, damage);
+				registry.remove_all_components_of(entity);
 			}
 		}
 	}
-	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
 

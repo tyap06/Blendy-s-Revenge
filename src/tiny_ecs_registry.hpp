@@ -26,6 +26,10 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LightSource> lightSources;
 	ComponentContainer<Bullet> bullets;
+	ComponentContainer<Shooter> shooters;
+
+	int score;
+
 	bool is_dead;
   
 	// constructor that adds all containers for looping over them
@@ -44,6 +48,8 @@ public:
 		registry_list.push_back(&colors);
 		registry_list.push_back(&backgrounds);
 		registry_list.push_back(&lightSources);
+		registry_list.push_back(&bullets);
+		registry_list.push_back(&shooters);
 	}
 
 	void clear_all_components() {

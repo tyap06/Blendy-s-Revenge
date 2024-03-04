@@ -61,7 +61,6 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	// Store a reference to the potentially re-used mesh object, like createChicken
 	// Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	// registry.meshPtrs.emplace(entity, &mesh);
-	std::cout << "Left button pressed" << std::endl;  // Debug message
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = angle;
@@ -79,7 +78,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	return entity;
 }
 
-Entity create_background(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_background(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
@@ -112,7 +111,7 @@ Entity create_background(RenderSystem* renderer, vec2 position, vec2 bounds)
 }
 
 
-Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
@@ -142,7 +141,7 @@ Entity create_blendy(RenderSystem* renderer, vec2 position, vec2 bounds)
 	return entity;
 }
 
-Entity create_directional_light(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_directional_light(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& camera_position)
 {
 	auto entity = Entity();
 
@@ -162,9 +161,10 @@ Entity create_directional_light(RenderSystem* renderer, vec2 position, vec2 boun
 	// Create a directional light
 	auto& directional_light = registry.lightSources.emplace(entity);
 	directional_light.light_color = { 1.0f,1.0f,1.0f };
-	directional_light.shininess = 9.f;
+	directional_light.shininess = 4.f;
 	directional_light.ambientIntensity = 0.00f;
-	directional_light.z_depth = 1000.f;
+	directional_light.z_depth = 500.f;
+	directional_light.camera_position = camera_position;
 
 	renderer->setDirectionalLight(entity);
 
@@ -178,7 +178,7 @@ Entity create_directional_light(RenderSystem* renderer, vec2 position, vec2 boun
 	return entity;
 }
 
-Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds)
+Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
@@ -206,7 +206,8 @@ Entity create_minion(RenderSystem* renderer, vec2 position, vec2 bounds)
 	return entity;
 }
 
-Entity create_powerup(RenderSystem* renderer, vec2 position, vec2 bounds) {
+Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
@@ -232,6 +233,58 @@ Entity create_powerup(RenderSystem* renderer, vec2 position, vec2 bounds) {
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
+	return entity;
+}
+
+Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
+	auto entity = Entity();
+
+	
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	minion.type = Enemy_TYPE::SHOOTER;
+	minion.score = 25;
+	motion.angle = 0.f;
+	motion.velocity = { 0, 100.f };
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y});
+	vec3 color = { 1,0,0 };
+	registry.colors.insert(entity, color);
+
+
+	auto& dodger = registry.shooters.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MINION, 
+		  TEXTURE_ASSET_ID::MINION_NM, 
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity; 
+	motion.scale = vec2(100.0f, 100.0f);
+	motion.type = EntityType::Bullet;
+	auto& bullet = registry.bullets.emplace(entity);
+	bullet.friendly = false;
+	vec3 color = { 0,40,0 };
+	registry.colors.insert(entity, color);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 

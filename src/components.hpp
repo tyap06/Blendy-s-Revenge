@@ -8,6 +8,8 @@ enum class EntityType {
 	Generic,
 	Player,
 	Bullet,
+	ENEMY,
+	ALL
 };
 
 enum class POWERUP_TYPE {
@@ -17,19 +19,21 @@ enum class POWERUP_TYPE {
 	PROTIEN = LASER + 1,
 };
 
+enum class Enemy_TYPE {
+	BASIC = 0,
+	SHOOTER = BASIC + 1,
+};
+
 // Player component
 struct Player
 {
 	float max_speed = 200.f;
-	int health = 5;
+	int health = 100;
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
-	//int frame_stage = 1;
-	//bool left = false;
-	//bool right = false;
-	//bool up = false;
-	//bool down = true;
+	float invisible_counter = 0.0f;
+	float max_invisible_duraion = 100.f;
 };
 
 
@@ -43,7 +47,23 @@ struct PowerUp
 
 struct Minion
 {
+	int health = 50;
+	int damage = 50;
+	float armor = 0;
+	int score = 10;
+	Enemy_TYPE type = Enemy_TYPE::BASIC;
+};
 
+struct Shooter {
+	float shoot_interval_ms = 50.0f; 
+	float time_since_last_shot_ms = 0.0f;
+};
+
+struct Bullet
+{
+	bool friendly = true;
+	int penetration = 1;
+	int damage = 25;
 };
 
 struct Eatable
@@ -66,7 +86,6 @@ struct Collision
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
 	Collision(Entity& other) { this->other = other; };
-
 };
 
 // Data structure for toggling debug mode
@@ -91,7 +110,7 @@ struct DebugComponent
 // A timer that will be associated to dying chicken
 struct DeathTimer
 {
-	float counter_ms = 3000;
+	float counter_ms = 2000;
 };
 
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
@@ -136,11 +155,11 @@ struct LightSource
 
 	// Z-depth of the light
 	float z_depth;
-};
-struct Bullet
-{
 
+	// Position of camera for doing lighting calculations
+	vec3 camera_position;
 };
+
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture

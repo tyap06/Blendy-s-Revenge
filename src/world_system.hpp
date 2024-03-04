@@ -44,7 +44,6 @@ public:
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
-	void on_mouse_move(vec2 pos);
 	bool keyWPressed = false;
 	bool keySPressed = false;
 	bool keyAPressed = false;
@@ -72,6 +71,7 @@ private:
 	Entity health_bar;
 	Entity help_screen;
 	bool showHelpScreen;
+	float next_dodger_spawn;
 
 	// music references
 	Mix_Music* background_music;
@@ -82,7 +82,8 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
-	void dead_player();
+	void hit_player(int damage);
+	void hit_enemy(Entity& target, int damage);
 
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);
