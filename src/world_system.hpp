@@ -66,6 +66,7 @@ private:
 	Entity game_background;
 	Entity directional_light;
 	float next_minion_spawn;
+	float next_powerup_spawn;
 
 	// music references
 	Mix_Music* background_music;
@@ -83,6 +84,7 @@ private:
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
+	void update_powerups(float elapsed_ms_since_last_update);
 };
 
 
