@@ -3,7 +3,7 @@
 #include <array>
 #include <map>
 #include <utility>
-
+#include <iostream>
 #include "common.hpp"
 #include "components.hpp"
 #include "tiny_ecs.hpp"
@@ -39,7 +39,10 @@ class RenderSystem {
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::CHICKEN, mesh_path("chicken.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BLENDY, mesh_path("Blendy.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::MINION, mesh_path("Minion.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BULLET, mesh_path("Bullet.obj"))
+
 		  // specify meshes of other assets here
 	};
 
@@ -51,6 +54,9 @@ class RenderSystem {
 			textures_path("minion-standing-nm.png"),
 			textures_path("background.png"),
 			textures_path("directional-light.png"),
+			textures_path("bullet.png"),
+			textures_path("fullHealthBar.png"),
+			textures_path("HelpScreen.png"),
 		/*	textures_path("blendy_frame_0.png"),
 			textures_path("blendy_frame_1.png"),
 			textures_path("blendy_frame_2.png"),
@@ -65,7 +71,8 @@ class RenderSystem {
 		shader_path("egg"),
 		shader_path("chicken"),
 		shader_path("textured"),
-		shader_path("wind") };
+		shader_path("wind"),
+		shader_path("healthBar")};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -139,6 +146,9 @@ private:
 	void handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, GLuint program);
 	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
 	                             RenderRequest& render_request);
+	void handle_health_bar_rendering(const RenderRequest& render_request, GLuint program);
+	void drawQuad(float x, float y, float width, float height, const glm::vec3& color);
+	void handle_health_bar_rendering(float health);
 
 	// Debugging FPS
 	void debug_fps(const mat3& projection);

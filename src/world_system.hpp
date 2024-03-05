@@ -44,12 +44,14 @@ public:
 private:
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
-	void on_mouse_move(vec2 pos);
 	bool keyWPressed = false;
 	bool keySPressed = false;
 	bool keyAPressed = false;
 	bool keyDPressed = false;
-
+	float bullet_timer = 0.0f;
+	float elapsed_ms = 0.0f;
+	float bullet_speed = 500.f;
+	float bullet_launch_interval = 0.5f;
 	// restart level
 	void restart_game();
 	void console_debug_fps();
@@ -72,6 +74,11 @@ private:
 	Entity directional_light;
 	Entity fps_counter;
 	float next_minion_spawn;
+	Entity health_bar;
+	Entity help_screen;
+	bool showHelpScreen;
+	float next_dodger_spawn;
+	float next_powerup_spawn;
 
 	// music references
 	Mix_Music* background_music;
@@ -87,7 +94,8 @@ private:
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
-	void dead_player();
+	void hit_player(int damage);
+	void hit_enemy(Entity& target, int damage);
 
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);
@@ -95,6 +103,9 @@ private:
 	void update_player_movement();
 	void move_player(vec2 direction);
 	void update_fps(float elapsed_ms_since_last_update);
+	vec2 getCurrentMousePosition();
+	void update_bullets(float elapsed_ms_since_last_update);
+	void update_powerups(float elapsed_ms_since_last_update);
 };
 
 
