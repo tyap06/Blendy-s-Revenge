@@ -234,7 +234,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, 100.f };
+	motion.velocity = { 0, -100.f };
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -298,7 +298,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.type = Enemy_TYPE::SHOOTER;
 	minion.score = 25;
 	motion.angle = 0.f;
-	motion.velocity = { 0, 100.f };
+	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y});
 	vec3 color = { 1,0,0 };

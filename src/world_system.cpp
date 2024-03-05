@@ -30,7 +30,7 @@ const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
 const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
 const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
-const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
+const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
 const vec2 HEALTH_BAR_POSITION = { 125.f, 30.f };
 
 // BOUNDS
@@ -192,17 +192,17 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f && registry.score > 250) {
+	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
-		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
 	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
-		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f ) {
-		next_roamer_spawn = MINION_DELAY_MS + uniform_dist(rng) * (MINION_DELAY_MS);
-		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score > 250) {
+		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
+		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
 
 }
