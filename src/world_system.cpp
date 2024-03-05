@@ -7,6 +7,9 @@
 #include <sstream>
 
 #include "physics_system.hpp"
+#include <fstream>
+
+
 
 // Game configuration
 const size_t MAX_MINIONS = 800;
@@ -187,6 +190,7 @@ vec2 WorldSystem::getCurrentMousePosition() {
 	return vec2{ (float)xpos, (float)ypos }; 
 }
 void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
+
 	Motion& motion = registry.motions.get(player_blendy);
 	vec2& blendy_pos = motion.position;
 	vec2 mouse_position = getCurrentMousePosition();
@@ -211,6 +215,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	return;
 }
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	// Remove debug info from the last step
@@ -478,6 +483,27 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+
+	if (action == GLFW_PRESS) {
+		if (key == GLFW_KEY_MINUS) {
+			float currentMusicVolume = Mix_VolumeMusic(-1);
+			float dead_sound_volume = Mix_VolumeChunk(dead_sound, -1);
+			float get_point_volume = Mix_VolumeChunk(get_point, -1);
+			Mix_VolumeMusic(currentMusicVolume - 10);
+			Mix_VolumeChunk(dead_sound, dead_sound_volume - 10);
+			Mix_VolumeChunk(get_point, get_point_volume - 10);
+		}
+		else if (key == GLFW_KEY_EQUAL) {
+			float currentMusicVolume = Mix_VolumeMusic(-1);
+			float dead_sound_volume = Mix_VolumeChunk(dead_sound, -1);
+			float get_point_volume = Mix_VolumeChunk(get_point, -1);
+			Mix_VolumeMusic(currentMusicVolume + 10);
+			Mix_VolumeChunk(dead_sound, dead_sound_volume + 10);
+			Mix_VolumeChunk(get_point, get_point_volume + 10);
+		}
+	}
+
+
 }
 
 //void WorldSystem::on_mouse_move(vec2 mouse_position) {

@@ -11,6 +11,11 @@ void AISystem::shoot(float time) {
 	
 }
 
+void AISystem::init(RenderSystem* renderer_arg) {
+	this->renderer = renderer_arg;
+}
+
+
 void AISystem::step(float elapsed_ms)
 {
 	frame_count++;

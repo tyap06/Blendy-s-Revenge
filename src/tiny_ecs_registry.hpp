@@ -30,6 +30,11 @@ public:
 	ComponentContainer<PowerUp> powerUps;
 	ComponentContainer<EnemyBullet> enemyBullets;
 
+	ComponentContainer<Mesh_collision> mesh_collision;
+	
+
+	int score;
+
 	bool is_dead;
 	int score;
 
