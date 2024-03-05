@@ -643,16 +643,16 @@ float WorldSystem::get_y_animate(int stage, int going_up) {
 		return 0.f * going_up;
 	}
 	else if (stage == 1) {
-		return 1.f * going_up;
+		return 0.3f * going_up;
 	}
 	else if (stage == 2) {
-		return 2.f * going_up;
+		return 0.5f * going_up;
 	}
 	else if (stage == 3) {
-		return 6.f * going_up;
+		return 1.0f * going_up;
 	}
 	else if (stage == 4) {
-		return 7.f * going_up;
+		return 1.5f * going_up;
 	}
 	else {
 		return 0.f * going_up;

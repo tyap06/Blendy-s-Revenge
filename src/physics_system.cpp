@@ -131,7 +131,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
-			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
@@ -140,7 +140,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 
 			if (new_y - half_height > 0 && new_y + half_height < window_height_px) {
-				motion.position.y = new_y + motion.y_animate;
+				motion.position.y = new_y;
 			}
 		}
 

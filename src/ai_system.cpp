@@ -1,7 +1,7 @@
 #include "ai_system.hpp"
 #include "world_init.hpp"
 
-const int update_frequency = 100;
+const int update_frequency = 50;
 const float ideal_range_from_player = 450.0f; 
 const float approach_speed_factor = 1.0f; // Speed factor when approaching
 const float dodge_speed_factor = 1.5f; // Speed factor when dodging
@@ -67,8 +67,8 @@ void AISystem::step(float elapsed_ms)
 				else if (angle_diff > M_PI) {
 					angle_diff -= 2 * M_PI;
 				}
+				create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff);
 				shooter.time_since_last_shot_ms = 0.0f;
-				create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff); 
 			}
 		}
 
