@@ -1,6 +1,7 @@
 #include "world_init.hpp"
 #include "tiny_ecs_registry.hpp"
 #include <iostream>
+#include <random>
 
 Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
 {
@@ -320,28 +321,40 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 {
 	auto entity = Entity();
 
-	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity, Mesh_collision());
-
 	registry.meshPtrs.emplace(entity, &mesh);
-
-	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	minion.type = Enemy_TYPE::ROAMER;
+	minion.score = 25;
 	motion.angle = 0.f;
-	motion.velocity = { 0, 100.f };
-	motion.position = position;
-	// Setting initial values, scale is negative to make it face the opposite way
-	motion.scale = vec2({ -bounds.x, bounds.y });
 
-	// Create and (empty) Minion component to be able to refer to all minions
-	registry.minions.emplace(entity);
+	std::random_device rd; 
+	std::mt19937 eng(rd()); 
+	std::uniform_real_distribution<> distr(100, 150); 
+	std::uniform_int_distribution<> signDistr(0, 1); 
+
+	float velocityX = distr(eng) * (signDistr(eng) * 2 - 1); 
+	float velocityY = distr(eng) * (signDistr(eng) * 2 - 1); 
+
+	motion.velocity = { velocityX, velocityY };
+
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	vec3 color = { 0,1,0 };
+	registry.colors.insert(entity, color);
+
+
+	auto& dodger = registry.roamers.emplace(entity);
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::MINION,
-			TEXTURE_ASSET_ID::MINION_NM,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		  TEXTURE_ASSET_ID::MINION_NM,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }

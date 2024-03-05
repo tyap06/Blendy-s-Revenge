@@ -27,6 +27,8 @@ public:
 	ComponentContainer<LightSource> lightSources;
 	ComponentContainer<FpsCounter> fpsCounters;
 	ComponentContainer<ScoreCounter> scoreCounters;
+	ComponentContainer<Roamer> roamers;
+
 
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
@@ -61,6 +63,7 @@ public:
 		registry_list.push_back(&powerUps);
 		registry_list.push_back(&enemyBullets);
 		registry_list.push_back(&scoreCounters);
+		registry_list.push_back(&roamers);
 	}
 
 	void clear_all_components() {

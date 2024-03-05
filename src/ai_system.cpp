@@ -1,7 +1,7 @@
 #include "ai_system.hpp"
 #include "world_init.hpp"
 
-const int update_frequency = 50;
+const int update_frequency = 100;
 const float ideal_range_from_player = 450.0f; 
 const float approach_speed_factor = 1.0f; // Speed factor when approaching
 const float dodge_speed_factor = 1.5f; // Speed factor when dodging

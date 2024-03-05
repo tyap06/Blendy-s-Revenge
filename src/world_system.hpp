@@ -78,6 +78,7 @@ private:
 	Entity help_screen;
 	bool showHelpScreen;
 	float next_dodger_spawn;
+	float next_roamer_spawn;
 	float next_powerup_spawn;
 
 	// music references

@@ -12,9 +12,10 @@
 
 
 // Game configuration
-const size_t MAX_MINIONS = 800;
+const size_t MAX_MINIONS = 80;
 const size_t MAX_DODGERS = 5;
-const size_t MINION_DELAY_MS = 200 * 3;
+const size_t MAX_ROAMER = 5;
+const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 const size_t MAX_POWERUPS = 25;
 const size_t POWERUP_DELAY_MS = 200 * 3;
@@ -189,15 +190,21 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f) {
+	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f && registry.score > 250) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f) {
-		next_dodger_spawn = MINION_DELAY_MS*3 + uniform_dist(rng) * (MINION_DELAY_MS);
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
+		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
 	}
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f ) {
+		next_roamer_spawn = MINION_DELAY_MS + uniform_dist(rng) * (MINION_DELAY_MS);
+		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	}
+
 }
 
 // Update our game world
