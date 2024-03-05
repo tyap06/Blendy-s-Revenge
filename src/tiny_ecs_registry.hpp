@@ -29,7 +29,6 @@ public:
 	ComponentContainer<Shooter> shooters;
 	ComponentContainer<PowerUp> powerUps;
 	ComponentContainer<EnemyBullet> enemyBullets;
-
 	ComponentContainer<Mesh_collision> mesh_collision;
 	
 
