@@ -18,6 +18,7 @@ Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = bounds;
 
+	registry.helpScreens.emplace(entity);
 	// Create a render request for the help Screen
 	registry.renderRequests.insert(
 		entity,
