@@ -12,34 +12,57 @@
 
 
 // Game configuration
-const size_t MAX_MINIONS = 800;
+const size_t MAX_MINIONS = 80;
 const size_t MAX_DODGERS = 5;
-const size_t MINION_DELAY_MS = 200 * 3;
+const size_t MAX_ROAMER = 5;
+const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
+const size_t MAX_POWERUPS = 25;
+const size_t POWERUP_DELAY_MS = 200 * 3;
 
-// add max sprite values here
+// UI
+const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
+const vec3 MAGENTA = { 0.78f, 0.39f, 0.62f };
 
 // DEFAULT START POSITIONS
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
 const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
+const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
 const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
-const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
+const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
+const vec2 HEALTH_BAR_POSITION = { 125.f, 30.f };
 
 // BOUNDS
 const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
 const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
+const vec2 HEALTH_BAR_BOUNDS = { 200.f, 40.f };
+const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
 const vec2 dead_scale = { 0, 0 };
 
+// ANIMATION VALUES
+const size_t BLENDY_FRAME_DELAY = 20 * 3;
+
 // EYE POSITION (For Lighting Purposes)
 const float CAMERA_Z_DEPTH = 1500.f;
 const vec3 CAMERA_POSITION = {window_width_px / 2, window_height_px / 2, CAMERA_Z_DEPTH};
 
+// FPS COUNTER
+const vec2 FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { 0.f, 0.f};
+const vec2 FPS_COUNTER_SCALE = { 1.f,1.f };
+const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
+
+// SCORE COUNTER
+const float SCORE_COUNTER_X = 30.f;
+const float SCORE_COUNTER_Y = window_height_px - 160.f;
+const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTER_X, SCORE_COUNTER_Y };
+const vec2 SCORE_COUNTER_SCALE = { 1.f,1.f };
+const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -149,20 +172,39 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     restart_game();
 }
 
+// make powerups spawn randomly on the map
+void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
+{
+	next_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+
+	if (registry.powerUps.components.size() <= MAX_POWERUPS && next_powerup_spawn < 0.f) {
+		next_powerup_spawn = (POWERUP_DELAY_MS / 2) + uniform_dist(rng) * (POWERUP_DELAY_MS / 2);
+
+		create_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 50.f + uniform_dist(rng) * (window_width_px - 100.f)), MINION_BOUNDS);
+	}
+}
+
+
 void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
-		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f) {
-		next_dodger_spawn = MINION_DELAY_MS*3 + uniform_dist(rng) * (MINION_DELAY_MS);
-		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
+		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
+		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score > 250) {
+		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
+		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+	}
+
 }
 
 // Update our game world
@@ -197,7 +239,9 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	return;
 }
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-
+	
+	update_fps(elapsed_ms_since_last_update);
+	update_score();
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	// Remove debug info from the last step
@@ -225,6 +269,49 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	update_minions(elapsed_ms_since_last_update);
+	//update_powerups(elapsed_ms_since_last_update);
+
+	// BLENDY ANIMATION
+	Player& blendy = registry.players.get(player_blendy);
+	Motion& blendy_motion = registry.motions.get(player_blendy);
+
+	blendy.counter_ms -= elapsed_ms_since_last_update;
+	if (blendy.counter_ms < 0.f) {
+		blendy.counter_ms = BLENDY_FRAME_DELAY;
+		if (blendy.going_up < 0) {
+			blendy.frame_stage += 1;
+			if (blendy.frame_stage > 4) {
+				blendy.frame_stage = 4;
+				blendy.going_up = 1;
+			}
+		}
+		else {
+			blendy.frame_stage -= 1;
+			if (blendy.frame_stage < 0) {
+				blendy.frame_stage = 0;
+				blendy.going_up = -1;
+			}
+		}
+	}
+	// get what the render request status should be
+	if (blendy_motion.velocity.x == 0 && blendy_motion.velocity.y == 0) {
+		// just keep the current image
+		registry.renderRequests.remove(player_blendy);
+		registry.renderRequests.insert(
+			player_blendy,
+			{ TEXTURE_ASSET_ID::BLENDY,
+				TEXTURE_ASSET_ID::BLENDY_NM,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+		blendy.going_up = 1;
+		blendy_motion.y_animate = 0.f;
+	}
+	else {
+		// blendy is moving - calculate appropriate frame to put in render request
+		registry.renderRequests.remove(player_blendy);
+		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
+		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up);
+	}
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
@@ -278,6 +365,38 @@ void WorldSystem::restart_game() {
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
+	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
+	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
+}
+
+void WorldSystem::console_debug_fps()
+{
+	if (debugging.show_game_fps)
+	{
+		// std::cout << "FPS: " << fps << std::endl;
+	}
+}
+
+void WorldSystem::update_fps(float elapsed_ms_since_last_update)
+{
+	frame_count++;
+	time_accumulator += elapsed_ms_since_last_update;
+	if (time_accumulator >= 1000.0f) {
+		fps = frame_count * 1000.0f / time_accumulator;
+		frame_count = 0;
+		time_accumulator = 0.0f;
+
+		auto& fps_component = registry.fpsCounters.get(fps_counter);
+		fps_component.current_fps = fps;
+
+		console_debug_fps();
+	}
+}
+
+void WorldSystem::update_score()
+{
+	auto& score_component = registry.scoreCounters.get(score_counter);
+	score_component.current_score = registry.score;
 }
 
 void WorldSystem::hit_player(int damage) {
@@ -366,6 +485,8 @@ void WorldSystem::move_player(vec2 direction) {
 void WorldSystem::update_player_movement() {
 	if (is_dead) return;
 
+	Player& blendy = registry.players.get(player_blendy);
+
 	vec2 direction = { 0, 0 };
 	if (keyWPressed) direction.y -= 1;
 	if (keySPressed) direction.y += 1;
@@ -377,6 +498,32 @@ void WorldSystem::update_player_movement() {
 		float length = sqrt(direction.x * direction.x + direction.y * direction.y);
 		direction.x /= length;
 		direction.y /= length;
+	}
+
+	// BLENDY ANIMATION
+	blendy.up = false;
+	blendy.down = false;
+	blendy.left = false;
+	blendy.right = false;
+	if (direction.y == 0  && direction.x > 0) {
+		// going right
+		blendy.right = true;
+	} 
+	else if (direction.y == 0  && direction.x < 0) {
+		// going left
+		blendy.left = true;
+	}
+	else if (direction.y > 0  && direction.x == 0) {
+		// going down
+		blendy.down = true;
+	}
+	else if (direction.y < 0  && direction.x == 0) {
+		// going up
+		blendy.up = true;
+	}
+	else {
+		// other direction - setting blendy as down for now bc I don't have the diagonal images done
+		blendy.down = true;
 	}
 
 	move_player(direction);
@@ -415,6 +562,20 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
 	}
 
+	// Toggle the help screen visibility when "H" is pressed
+	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
+		if (showHelpScreen) {
+			registry.is_pause = true;
+			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
+		}
+		else {
+			registry.is_pause = false;
+			registry.remove_all_components_of(help_screen);
+		}
+
+		showHelpScreen = !showHelpScreen;
+	}
+
 	// check window boundary
 	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
 	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
@@ -436,6 +597,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = false;
 		else
 			debugging.in_debug_mode = true;
+	}
+
+	// FPS Toggle
+	if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+		debugging.show_game_fps = !debugging.show_game_fps;
 	}
 
 	// Control the current speed with `<` `>`
@@ -467,10 +633,208 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			Mix_VolumeChunk(get_point, get_point_volume + 10);
 		}
 	}
-
-
 }
 
-//void WorldSystem::on_mouse_move(vec2 mouse_position) {
-//
-//}
+float WorldSystem::get_y_animate(int stage, int going_up) {
+	if (registry.deathTimers.has(player_blendy)) {
+		return 0;
+	}
+	if (stage == 0) {
+		return 0.f * going_up;
+	}
+	else if (stage == 1) {
+		return 1.f * going_up;
+	}
+	else if (stage == 2) {
+		return 2.f * going_up;
+	}
+	else if (stage == 3) {
+		return 6.f * going_up;
+	}
+	else if (stage == 4) {
+		return 7.f * going_up;
+	}
+	else {
+		return 0.f * going_up;
+	}
+}
+
+void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool left, int stage) {
+	// BLENDY ANIMATION
+	if (up) {
+		// going up
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::UFRAME_0,
+					TEXTURE_ASSET_ID::UFRAME_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::UFRAME_1,
+					TEXTURE_ASSET_ID::UFRAME_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::UFRAME_2,
+					TEXTURE_ASSET_ID::UFRAME_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::UFRAME_3,
+					TEXTURE_ASSET_ID::UFRAME_3_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::UFRAME_4,
+					TEXTURE_ASSET_ID::UFRAME_4_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (down) {
+		// going down
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::DFRAME_0,
+					TEXTURE_ASSET_ID::DFRAME_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::DFRAME_1,
+					TEXTURE_ASSET_ID::DFRAME_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::DFRAME_2,
+					TEXTURE_ASSET_ID::DFRAME_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::DFRAME_3,
+					TEXTURE_ASSET_ID::DFRAME_3_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::DFRAME_4,
+					TEXTURE_ASSET_ID::DFRAME_4_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (right) {
+		// going right
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::RFRAME_0,
+					TEXTURE_ASSET_ID::RFRAME_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::RFRAME_1,
+					TEXTURE_ASSET_ID::RFRAME_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::RFRAME_2,
+					TEXTURE_ASSET_ID::RFRAME_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::RFRAME_3,
+					TEXTURE_ASSET_ID::RFRAME_3_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::RFRAME_4,
+					TEXTURE_ASSET_ID::RFRAME_4_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (left) {
+		// going left
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::LFRAME_0,
+					TEXTURE_ASSET_ID::LFRAME_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::LFRAME_1,
+					TEXTURE_ASSET_ID::LFRAME_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::LFRAME_2,
+					TEXTURE_ASSET_ID::LFRAME_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::LFRAME_3,
+					TEXTURE_ASSET_ID::LFRAME_3_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::LFRAME_4,
+					TEXTURE_ASSET_ID::LFRAME_4_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+}
+
+
+
+

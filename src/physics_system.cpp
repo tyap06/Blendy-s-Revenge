@@ -45,8 +45,10 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
 	int index_one = it_one - registry.motions.components.begin();
 
-
-	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])) || (registry.bullets.has(registry.motions.entities[index_one]) && registry.bullets.has(registry.motions.entities[index_two])))
+	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])) 
+		|| (registry.bullets.has(registry.motions.entities[index_one]) && registry.bullets.has(registry.motions.entities[index_two]))
+		|| (registry.enemyBullets.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two]))
+		|| (registry.enemyBullets.has(registry.motions.entities[index_two]) && registry.minions.has(registry.motions.entities[index_one])))
 	{
 		return false;
 	}
@@ -61,7 +63,8 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	const vec2 halfBB_one = get_bounding_box(motion1) / 2.f;
 	const vec2 halfBB_two = get_bounding_box(motion2) / 2.f;
 	vec2 center_dis = motion1.position - motion2.position;
-	
+	//std::cout << "Checking" << std::endl;
+
 	// check bounding box overlap first 
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
@@ -98,14 +101,16 @@ void PhysicsSystem::step(float elapsed_ms)
 	auto& motion_registry = registry.motions;
 	static float accumulatedTime = 0.0f;
 	accumulatedTime += elapsed_ms;
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{	
+	for (uint i = 0; i < motion_registry.size(); i++)
+	{
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = elapsed_ms / 1000.f;
-		
+
 		if (registry.players.has(entity)) {
 			// Vicky M1: idle animation
+			// blendy animation
+			Player& blendy = registry.players.get(entity);
 			if (!registry.is_dead) {
 				const float cycleDuration = 4000.0f;
 				float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
@@ -119,24 +124,23 @@ void PhysicsSystem::step(float elapsed_ms)
 					normalizedTime = (1.0f - cycleTime) / 0.5f;
 				}
 
-
 				const float maxScale = 1.1f;
 
 				motion.scale.x = lerp(BLENDY_BB_WIDTH, maxScale * BLENDY_BB_WIDTH, normalizedTime);
 				motion.scale.y = lerp(BLENDY_BB_HEIGHT, maxScale * BLENDY_BB_HEIGHT, normalizedTime);
 			}
-			
+
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
+			if (new_x - half_width > 0 && new_x + half_width < window_width_px && blendy.frame_stage != 0 && !registry.deathTimers.has(entity)) {
 				motion.position.x = new_x;
 			}
 
 			if (new_y - half_height > 0 && new_y + half_height < window_height_px) {
-				motion.position.y = new_y;
+				motion.position.y = new_y + motion.y_animate;
 			}
 		}
 
@@ -146,36 +150,49 @@ void PhysicsSystem::step(float elapsed_ms)
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
-				motion.position.x = new_x;
+			if (new_x - half_width <= 0 || new_x + half_width >= window_width_px) {
+				if (registry.roamers.has(entity)) {
+					motion.velocity.x *= -1; // Invert X velocity upon boundary collision
+					new_x = motion.velocity.x * step_seconds + motion.position.x; // Recalculate new_x after velocity inversion
+				}
+			}
+			else {
+				motion.position.x = new_x; // Update position if within bounds
 			}
 
-			if (new_y> 0 && new_y + half_height < window_height_px) {
-				motion.position.y = new_y;
+			if (new_y <= 0 || new_y + half_height-20 >= window_height_px) {
+				if (registry.roamers.has(entity)) {
+					motion.velocity.y *= -1; // Invert Y velocity upon boundary collision
+					new_y = motion.velocity.y * step_seconds + motion.position.y; // Recalculate new_y after velocity inversion
+				}
+			}
+			else {
+				motion.position.y = new_y; // Update position if within bounds
 			}
 		}
 		else {
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}
-		
+
 	}
 
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead
+	float bloodLossPercentage;
+	bloodLossPercentage = std::max(0.0f, std::min(1.0f, bloodLossPercentage)) * 100.0f;
+	float alphaFactor = 1.0f - bloodLossPercentage / 100.0f;
+	//render_Screen(alphaFactor);
 
 	// Check for collisions between all moving entities
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	for (uint i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
 		Entity entity_i = motion_container.entities[i];
-		
+
 		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for(uint j = i+1; j<motion_container.components.size(); j++)
+		for (uint j = i + 1; j < motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
 			if (collides(motion_i, motion_j))
@@ -203,12 +220,8 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
+
 
 
 

@@ -25,15 +25,21 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LightSource> lightSources;
+	ComponentContainer<FpsCounter> fpsCounters;
+	ComponentContainer<ScoreCounter> scoreCounters;
+	ComponentContainer<Roamer> roamers;
+
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
+	ComponentContainer<PowerUp> powerUps;
+	ComponentContainer<EnemyBullet> enemyBullets;
+
 	ComponentContainer<Mesh_collision> mesh_collision;
-	
 
 	int score;
-
+	bool is_pause;
 	bool is_dead;
-  
+
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -50,8 +56,13 @@ public:
 		registry_list.push_back(&colors);
 		registry_list.push_back(&backgrounds);
 		registry_list.push_back(&lightSources);
+		registry_list.push_back(&fpsCounters);
 		registry_list.push_back(&bullets);
 		registry_list.push_back(&shooters);
+		registry_list.push_back(&powerUps);
+		registry_list.push_back(&enemyBullets);
+		registry_list.push_back(&scoreCounters);
+		registry_list.push_back(&roamers);
 	}
 
 	void clear_all_components() {
