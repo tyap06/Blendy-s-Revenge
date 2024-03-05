@@ -268,10 +268,7 @@ void RenderSystem::debug_fps(const mat3& projection)
 
 			auto& motion = registry.motions.get(entity);
 
-			if (debugging.show_game_fps)
-			{
-				renderText(display_text, motion.position.x, motion.position.y, fps_component.scale, color_component, glm::mat4(1.f));
-			}
+			renderText(display_text, motion.position.x, motion.position.y, fps_component.scale, color_component, glm::mat4(1.f));
 		}
 
 	}
