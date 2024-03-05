@@ -188,6 +188,9 @@ private:
 	// Debugging FPS
 	void debug_fps(const mat3& projection);
 
+	// Score Counter
+	void display_score();
+
 	// Window handle
 	GLFWwindow* window;
 

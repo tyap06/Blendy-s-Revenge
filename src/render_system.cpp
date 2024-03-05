@@ -637,6 +637,7 @@ void RenderSystem::draw()
 	}
 
 	debug_fps(projection_2D);
+	display_score();
 
 	// Rebinding dummy_vao here
 	glBindVertexArray(dummy_vao);
