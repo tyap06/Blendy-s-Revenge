@@ -36,7 +36,7 @@ public:
 	
 
 	int score;
-
+	bool is_pause;
 	bool is_dead;
 
 	// constructor that adds all containers for looping over them

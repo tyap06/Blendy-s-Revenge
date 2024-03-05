@@ -542,17 +542,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// Toggle the help screen visibility when "H" is pressed
-	if (action == GLFW_PRESS && key == GLFW_KEY_H) {
-		if (!showHelpScreen) {
-			// Create the help screen if it's not already shown
+	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
+		if (showHelpScreen) {
+			registry.is_pause = true;
 			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
 		}
 		else {
-			// Destroy the help screen if it's already shown
+			registry.is_pause = false;
 			registry.remove_all_components_of(help_screen);
 		}
 
-		// Toggle the showHelpScreen flag
 		showHelpScreen = !showHelpScreen;
 	}
 
