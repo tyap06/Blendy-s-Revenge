@@ -62,7 +62,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	// Store a reference to the potentially re-used mesh object, like createChicken
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
 	registry.meshPtrs.emplace(entity, &mesh);
-	registry.mesh_collision.emplace(entity, Mesh_collision());
+	registry.mesh_collision.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = angle;
@@ -117,7 +117,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BLENDY);
-	registry.mesh_collision.emplace(entity, Mesh_collision());
+	registry.mesh_collision.emplace(entity);
 	registry.meshPtrs.emplace(entity, &mesh);
 
 	// Initialize the motion
@@ -227,7 +227,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
-	registry.mesh_collision.emplace(entity, Mesh_collision());
+	registry.mesh_collision.emplace(entity);
 
 	registry.meshPtrs.emplace(entity, &mesh);
 
@@ -260,7 +260,7 @@ Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
 	registry.meshPtrs.emplace(entity, &mesh);
-	registry.mesh_collision.emplace(entity, Mesh_collision());
+	registry.mesh_collision.emplace(entity);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
@@ -291,7 +291,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
-	registry.mesh_collision.emplace(entity, Mesh_collision());
+	registry.mesh_collision.emplace(entity);
 	registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
@@ -323,7 +323,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 
 
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
-	registry.mesh_collision.emplace(entity, Mesh_collision());
+	registry.mesh_collision.emplace(entity);
 	registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
@@ -367,7 +367,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	registry.enemyBullets.emplace(entity);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-	registry.mesh_collision.emplace(entity, Mesh_collision());
+	registry.mesh_collision.emplace(entity);
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = angle;
