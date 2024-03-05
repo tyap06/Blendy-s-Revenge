@@ -129,10 +129,17 @@ struct ScreenState
 	float darken_screen_factor = -1;
 };
 
-// Sets the brightness of the screen
+// If an entity represents an FPS counter
 struct FpsCounter
 {
 	unsigned int current_fps = 0;
+	float scale = 1.f;
+};
+
+// If an entity represents a score counter
+struct ScoreCounter
+{
+	unsigned int current_score = 0;
 	float scale = 1.f;
 };
 

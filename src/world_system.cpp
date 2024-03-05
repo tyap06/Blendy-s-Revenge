@@ -21,6 +21,7 @@ const size_t POWERUP_DELAY_MS = 200 * 3;
 
 // UI
 const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
+const vec3 MAGENTA = { 0.78f, 0.39f, 0.62f };
 
 // DEFAULT START POSITIONS
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
@@ -54,6 +55,13 @@ const vec3 CAMERA_POSITION = {window_width_px / 2, window_height_px / 2, CAMERA_
 const vec2 FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { 0.f, 0.f};
 const vec2 FPS_COUNTER_SCALE = { 1.f,1.f };
 const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
+
+// SCORE COUNTER
+const float SCORE_COUNTER_X = 30.f;
+const float SCORE_COUNTER_Y = window_height_px - 160.f;
+const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTER_X, SCORE_COUNTER_Y };
+const vec2 SCORE_COUNTER_SCALE = { 1.f,1.f };
+const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -226,8 +234,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	
 	update_fps(elapsed_ms_since_last_update);
-
-
+	update_score();
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	// Remove debug info from the last step
@@ -352,6 +359,7 @@ void WorldSystem::restart_game() {
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
+	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
 }
 
 void WorldSystem::console_debug_fps()
@@ -376,6 +384,12 @@ void WorldSystem::update_fps(float elapsed_ms_since_last_update)
 
 		console_debug_fps();
 	}
+}
+
+void WorldSystem::update_score()
+{
+	auto& score_component = registry.scoreCounters.get(score_counter);
+	score_component.current_score = registry.score;
 }
 
 void WorldSystem::hit_player(int damage) {

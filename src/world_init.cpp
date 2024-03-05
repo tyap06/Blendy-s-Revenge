@@ -199,6 +199,27 @@ Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const ve
 	return entity;
 }
 
+Entity create_score_counter(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& color)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+
+	// Create an score counter to display the game score
+	registry.scoreCounters.emplace(entity);
+	auto& fps_text_color = registry.colors.emplace(entity);
+	fps_text_color = color;
+
+	return entity;
+}
+
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();

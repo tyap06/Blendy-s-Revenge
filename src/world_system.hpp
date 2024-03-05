@@ -90,6 +90,9 @@ private:
 	unsigned int frame_count = 0;
 	float time_accumulator = 0.f;
 
+	// score counter variables
+	Entity score_counter;
+
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
@@ -105,6 +108,7 @@ private:
 	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
 	float get_y_animate(int stage, int going_up);
 	void update_fps(float elapsed_ms_since_last_update);
+	void update_score();
 	vec2 getCurrentMousePosition();
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);

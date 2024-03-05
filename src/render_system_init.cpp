@@ -274,6 +274,21 @@ void RenderSystem::debug_fps(const mat3& projection)
 	}
 }
 
+void RenderSystem::display_score()
+{
+	for (Entity entity : registry.scoreCounters.entities)
+	{
+		auto& score_component = registry.scoreCounters.get(entity);
+		std::string display_text = "Score: " + std::to_string(score_component.current_score);
+
+		auto& color_component = registry.colors.get(entity);
+
+		auto& motion = registry.motions.get(entity);
+
+		renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+	}
+}
+
 // Initialize the screen texture from a standard sprite
 bool RenderSystem::initScreenTexture()
 {

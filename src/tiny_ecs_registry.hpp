@@ -26,6 +26,7 @@ public:
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LightSource> lightSources;
 	ComponentContainer<FpsCounter> fpsCounters;
+	ComponentContainer<ScoreCounter> scoreCounters;
 
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
@@ -33,7 +34,6 @@ public:
 	ComponentContainer<EnemyBullet> enemyBullets;
 
 	ComponentContainer<Mesh_collision> mesh_collision;
-	
 
 	int score;
 	bool is_pause;
@@ -60,6 +60,7 @@ public:
 		registry_list.push_back(&shooters);
 		registry_list.push_back(&powerUps);
 		registry_list.push_back(&enemyBullets);
+		registry_list.push_back(&scoreCounters);
 	}
 
 	void clear_all_components() {
