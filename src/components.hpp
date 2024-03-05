@@ -35,6 +35,13 @@ struct Player
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
+	float counter_ms = 50.f;
+	int frame_stage = 0;
+	bool up;
+	bool down;
+	bool left;
+	bool right;
+	int going_up = -1;
 	float invisible_counter = 0.0f;
 	float max_invisible_duraion = 100.f;
 };
@@ -89,6 +96,8 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	float y_animate = 0.f;
+	EntityType type = EntityType::Generic;
 
 	bool operator==(const Motion& other) const {
 		return position == other.position &&
@@ -224,6 +233,27 @@ enum class TEXTURE_ASSET_ID {
 	MINION_NM = MINION + 1,
 	BACKGROUND = MINION_NM + 1,
 	DIRECTIONAL_LIGHT = BACKGROUND + 1,
+	LFRAME_0 = DIRECTIONAL_LIGHT + 1,
+	LFRAME_1 = LFRAME_0 + 1,
+	LFRAME_2 = LFRAME_1 + 1,
+	LFRAME_3 = LFRAME_2 + 1,
+	LFRAME_4 = LFRAME_3 + 1,
+	RFRAME_0 = LFRAME_4 + 1,
+	RFRAME_1 = RFRAME_0 + 1,
+	RFRAME_2 = RFRAME_1 + 1,
+	RFRAME_3 = RFRAME_2 + 1,
+	RFRAME_4 = RFRAME_3 + 1,
+	DFRAME_0 = RFRAME_4 + 1,
+	DFRAME_1 = DFRAME_0 + 1,
+	DFRAME_2 = DFRAME_1 + 1,
+	DFRAME_3 = DFRAME_2 + 1,
+	DFRAME_4 = DFRAME_3 + 1,
+	UFRAME_0 = DFRAME_4 + 1,
+	UFRAME_1 = UFRAME_0 + 1,
+	UFRAME_2 = UFRAME_1 + 1,
+	UFRAME_3 = UFRAME_2 + 1,
+	UFRAME_4 = UFRAME_3 + 1,
+	TEXTURE_COUNT = UFRAME_4 + 1
 	BULLET = DIRECTIONAL_LIGHT + 1,
 	FULL_HEALTH_BAR = BULLET + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,

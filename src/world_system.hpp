@@ -102,6 +102,8 @@ private:
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
+	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
+	float get_y_animate(int stage, int going_up);
 	void update_fps(float elapsed_ms_since_last_update);
 	vec2 getCurrentMousePosition();
 	void update_bullets(float elapsed_ms_since_last_update);
