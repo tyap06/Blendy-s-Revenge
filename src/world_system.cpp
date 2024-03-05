@@ -358,7 +358,7 @@ void WorldSystem::console_debug_fps()
 {
 	if (debugging.show_game_fps)
 	{
-		std::cout << "FPS: " << fps << std::endl;
+		// std::cout << "FPS: " << fps << std::endl;
 	}
 }
 
@@ -647,7 +647,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_0,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::UFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -655,7 +655,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_1,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::UFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -663,7 +663,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_2,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::UFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -671,7 +671,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_3,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::UFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -679,7 +679,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_4,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::UFRAME_4_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -690,7 +690,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_0,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::DFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -698,7 +698,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_1,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::DFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -706,7 +706,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_2,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::DFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -714,7 +714,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_3,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::DFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -722,7 +722,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_4,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::DFRAME_4_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -733,7 +733,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_0,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::RFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -741,7 +741,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_1,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::RFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -749,7 +749,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_2,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::RFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -757,7 +757,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_3,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::RFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -765,7 +765,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_4,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::RFRAME_4_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -776,7 +776,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_0,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::LFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -784,7 +784,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_1,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::LFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -792,7 +792,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_2,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::LFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -800,7 +800,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_3,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::LFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -808,7 +808,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_4,
-					TEXTURE_ASSET_ID::BLENDY_NM,
+					TEXTURE_ASSET_ID::LFRAME_4_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}

@@ -73,15 +73,30 @@ class RenderSystem {
 			textures_path("blendy_up_1.png"),
 			textures_path("blendy_up_2.png"),
 			textures_path("blendy_up_3.png"),
-			textures_path("blendy_up_4.png")
+			textures_path("blendy_up_4.png"),
+			textures_path("blendy_left_0_nm.png"),
+			textures_path("blendy_left_1_nm.png"),
+			textures_path("blendy_left_2_nm.png"),
+			textures_path("blendy_left_3_nm.png"),
+			textures_path("blendy_left_4_nm.png"),
+			textures_path("blendy_right_0_nm.png"),
+			textures_path("blendy_right_1_nm.png"),
+			textures_path("blendy_right_2_nm.png"),
+			textures_path("blendy_right_3_nm.png"),
+			textures_path("blendy_right_4_nm.png"),
+			textures_path("blendy_down_0_nm.png"),
+			textures_path("blendy_down_1_nm.png"),
+			textures_path("blendy_down_2_nm.png"),
+			textures_path("blendy_down_3_nm.png"),
+			textures_path("blendy_down_4_nm.png"),
+			textures_path("blendy_up_0_nm.png"),
+			textures_path("blendy_up_1_nm.png"),
+			textures_path("blendy_up_2_nm.png"),
+			textures_path("blendy_up_3_nm.png"),
+			textures_path("blendy_up_4_nm.png"),
 			textures_path("bullet.png"),
 			textures_path("fullHealthBar.png"),
-			textures_path("HelpScreen.png"),
-		/*	textures_path("blendy_frame_0.png"),
-			textures_path("blendy_frame_1.png"),
-			textures_path("blendy_frame_2.png"),
-			textures_path("blendy_frame_3.png"),
-			textures_path("blendy_frame_4.png")*/
+			textures_path("HelpScreen.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
