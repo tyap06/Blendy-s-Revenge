@@ -1,8 +1,326 @@
 // internal
 #include "render_system.hpp"
+
+#include <iostream>
 #include <SDL.h>
 
 #include "tiny_ecs_registry.hpp"
+#include <glm/gtc/type_ptr.hpp>
+#include <iostream>
+
+
+void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_request, GLuint program)
+{
+	
+
+	GLuint health_bar_texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::FULL_HEALTH_BAR];
+
+	GLuint health_bar_effect_id = effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR];
+
+	// Use the health bar shader program
+	glUseProgram(health_bar_effect_id);
+	gl_has_errors();
+	
+	GLint in_position_loc = glGetAttribLocation(program, "in_position");
+
+	gl_has_errors();
+
+	glEnableVertexAttribArray(in_position_loc);
+	glVertexAttribPointer(in_position_loc, 2, GL_FLOAT, GL_FALSE,
+		sizeof(vec2), (void*)0);
+	gl_has_errors();
+
+	// Set the health bar texture as the active texture on texture unit 2
+	glActiveTexture(GL_TEXTURE2);
+	glBindTexture(GL_TEXTURE_2D, health_bar_texture_id);
+
+	// Set uniform locations
+	GLint bar_color_loc = glGetUniformLocation(program, "barColor");
+	GLint health_percentage_loc = glGetUniformLocation(program, "healthPercentage");
+
+
+	if //(bar_color_loc != -1 && health_percentage_loc != -1)
+		(render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
+	{
+		// Set the bar color (e.g., red)
+		glUniform3f(bar_color_loc, 1.0f, 0.0f, 0.0f);
+
+		// Set the health percentage 
+		glUniform1f(health_percentage_loc, 0.75f);
+	}
+	else
+	{
+		// Handle error: barColor or healthPercentage uniform not found
+		std::cerr << "Error: barColor or healthPercentage uniform not found in health bar shader" << std::endl;
+	}
+
+	// Render the health bar geometry 
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, nullptr);
+	gl_has_errors();
+
+	// Disable vertex attribute array
+	glDisableVertexAttribArray(in_position_loc);
+	gl_has_errors();
+
+}
+
+
+
+
+const char* fontVertexShaderSource =
+"#version 330 core\n"
+"layout(location = 0) in vec4 vertex; // <vec2 pos, vec2 tex>\n"
+"out vec2 TexCoords; \n"
+"\n"
+"uniform mat4 projection; \n"
+"uniform mat4 transform;\n"
+"\n"
+"void main()\n"
+"{\n"
+"    gl_Position = projection * transform * vec4(vertex.xy, 0.0, 1.0); \n"
+"    TexCoords = vertex.zw; \n"
+"}\0";
+
+const char* fontFragmentShaderSource =
+"#version 330 core\n"
+"in vec2 TexCoords; \n"
+"out vec4 color; \n"
+"\n"
+"uniform sampler2D text; \n"
+"uniform vec3 textColor; \n"
+"\n"
+"void main()\n"
+"{\n"
+"    vec4 sampled = vec4(1.0, 1.0, 1.0, texture(text, TexCoords).r);\n"
+"    color = vec4(textColor, 1.0) * sampled;\n"
+"}\0";
+
+bool RenderSystem::fontInit_internal(const std::string& font_filename, unsigned font_default_size)
+{
+	// font buffer setup
+	glGenVertexArrays(1, &m_font_VAO);
+	glGenBuffers(1, &m_font_VBO);
+
+	// font vertex shader
+	unsigned int font_vertexShader;
+	font_vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(font_vertexShader, 1, &fontVertexShaderSource, NULL);
+	glCompileShader(font_vertexShader);
+
+	gl_has_errors();
+
+	// font fragement shader
+	unsigned int font_fragmentShader;
+	font_fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	glShaderSource(font_fragmentShader, 1, &fontFragmentShaderSource, NULL);
+	glCompileShader(font_fragmentShader);
+
+	gl_has_errors();
+
+	// font shader program
+	m_font_shaderProgram = glCreateProgram();
+	glAttachShader(m_font_shaderProgram, font_vertexShader);
+	glAttachShader(m_font_shaderProgram, font_fragmentShader);
+	glLinkProgram(m_font_shaderProgram);
+
+	gl_has_errors();
+
+	// clean up shaders
+	glDeleteShader(font_vertexShader);
+	glDeleteShader(font_fragmentShader);
+
+	gl_has_errors();
+
+	// use our new shader
+	glUseProgram(m_font_shaderProgram);
+
+	gl_has_errors();
+
+	// apply projection matrix for font
+	glm::mat4 projection = glm::ortho(0.0f, static_cast<float>(window_width_px), 0.0f, static_cast<float>(window_height_px));
+	GLint project_location = glGetUniformLocation(m_font_shaderProgram, "projection");
+	assert(project_location > -1);
+	std::cout << "project_location: " << project_location << std::endl;
+	glUniformMatrix4fv(project_location, 1, GL_FALSE, glm::value_ptr(projection));
+
+	// init FreeType fonts
+	FT_Library ft;
+	if (FT_Init_FreeType(&ft))
+	{
+		std::cerr << "ERROR::FREETYPE: Could not init FreeType Library" << std::endl;
+		return false;
+	}
+
+	FT_Face face;
+	if (FT_New_Face(ft, font_filename.c_str(), 0, &face))
+	{
+		std::cerr << "ERROR::FREETYPE: Failed to load font: " << font_filename << std::endl;
+		return false;
+	}
+
+	// extract a default size
+	FT_Set_Pixel_Sizes(face, 0, font_default_size);
+
+	// disable byte-alignment restriction in OpenGL
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+	// load each of the chars - note only first 128 ASCII chars
+	for (unsigned char c = 0; c < 128; c++)
+	{
+		// load character glyph 
+		if (FT_Load_Char(face, c, FT_LOAD_RENDER))
+		{
+			std::cerr << "ERROR::FREETYTPE: Failed to load Glyph" << std::endl;
+			continue;
+		}
+
+		// generate texture
+		unsigned int texture;
+		glGenTextures(1, &texture);
+		glBindTexture(GL_TEXTURE_2D, texture);
+
+		// std::cout << "texture: " << c << " = " << texture << std::endl;
+
+		glTexImage2D(
+			GL_TEXTURE_2D,
+			0,
+			GL_RED,
+			face->glyph->bitmap.width,
+			face->glyph->bitmap.rows,
+			0,
+			GL_RED,
+			GL_UNSIGNED_BYTE,
+			face->glyph->bitmap.buffer
+		);
+
+		// set texture options
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+		// now store character for later use
+		Character character = {
+			texture,
+			glm::ivec2(face->glyph->bitmap.width, face->glyph->bitmap.rows),
+			glm::ivec2(face->glyph->bitmap_left, face->glyph->bitmap_top),
+			static_cast<unsigned int>(face->glyph->advance.x),
+			c
+		};
+		m_ftCharacters.insert(std::pair<char, Character>(c, character));
+	}
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	gl_has_errors();
+
+	// clean up
+	FT_Done_Face(face);
+	FT_Done_FreeType(ft);
+
+	gl_has_errors();
+
+	// bind buffers
+	glBindVertexArray(m_font_VAO);
+	glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 6 * 4, NULL, GL_DYNAMIC_DRAW);
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 4 * sizeof(float), 0);
+
+	gl_has_errors();
+
+	// release buffers
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindVertexArray(0);
+
+	gl_has_errors();
+
+	// Resetting the program to default state
+	glUseProgram(0);
+
+	gl_has_errors();
+
+	return true;
+}
+
+bool RenderSystem::initializeFonts()
+{
+	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Pixel_Square + DOT_TTF, FONT_DEFAULT_SIZE);
+}
+
+void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color,
+                              const glm::mat4& trans)
+{
+	// activate the shaders!
+	glUseProgram(m_font_shaderProgram);
+
+	gl_has_errors();
+
+	unsigned int textColor_location =
+		glGetUniformLocation(
+			m_font_shaderProgram,
+			"textColor"
+		);
+	assert(textColor_location >= 0);
+	glUniform3f(textColor_location, color.x, color.y, color.z);
+
+	auto transform_location = glGetUniformLocation(
+		m_font_shaderProgram,
+		"transform"
+	);
+	assert(transform_location > -1);
+	glUniformMatrix4fv(transform_location, 1, GL_FALSE, glm::value_ptr(trans));
+
+	glBindVertexArray(m_font_VAO);
+
+	// iterate through all characters
+	std::string::const_iterator c;
+	for (c = text.begin(); c != text.end(); c++)
+	{
+		Character ch = m_ftCharacters[*c];
+
+		float xpos = x + ch.Bearing.x * scale;
+		float ypos = y - (ch.Size.y - ch.Bearing.y) * scale;
+
+		float w = ch.Size.x * scale;
+		float h = ch.Size.y * scale;
+
+		// update VBO for each character
+		float vertices[6][4] = {
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos,     ypos,       0.0f, 1.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+
+			{ xpos,     ypos + h,   0.0f, 0.0f },
+			{ xpos + w, ypos,       1.0f, 1.0f },
+			{ xpos + w, ypos + h,   1.0f, 0.0f }
+		};
+
+		// Set the active texture (without this texture may be overriden)
+		glActiveTexture(GL_TEXTURE0);
+
+		// render glyph texture over quad
+		glBindTexture(GL_TEXTURE_2D, ch.TextureID);
+		//std::cout << "binding texture: " << ch.character << " = " << ch.TextureID << std::endl;
+
+		// update content of VBO memory
+		glBindBuffer(GL_ARRAY_BUFFER, m_font_VBO);
+		glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertices), vertices);
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+
+		// render quad
+		glDrawArrays(GL_TRIANGLES, 0, 6);
+
+		// now advance cursors for next glyph (note that advance is number of 1/64 pixels)
+		x += (ch.Advance >> 6) * scale; // bitshift by 6 to get value in pixels (2^6 = 64)
+
+		gl_has_errors();
+	}
+
+	glBindVertexArray(0);
+	glBindTexture(GL_TEXTURE_2D, 0);
+
+	gl_has_errors();
+}
 
 void RenderSystem::handle_normal_map_uniform(Entity entity, const GLuint program)
 {
@@ -32,15 +350,20 @@ void RenderSystem::setUsesNormalMap(bool cond, const GLuint program)
 
 void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program, const RenderRequest& render_request)
 {
+	// Redundantly ensuring program is as expected
+	/*glUseProgram(program);
+	gl_has_errors();*/
+
 	GLint in_position_loc = glGetAttribLocation(program, "in_position");
 	GLint in_texcoord_loc = glGetAttribLocation(program, "in_texcoord");
 	gl_has_errors();
 	assert(in_texcoord_loc >= 0);
 
 	glEnableVertexAttribArray(in_position_loc);
+	gl_has_errors();
 	glVertexAttribPointer(in_position_loc, 3, GL_FLOAT, GL_FALSE,
 	                      sizeof(TexturedVertex), (void *)0);
-	gl_has_errors();
+ 	gl_has_errors();
 
 	glEnableVertexAttribArray(in_texcoord_loc);
 	glVertexAttribPointer(
@@ -64,6 +387,7 @@ void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program
 	{
 		handle_normal_map_uniform(entity, program);
 	}
+
 }
 
 void RenderSystem::handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, const GLuint program)
@@ -129,6 +453,11 @@ void RenderSystem::configure_base_uniforms(Entity entity, const mat3& projection
 	glUniform1f(ambientIntensity_uloc, (float)directional_light_component.ambientIntensity);
 	gl_has_errors();
 
+	// Configuring eyePosition
+	GLint cameraPosition_uloc = glGetUniformLocation(program, "cameraPosition");
+	glUniform3fv(cameraPosition_uloc, 1, (float*)&directional_light_component.camera_position);
+	gl_has_errors();
+
 	// Get number of indices from index buffer, which has elements uint16_t
 	GLint size = 0;
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
@@ -190,6 +519,12 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	{
 		handle_chicken_or_egg_effect_rendering(render_request, program);
 	}
+	else if (render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
+	{
+		//glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR]);
+		handle_health_bar_rendering(render_request, program);
+		
+	}
 	else
 	{
 		assert(false && "Type of render request not supported");
@@ -250,6 +585,7 @@ void RenderSystem::drawToScreen()
 
 	// Bind our texture in Texture Unit 0
 	glActiveTexture(GL_TEXTURE0);
+	gl_has_errors();
 
 	glBindTexture(GL_TEXTURE_2D, off_screen_render_buffer_color);
 	gl_has_errors();
@@ -284,6 +620,11 @@ void RenderSystem::draw()
 							  // and alpha blending, one would have to sort
 							  // sprites back to front
 	gl_has_errors();
+
+	// Rebinding dummy_vao here
+	glBindVertexArray(dummy_vao);
+	gl_has_errors();
+
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
 	for (Entity entity : registry.renderRequests.entities)
@@ -295,6 +636,12 @@ void RenderSystem::draw()
 		drawTexturedMesh(entity, projection_2D);
 	}
 
+	debug_fps(projection_2D);
+
+	// Rebinding dummy_vao here
+	glBindVertexArray(dummy_vao);
+	gl_has_errors();
+	
 	// Truely render to the screen
 	drawToScreen();
 

@@ -7,6 +7,9 @@
 enum class EntityType {
 	Generic,
 	Player,
+	Bullet,
+	ENEMY,
+	ALL
 };
 
 enum class POWERUP_TYPE {
@@ -16,11 +19,19 @@ enum class POWERUP_TYPE {
 	PROTIEN = LASER + 1,
 };
 
+
+
+enum class Enemy_TYPE {
+	BASIC = 0,
+	SHOOTER = BASIC + 1,
+	ROAMER = SHOOTER + 1,
+};
+
 // Player component
 struct Player
 {
 	float max_speed = 200.f;
-	int health = 5;
+	int health = 100;
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
@@ -31,9 +42,20 @@ struct Player
 	bool left;
 	bool right;
 	int going_up = -1;
+	float invisible_counter = 0.0f;
+	float max_invisible_duraion = 100.f;
 };
 
 
+struct EnemyBullet{
+	
+};
+
+struct Mesh_collision
+{
+
+
+};
 
 struct PowerUp
 {
@@ -44,7 +66,23 @@ struct PowerUp
 
 struct Minion
 {
+	int health = 50;
+	int damage = 50;
+	float armor = 0;
+	int score = 10;
+	Enemy_TYPE type = Enemy_TYPE::BASIC;
+};
 
+struct Shooter {
+	float shoot_interval_ms = 50.0f; 
+	float time_since_last_shot_ms = 0.0f;
+};
+
+struct Bullet
+{
+	bool friendly = true;
+	int penetration = 1;
+	int damage = 25;
 };
 
 struct Eatable
@@ -60,6 +98,13 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 	float y_animate = 0.f;
 	EntityType type = EntityType::Generic;
+
+	bool operator==(const Motion& other) const {
+		return position == other.position &&
+			angle == other.angle &&
+			velocity == other.velocity &&
+			scale == other.scale;
+	}
 };
 
 // Stucture to store collision information
@@ -68,12 +113,12 @@ struct Collision
 	// Note, the first object is stored in the ECS container.entities
 	Entity other; // the second object involved in the collision
 	Collision(Entity& other) { this->other = other; };
-
 };
 
 // Data structure for toggling debug mode
 struct Debug {
 	bool in_debug_mode = 0;
+	bool show_game_fps = 0;
 	bool in_freeze_mode = 0;
 };
 extern Debug debugging;
@@ -82,6 +127,13 @@ extern Debug debugging;
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+};
+
+// Sets the brightness of the screen
+struct FpsCounter
+{
+	unsigned int current_fps = 0;
+	float scale = 1.f;
 };
 
 // A struct to refer to debugging graphics in the ECS
@@ -93,7 +145,7 @@ struct DebugComponent
 // A timer that will be associated to dying chicken
 struct DeathTimer
 {
-	float counter_ms = 3000;
+	float counter_ms = 2000;
 };
 
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
@@ -101,6 +153,9 @@ struct ColoredVertex
 {
 	vec3 position;
 	vec3 color;
+	bool operator==(const ColoredVertex& other) const {
+		return position == other.position && color == other.color;
+	}
 };
 
 // Single Vertex Buffer element for textured sprites (textured.vs.glsl)
@@ -138,8 +193,15 @@ struct LightSource
 
 	// Z-depth of the light
 	float z_depth;
+
+	// Position of camera for doing lighting calculations
+	vec3 camera_position;
 };
 
+struct box {
+	vec2 center;
+	vec2 scale;
+};
 /**
  * The following enumerators represent global identifiers refering to graphic
  * assets. For example TEXTURE_ASSET_ID are the identifiers of each texture
@@ -192,6 +254,17 @@ enum class TEXTURE_ASSET_ID {
 	UFRAME_3 = UFRAME_2 + 1,
 	UFRAME_4 = UFRAME_3 + 1,
 	TEXTURE_COUNT = UFRAME_4 + 1
+	BULLET = DIRECTIONAL_LIGHT + 1,
+	FULL_HEALTH_BAR = BULLET + 1,
+	HELP_SCREEN = FULL_HEALTH_BAR + 1,
+	//LFRAME_0 = DIRECTIONAL_LIGHT + 1,
+	//LFRAME_1 = LFRAME_0 + 1,
+	//LFRAME_2 = LFRAME_1 + 1,
+	//LFRAME_3 = LFRAME_2 + 1,
+	//LFRAME_4 = LFRAME_3 + 1,
+	//TEXTURE_COUNT = LFRAME_4 + 1
+	TEXTURE_COUNT = HELP_SCREEN + 1
+	
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -201,20 +274,23 @@ enum class EFFECT_ASSET_ID {
 	CHICKEN = EGG + 1,
 	TEXTURED = CHICKEN + 1,
 	WIND = TEXTURED + 1,
-	EFFECT_COUNT = WIND + 1
+	HEALTH_BAR = WIND + 1,
+	EFFECT_COUNT = HEALTH_BAR + 1
 };
 
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;
 
 enum class GEOMETRY_BUFFER_ID {
-	CHICKEN = 0,
-	SPRITE = CHICKEN + 1,
+	BLENDY = 0,
+	SPRITE = BLENDY + 1,
 	EGG = SPRITE + 1,
 	DEBUG_LINE = EGG + 1,
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
-	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1
+	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1,
+	MINION = GEOMETRY_COUNT + 1,
+	BULLET = MINION + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::GEOMETRY_COUNT;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BULLET + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;

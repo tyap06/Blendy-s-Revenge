@@ -7,34 +7,53 @@
 #include <sstream>
 
 #include "physics_system.hpp"
+#include <fstream>
+
+
 
 // Game configuration
 const size_t MAX_MINIONS = 800;
+const size_t MAX_DODGERS = 5;
 const size_t MINION_DELAY_MS = 200 * 3;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
+const size_t MAX_POWERUPS = 25;
+const size_t POWERUP_DELAY_MS = 200 * 3;
 
-// add max sprite values here
+// UI
+const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
 
 // DEFAULT START POSITIONS
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
 const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
+const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
 const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
+const vec2 HEALTH_BAR_POSITION = { 125.f, 30.f };
 
 // BOUNDS
 const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
 const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
+const vec2 HEALTH_BAR_BOUNDS = { 200.f, 40.f };
+const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
 bool is_dead = false;
-const vec2 dead_velocity = { 0, 200.0f };
+const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
 const vec2 dead_scale = { 0, 0 };
 
 // ANIMATION VALUES
 const size_t BLENDY_FRAME_DELAY = 20 * 3;
 
+// EYE POSITION (For Lighting Purposes)
+const float CAMERA_Z_DEPTH = 1500.f;
+const vec3 CAMERA_POSITION = {window_width_px / 2, window_height_px / 2, CAMERA_Z_DEPTH};
+
+// FPS COUNTER
+const vec2 FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { 0.f, 0.f};
+const vec2 FPS_COUNTER_SCALE = { 1.f,1.f };
+const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -104,9 +123,9 @@ GLFWwindow* WorldSystem::create_window() {
 	// http://www.glfw.org/docs/latest/input_guide.html
 	glfwSetWindowUserPointer(window, this);
 	auto key_redirect = [](GLFWwindow* wnd, int _0, int _1, int _2, int _3) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_key(_0, _1, _2, _3); };
-	auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
+	//auto cursor_pos_redirect = [](GLFWwindow* wnd, double _0, double _1) { ((WorldSystem*)glfwGetWindowUserPointer(wnd))->on_mouse_move({ _0, _1 }); };
 	glfwSetKeyCallback(window, key_redirect);
-	glfwSetCursorPosCallback(window, cursor_pos_redirect);
+	//glfwSetCursorPosCallback(window, cursor_pos_redirect);
 
 	//////////////////////////////////////
 	// Loading music and sounds with SDL
@@ -144,20 +163,72 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     restart_game();
 }
 
+// make powerups spawn randomly on the map
+void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
+{
+	next_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+
+	if (registry.powerUps.components.size() <= MAX_POWERUPS && next_powerup_spawn < 0.f) {
+		next_powerup_spawn = (POWERUP_DELAY_MS / 2) + uniform_dist(rng) * (POWERUP_DELAY_MS / 2);
+
+		create_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 50.f + uniform_dist(rng) * (window_width_px - 100.f)), MINION_BOUNDS);
+	}
+}
+
+
 void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 {
+	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.minions.components.size() <= MAX_MINIONS && next_minion_spawn < 0.f) {
-		next_minion_spawn = (MINION_DELAY_MS / 2) + uniform_dist(rng) * (MINION_DELAY_MS / 2);
-
+	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f) {
+		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
+	}
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f) {
+		next_dodger_spawn = MINION_DELAY_MS*3 + uniform_dist(rng) * (MINION_DELAY_MS);
+		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 0.0f), MINION_BOUNDS);
 	}
 }
 
 // Update our game world
+vec2 WorldSystem::getCurrentMousePosition() {
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos); 
+	return vec2{ (float)xpos, (float)ypos }; 
+}
+void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 
+	Motion& motion = registry.motions.get(player_blendy);
+	vec2& blendy_pos = motion.position;
+	vec2 mouse_position = getCurrentMousePosition();
+	if (!is_dead) {
+		if (bullet_timer <= 0.0f) {
+			vec2 bullet_direction = normalize(mouse_position - blendy_pos);
+			vec2 up_vector{ 0.0f, -1.0f };
+			float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+			float up_angle = std::atan2(up_vector.y, up_vector.x);
+			float angle_diff = bullet_angle - up_angle;
+			if (angle_diff < -M_PI) {
+				angle_diff += 2 * M_PI;
+			}
+			else if (angle_diff > M_PI) {
+				angle_diff -= 2 * M_PI;
+			}
+			createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
+			bullet_timer = bullet_launch_interval;
+		}
+		bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
+	}
+	return;
+}
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+	
+	update_fps(elapsed_ms_since_last_update);
+
+
+	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	// Remove debug info from the last step
 	while (registry.debugComponents.entities.size() > 0)
@@ -184,6 +255,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	update_minions(elapsed_ms_since_last_update);
+	//update_powerups(elapsed_ms_since_last_update);
 
 	// BLENDY ANIMATION
 	Player& blendy = registry.players.get(player_blendy);
@@ -275,19 +347,66 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
+	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
-	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS);
+	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
+	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 }
 
-void WorldSystem::dead_player() {
-	is_dead = true;
-	registry.is_dead = true;
-	auto& motions_registry = registry.motions;
-	Motion& motion = motions_registry.get(player_blendy);
-	motion.velocity.x = 0;
-	motion.velocity.y = 0;
-	motion.angle = { 0.0f };
+void WorldSystem::console_debug_fps()
+{
+	if (debugging.show_game_fps)
+	{
+		std::cout << "FPS: " << fps << std::endl;
+	}
+}
+
+void WorldSystem::update_fps(float elapsed_ms_since_last_update)
+{
+	frame_count++;
+	time_accumulator += elapsed_ms_since_last_update;
+	if (time_accumulator >= 1000.0f) {
+		fps = frame_count * 1000.0f / time_accumulator;
+		frame_count = 0;
+		time_accumulator = 0.0f;
+
+		auto& fps_component = registry.fpsCounters.get(fps_counter);
+		fps_component.current_fps = fps;
+
+		console_debug_fps();
+	}
+}
+
+void WorldSystem::hit_player(int damage) {
+	if (!registry.deathTimers.has(player_blendy)) {
+		auto& player = registry.players.get(player_blendy);
+		if (player.health - damage <= 0) {
+			is_dead = true;
+			registry.is_dead = true;
+			auto& motions_registry = registry.motions;
+			Motion& motion = motions_registry.get(player_blendy);
+			motion.velocity.x = 0;
+			motion.velocity.y = 0;
+			motion.angle = { 0.0f };
+			registry.deathTimers.emplace(player_blendy);
+			Mix_PlayChannel(-1, dead_sound, 0);
+		}
+		else {
+			player.health -= damage;
+		}
+	}
+}
+
+void WorldSystem::hit_enemy(Entity& target, int damage) {
+	Minion& minion = registry.minions.get(target);
+	minion.health -= damage;
+	if (minion.health <= 0) {
+		registry.score += minion.score;
+
+		std::cout << registry.score << std::endl;
+		registry.remove_all_components_of(target);
+	}
 }
 
 
@@ -301,25 +420,29 @@ void WorldSystem::handle_collisions() {
 		Entity entity = collisionsRegistry.entities[i];
 		Entity entity_other = collisionsRegistry.components[i].other;
 
-		// Only interested in collisions that involve Blendy
 		if (registry.players.has(entity)) {
-			//Player& player = registry.players.get(entity);
-
-			// Checking Player - Minion collisions
 			if (registry.minions.has(entity_other)) {
-				// initiate death unless already dying
-				if (!registry.deathTimers.has(entity)) {
-					// Kill blendy and reset death timer
-					registry.deathTimers.emplace(entity);
-					// add some sound effect
-					// switch to dead animation
-					Mix_PlayChannel(-1, dead_sound, 0);
-					dead_player();
+				int damage = registry.minions.get(entity_other).damage;
+				hit_player(damage);
+				registry.remove_all_components_of(entity_other);
+			}
+			else if (registry.bullets.has(entity_other)) {
+				if (!registry.bullets.get(entity_other).friendly) {
+					int damage = registry.bullets.get(entity_other).damage;
+					registry.remove_all_components_of(entity_other);
+					hit_player(damage);
 				}
 			}
 		}
+		else if (registry.bullets.has(entity)) {
+			auto& bullet = registry.bullets.get(entity);
+			if (registry.minions.has(entity_other)&&bullet.friendly) {
+				int damage = registry.bullets.get(entity).damage;
+				hit_enemy(entity_other, damage);
+				registry.remove_all_components_of(entity);
+			}
+		}
 	}
-	// Remove all collisions from this simulation step
 	registry.collisions.clear();
 }
 
@@ -418,6 +541,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
 	}
 
+	// Toggle the help screen visibility when "H" is pressed
+	if (action == GLFW_PRESS && key == GLFW_KEY_H) {
+		if (!showHelpScreen) {
+			// Create the help screen if it's not already shown
+			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
+		}
+		else {
+			// Destroy the help screen if it's already shown
+			registry.remove_all_components_of(help_screen);
+		}
+
+		// Toggle the showHelpScreen flag
+		showHelpScreen = !showHelpScreen;
+	}
+
 	// check window boundary
 	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
 	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
@@ -441,6 +579,11 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 			debugging.in_debug_mode = true;
 	}
 
+	// FPS Toggle
+	if (key == GLFW_KEY_F && action == GLFW_PRESS) {
+		debugging.show_game_fps = !debugging.show_game_fps;
+	}
+
 	// Control the current speed with `<` `>`
 	if (action == GLFW_RELEASE && (mod & GLFW_MOD_SHIFT) && key == GLFW_KEY_COMMA) {
 		current_speed -= 0.1f;
@@ -451,23 +594,23 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
-}
 
-void WorldSystem::on_mouse_move(vec2 mouse_position) {
-
-	float timer = 0.0f;
-	Motion& motion = registry.motions.get(player_blendy);
-	vec2& blendy_pos = motion.position;
-
-	if (!is_dead) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
-			if (timer == 0.0f) {
-				vec2 bullet_direction = normalize(blendy_pos - mouse_position);
-				createBullet(renderer, blendy_pos + bullet_direction, bullet_direction * LIGHT_SOURCE_MOVEMENT_DISTANCE);
-				timer = 5.0f;
-			}
-			timer -= 0.1f;
-			
+	if (action == GLFW_PRESS) {
+		if (key == GLFW_KEY_MINUS) {
+			float currentMusicVolume = Mix_VolumeMusic(-1);
+			float dead_sound_volume = Mix_VolumeChunk(dead_sound, -1);
+			float get_point_volume = Mix_VolumeChunk(get_point, -1);
+			Mix_VolumeMusic(currentMusicVolume - 10);
+			Mix_VolumeChunk(dead_sound, dead_sound_volume - 10);
+			Mix_VolumeChunk(get_point, get_point_volume - 10);
+		}
+		else if (key == GLFW_KEY_EQUAL) {
+			float currentMusicVolume = Mix_VolumeMusic(-1);
+			float dead_sound_volume = Mix_VolumeChunk(dead_sound, -1);
+			float get_point_volume = Mix_VolumeChunk(get_point, -1);
+			Mix_VolumeMusic(currentMusicVolume + 10);
+			Mix_VolumeChunk(dead_sound, dead_sound_volume + 10);
+			Mix_VolumeChunk(get_point, get_point_volume + 10);
 		}
 	}
 }
@@ -671,4 +814,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 		}
 	}
 }
+
+
+
 
