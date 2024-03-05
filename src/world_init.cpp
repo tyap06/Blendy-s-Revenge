@@ -73,7 +73,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
@@ -380,7 +380,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
