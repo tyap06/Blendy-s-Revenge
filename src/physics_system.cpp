@@ -46,7 +46,7 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	int index_one = it_one - registry.motions.components.begin();
 
 
-	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])))
+	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])) || (registry.bullets.has(registry.motions.entities[index_one]) && registry.bullets.has(registry.motions.entities[index_two])))
 	{
 		return false;
 	}

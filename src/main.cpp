@@ -34,7 +34,7 @@ int main()
 	// initialize the main systems
 	renderer.init(window);
 	world.init(&renderer);
-
+	ai.init(&renderer);
 	// variable timestep loop
 	auto t = Clock::now();
 	while (!world.is_over()) {

@@ -9,6 +9,7 @@
 class AISystem
 {
 public:
+	void init(RenderSystem* renderer_arg);
 	void step(float elapsed_ms);
 private:
 	void shoot(float time);
