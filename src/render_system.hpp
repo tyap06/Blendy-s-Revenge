@@ -95,6 +95,7 @@ class RenderSystem {
 			textures_path("blendy_up_3_nm.png"),
 			textures_path("blendy_up_4_nm.png"),
 			textures_path("bullet.png"),
+			textures_path("bullet_nm.png"),
 			textures_path("fullHealthBar.png"),
 			textures_path("HelpScreen.png")
 	};
