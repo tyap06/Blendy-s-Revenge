@@ -238,7 +238,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	update_minions(elapsed_ms_since_last_update);
-	update_powerups(elapsed_ms_since_last_update);
+	//update_powerups(elapsed_ms_since_last_update);
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);

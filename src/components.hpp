@@ -39,7 +39,9 @@ struct Player
 	float max_invisible_duraion = 100.f;
 };
 
-
+struct EnemyBullet{
+	
+};
 
 struct PowerUp
 {

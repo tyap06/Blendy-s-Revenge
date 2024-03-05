@@ -27,10 +27,12 @@ public:
 	ComponentContainer<LightSource> lightSources;
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
-	int score;
 	ComponentContainer<PowerUp> powerUps;
+	ComponentContainer<EnemyBullet> enemyBullets;
+
 	bool is_dead;
-  
+	int score;
+
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
 	ECSRegistry()
@@ -50,6 +52,7 @@ public:
 		registry_list.push_back(&bullets);
 		registry_list.push_back(&shooters);
 		registry_list.push_back(&powerUps);
+		registry_list.push_back(&enemyBullets);
 	}
 
 	void clear_all_components() {
