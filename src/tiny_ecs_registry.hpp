@@ -29,7 +29,6 @@ public:
 	ComponentContainer<ScoreCounter> scoreCounters;
 	ComponentContainer<Roamer> roamers;
 
-
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
 	ComponentContainer<PowerUp> powerUps;
