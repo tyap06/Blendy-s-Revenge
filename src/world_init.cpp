@@ -365,6 +365,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	// Store a reference to the potentially re-used mesh object, like createChicken
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
 	registry.enemyBullets.emplace(entity);
+	registry.meshPtrs.emplace(entity, &mesh);
 
 	registry.mesh_collision.emplace(entity, Mesh_collision());
 	Motion& motion = registry.motions.emplace(entity);
