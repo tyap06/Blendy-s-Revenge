@@ -63,7 +63,7 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	const vec2 halfBB_one = get_bounding_box(motion1) / 2.f;
 	const vec2 halfBB_two = get_bounding_box(motion2) / 2.f;
 	vec2 center_dis = motion1.position - motion2.position;
-	std::cout << "Checking" << std::endl;
+
 
 	// check bounding box overlap first 
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)

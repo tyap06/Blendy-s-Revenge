@@ -325,6 +325,7 @@ void WorldSystem::hit_player(int damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
 		auto& player = registry.players.get(player_blendy);
 		if (player.health - damage <= 0) {
+			player.health = 0;
 			is_dead = true;
 			registry.is_dead = true;
 			auto& motions_registry = registry.motions;
