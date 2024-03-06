@@ -192,15 +192,15 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f) {
+	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f && registry.score > 250) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f ) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score > 250) {
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score > 100) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
@@ -251,12 +251,37 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// Removing out of screen entities
 	auto& motions_registry = registry.motions;
 
-	//Main LOOP
-	for (int i = (int)motions_registry.components.size()-1; i>=0; --i) {
-	    Motion& motion = motions_registry.components[i];
-		if (motion.position.x + abs(motion.scale.x) < 0.f) {
-			if(!registry.players.has(motions_registry.entities[i])) 
-				registry.remove_all_components_of(motions_registry.entities[i]);
+
+	auto& bullet_registry = registry.bullets;
+	// Handling removing bullets
+	for (int i = (int)bullet_registry.entities.size() - 1; i >= 0; --i) {
+		Entity& bullet_entity = bullet_registry.entities[i];
+		Motion& motion = motions_registry.get(bullet_entity);
+
+		if (motion.position.x + abs(motion.scale.x) < 0.f
+			|| motion.position.x - abs(motion.scale.x) > window_width_px
+			|| motion.position.y + abs(motion.scale.y) < 0.f
+			|| motion.position.y - abs(motion.scale.x) > window_height_px
+			) 
+		{
+
+			registry.remove_all_components_of(bullet_entity);
+		}
+	}
+
+	auto& enemy_bullet_registry = registry.enemyBullets;
+	// Handling removing enemy bullets
+	for (int i = (int)enemy_bullet_registry.entities.size() - 1; i >= 0; --i) {
+		Entity& enemy_bullet_entity = enemy_bullet_registry.entities[i];
+		Motion& motion = motions_registry.get(enemy_bullet_entity);
+
+		if (motion.position.x + abs(motion.scale.x) < 0.f
+			|| motion.position.x - abs(motion.scale.x) > window_width_px
+			|| motion.position.y + abs(motion.scale.y) < 0.f
+			|| motion.position.y - abs(motion.scale.x) > window_height_px
+			) {
+
+			registry.remove_all_components_of(enemy_bullet_entity);
 		}
 	}
 
@@ -379,17 +404,20 @@ void WorldSystem::console_debug_fps()
 
 void WorldSystem::update_fps(float elapsed_ms_since_last_update)
 {
-	frame_count++;
-	time_accumulator += elapsed_ms_since_last_update;
-	if (time_accumulator >= 1000.0f) {
-		fps = frame_count * 1000.0f / time_accumulator;
-		frame_count = 0;
-		time_accumulator = 0.0f;
+	if (debugging.show_game_fps)
+	{
+		frame_count++;
+		time_accumulator += elapsed_ms_since_last_update;
+		if (time_accumulator >= 1000.0f) {
+			fps = frame_count * 1000.0f / time_accumulator;
+			frame_count = 0;
+			time_accumulator = 0.0f;
 
-		auto& fps_component = registry.fpsCounters.get(fps_counter);
-		fps_component.current_fps = fps;
+			auto& fps_component = registry.fpsCounters.get(fps_counter);
+			fps_component.current_fps = fps;
 
-		console_debug_fps();
+			console_debug_fps();
+		}
 	}
 }
 
@@ -399,7 +427,7 @@ void WorldSystem::update_score()
 	score_component.current_score = registry.score;
 }
 
-void WorldSystem::hit_player(int damage) {
+void WorldSystem::hit_player(const int& damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
 		auto& player = registry.players.get(player_blendy);
 		if (player.health - damage <= 0) {
@@ -419,13 +447,11 @@ void WorldSystem::hit_player(int damage) {
 	}
 }
 
-void WorldSystem::hit_enemy(Entity& target, int damage) {
+void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	Minion& minion = registry.minions.get(target);
 	minion.health -= damage;
 	if (minion.health <= 0) {
 		registry.score += minion.score;
-
-		std::cout << registry.score << std::endl;
 		registry.remove_all_components_of(target);
 	}
 }
@@ -457,7 +483,7 @@ void WorldSystem::handle_collisions() {
 		}
 		else if (registry.bullets.has(entity)) {
 			auto& bullet = registry.bullets.get(entity);
-			if (registry.minions.has(entity_other)&&bullet.friendly) {
+			if (registry.minions.has(entity_other) && bullet.friendly) {
 				int damage = registry.bullets.get(entity).damage;
 				hit_enemy(entity_other, damage);
 				registry.remove_all_components_of(entity);
@@ -643,16 +669,16 @@ float WorldSystem::get_y_animate(int stage, int going_up) {
 		return 0.f * going_up;
 	}
 	else if (stage == 1) {
-		return 1.f * going_up;
+		return 0.3f * going_up;
 	}
 	else if (stage == 2) {
-		return 2.f * going_up;
+		return 0.5f * going_up;
 	}
 	else if (stage == 3) {
-		return 6.f * going_up;
+		return 1.0f * going_up;
 	}
 	else if (stage == 4) {
-		return 7.f * going_up;
+		return 1.5f * going_up;
 	}
 	else {
 		return 0.f * going_up;

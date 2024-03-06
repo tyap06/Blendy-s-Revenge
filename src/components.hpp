@@ -71,13 +71,14 @@ struct Minion
 {
 	int health = 50;
 	int damage = 50;
+	float speed = 100.f;
 	float armor = 0;
 	int score = 10;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
 };
 
 struct Shooter {
-	float shoot_interval_ms = 50.0f; 
+	float shoot_interval_ms = 2000.0f; 
 	float time_since_last_shot_ms = 0.0f;
 };
 
@@ -130,6 +131,12 @@ extern Debug debugging;
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+};
+
+// A component to represent a help screen
+struct HelpScreen
+{
+	
 };
 
 // If an entity represents an FPS counter
@@ -235,7 +242,7 @@ struct box {
  * The final value in each enumeration is both a way to keep track of how many
  * enums there are, and as a default value to represent uninitialized fields.
  */
-
+//
 enum class TEXTURE_ASSET_ID {
 	BLENDY = 0,
 	BLENDY_NM = BLENDY + 1,
