@@ -262,7 +262,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	update_minions(elapsed_ms_since_last_update);
 	//update_powerups(elapsed_ms_since_last_update);
 	update_health_bar();
-	
+	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
@@ -316,7 +316,6 @@ void WorldSystem::restart_game() {
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
-	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 	
 }
 

@@ -48,7 +48,9 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])) 
 		|| (registry.bullets.has(registry.motions.entities[index_one]) && registry.bullets.has(registry.motions.entities[index_two]))
 		|| (registry.enemyBullets.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two]))
-		|| (registry.enemyBullets.has(registry.motions.entities[index_two]) && registry.minions.has(registry.motions.entities[index_one])))
+		|| (registry.enemyBullets.has(registry.motions.entities[index_two]) && registry.minions.has(registry.motions.entities[index_one]))
+		|| (registry.debugComponents.has(registry.motions.entities[index_one]) || (registry.debugComponents.has(registry.motions.entities[index_two])))
+		|| (registry.panel.has(registry.motions.entities[index_one]) || (registry.panel.has(registry.motions.entities[index_two]))))
 	{
 		return false;
 	}
