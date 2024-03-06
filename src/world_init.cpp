@@ -322,4 +322,3 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
-
