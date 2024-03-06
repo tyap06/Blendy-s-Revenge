@@ -25,16 +25,19 @@ public:
 	ComponentContainer<vec3> colors;
 	ComponentContainer<Background> backgrounds;
 	ComponentContainer<LightSource> lightSources;
+	ComponentContainer<FpsCounter> fpsCounters;
+	ComponentContainer<ScoreCounter> scoreCounters;
+	ComponentContainer<Roamer> roamers;
+	ComponentContainer<HelpScreen> helpScreens;
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
 	ComponentContainer<PowerUp> powerUps;
 	ComponentContainer<EnemyBullet> enemyBullets;
 	ComponentContainer<Mesh_collision> mesh_collision;
 	ComponentContainer<Panel> panel;
-	
 
 	int score;
-
+	bool is_pause;
 	bool is_dead;
 
 	// constructor that adds all containers for looping over them
@@ -53,10 +56,14 @@ public:
 		registry_list.push_back(&colors);
 		registry_list.push_back(&backgrounds);
 		registry_list.push_back(&lightSources);
+		registry_list.push_back(&fpsCounters);
 		registry_list.push_back(&bullets);
 		registry_list.push_back(&shooters);
 		registry_list.push_back(&powerUps);
 		registry_list.push_back(&enemyBullets);
+		registry_list.push_back(&scoreCounters);
+		registry_list.push_back(&roamers);
+		registry_list.push_back(&helpScreens);
 		registry_list.push_back(&panel);
 	}
 

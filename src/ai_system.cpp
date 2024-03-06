@@ -1,11 +1,16 @@
 #include "ai_system.hpp"
 #include "world_init.hpp"
+#include <random>
 
-const int update_frequency = 50;
+const int update_frequency = 100;
 const float ideal_range_from_player = 450.0f; 
 const float approach_speed_factor = 1.0f; // Speed factor when approaching
 const float dodge_speed_factor = 1.5f; // Speed factor when dodging
 static int frame_count = 0;
+
+std::random_device rd; // Obtain a seed from the system entropy device, or use a fixed seed for reproducible results
+std::mt19937 gen(rd()); // Seed the generator
+std::uniform_int_distribution<> distr(-2000, 100); // Define the range
 
 void AISystem::shoot(float time) {
 	
@@ -38,7 +43,7 @@ void AISystem::step(float elapsed_ms)
 		Minion& enemy = enemy_registry.get(enemy_enitiy);
 		vec2 minions_pos = motion.position;
 		vec2 direction_to_player = predicted_player_pos - minions_pos;
-		float original_speed = length(motion.velocity);
+		float original_speed = enemy.speed;
 		vec2 chase_direction = normalize(predicted_player_pos - minions_pos);
 
 		if (enemy.type == Enemy_TYPE::BASIC) {
@@ -53,7 +58,7 @@ void AISystem::step(float elapsed_ms)
 			else if (distance_to_player < ideal_range_from_player) {
 				motion.velocity = -chase_direction * original_speed;
 			}
-			shooter.time_since_last_shot_ms += elapsed_ms;
+			shooter.time_since_last_shot_ms += elapsed_ms * update_frequency;
 			if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
 				vec2 bullet_direction = normalize(player_position - motion.position);
 
@@ -67,11 +72,10 @@ void AISystem::step(float elapsed_ms)
 				else if (angle_diff > M_PI) {
 					angle_diff -= 2 * M_PI;
 				}
-				shooter.time_since_last_shot_ms = 0.0f;
 				create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff); 
+				shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
 			}
 		}
-
 
 	}
 
