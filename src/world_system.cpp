@@ -30,7 +30,7 @@ const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
 const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
 const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
-const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
+const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
 const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
 const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
 
@@ -177,15 +177,21 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 // Updates Health bar when blendy gets hit
 void WorldSystem::update_health_bar()
 {
+	while (registry.debugComponents.entities.size() > 0)
+		registry.remove_all_components_of(registry.debugComponents.entities.back());
 	auto& blendy = registry.players.get(player_blendy);
 	int blendy_health = blendy.health;
-	if (blendy_health == 100) {
-		createLine(HEALTH_BAR_POSITION, HEALTH_BAR_BOUNDS);
-	}
-	else if (blendy_health < 100) {
-		float health_offset = HEALTH_BAR_BOUNDS.x * blendy_health / 200;
-		createLine(vec2{HEALTH_BAR_POSITION.x - health_offset, HEALTH_BAR_POSITION.y}, vec2{HEALTH_BAR_BOUNDS.x * blendy_health/100, HEALTH_BAR_BOUNDS.y});
-	}
+
+	float current_width = HEALTH_BAR_BOUNDS.x * blendy_health / 100.0f;
+
+	float offset_to_center = (current_width - HEALTH_BAR_BOUNDS.x) / 2.0f;
+
+	vec2 health_bar_center = { HEALTH_BAR_POSITION.x + offset_to_center, HEALTH_BAR_POSITION.y };
+
+	vec2 health_bar_scale = { current_width, HEALTH_BAR_BOUNDS.y-5 };
+
+	createLine(health_bar_center, health_bar_scale);
+	
 }
 
 // make powerups spawn randomly on the map
@@ -255,15 +261,14 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	return;
 }
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+	for (Entity e : registry.panel.entities) {
+		registry.remove_all_components_of(e);
+	}
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
-	// Remove debug info from the last step
-	while (registry.debugComponents.entities.size() > 0)
-	    registry.remove_all_components_of(registry.debugComponents.entities.back());
-
-	// Removing out of screen entities
+	
 	auto& motions_registry = registry.motions;
 
 
@@ -284,21 +289,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
-	auto& enemy_bullet_registry = registry.enemyBullets;
-	// Handling removing enemy bullets
-	for (int i = (int)enemy_bullet_registry.entities.size() - 1; i >= 0; --i) {
-		Entity& enemy_bullet_entity = enemy_bullet_registry.entities[i];
-		Motion& motion = motions_registry.get(enemy_bullet_entity);
 
-		if (motion.position.x + abs(motion.scale.x) < 0.f
-			|| motion.position.x - abs(motion.scale.x) > window_width_px
-			|| motion.position.y + abs(motion.scale.y) < 0.f
-			|| motion.position.y - abs(motion.scale.x) > window_height_px
-			) {
-
-			registry.remove_all_components_of(enemy_bullet_entity);
-		}
-	}
 
 	
 
@@ -312,7 +303,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	update_minions(elapsed_ms_since_last_update);
 	//update_powerups(elapsed_ms_since_last_update);
-	update_health_bar();
+
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 
 	// BLENDY ANIMATION
@@ -408,6 +399,7 @@ void WorldSystem::restart_game() {
 	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
+	update_health_bar();
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
@@ -451,6 +443,7 @@ void WorldSystem::hit_player(const int& damage) {
 		auto& player = registry.players.get(player_blendy);
 		if (player.health - damage <= 0) {
 			player.health = 0;
+			update_health_bar();
 			is_dead = true;
 			registry.is_dead = true;
 			auto& motions_registry = registry.motions;
@@ -463,6 +456,7 @@ void WorldSystem::hit_player(const int& damage) {
 		}
 		else {
 			player.health -= damage;
+			update_health_bar();
 		}
 	}
 }
