@@ -51,7 +51,7 @@ private:
 	float bullet_timer = 0.0f;
 	float elapsed_ms = 0.0f;
 	float bullet_speed = 500.f;
-	float bullet_launch_interval = 0.5f;
+	float bullet_launch_interval = 0.4f;
 	// restart level
 	void restart_game();
 	void console_debug_fps();
