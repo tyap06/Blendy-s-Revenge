@@ -39,6 +39,10 @@ struct Player
 	float max_invisible_duraion = 100.f;
 };
 
+struct Panel {
+
+};
+
 
 struct EnemyBullet{
 	
@@ -219,13 +223,14 @@ enum class TEXTURE_ASSET_ID {
 	BULLET = DIRECTIONAL_LIGHT + 1,
 	FULL_HEALTH_BAR = BULLET + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,
+	HEALTH_BAR_FRAME = HELP_SCREEN + 1,
 	//LFRAME_0 = DIRECTIONAL_LIGHT + 1,
 	//LFRAME_1 = LFRAME_0 + 1,
 	//LFRAME_2 = LFRAME_1 + 1,
 	//LFRAME_3 = LFRAME_2 + 1,
 	//LFRAME_4 = LFRAME_3 + 1,
 	//TEXTURE_COUNT = LFRAME_4 + 1
-	TEXTURE_COUNT = HELP_SCREEN + 1
+	TEXTURE_COUNT = HEALTH_BAR_FRAME + 1
 	
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;

@@ -2,6 +2,30 @@
 #include "tiny_ecs_registry.hpp"
 #include <iostream>
 
+Entity createLine(vec2 position, vec2 scale)
+{
+	Entity entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::EGG,
+			GEOMETRY_BUFFER_ID::DEBUG_LINE });
+
+	// Create motion
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = scale;
+
+	registry.debugComponents.emplace(entity);
+	return entity;
+}
+
+
 Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
 {
 	auto entity = Entity();
@@ -44,10 +68,13 @@ Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = bounds;
 
+	// add health bar to panel component
+	registry.panel.emplace(entity);
+
 	// Create a render request for the health bar
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::FULL_HEALTH_BAR, 
+		{ TEXTURE_ASSET_ID::HEALTH_BAR_FRAME, 
 			TEXTURE_ASSET_ID::TEXTURE_COUNT, 
 		EFFECT_ASSET_ID::TEXTURED, 
 		GEOMETRY_BUFFER_ID::SPRITE });

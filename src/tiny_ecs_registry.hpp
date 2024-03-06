@@ -29,8 +29,8 @@ public:
 	ComponentContainer<Shooter> shooters;
 	ComponentContainer<PowerUp> powerUps;
 	ComponentContainer<EnemyBullet> enemyBullets;
-
 	ComponentContainer<Mesh_collision> mesh_collision;
+	ComponentContainer<Panel> panel;
 	
 
 	int score;
@@ -57,6 +57,7 @@ public:
 		registry_list.push_back(&shooters);
 		registry_list.push_back(&powerUps);
 		registry_list.push_back(&enemyBullets);
+		registry_list.push_back(&panel);
 	}
 
 	void clear_all_components() {

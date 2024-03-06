@@ -27,14 +27,16 @@ const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
 const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px - 200 };
-const vec2 HEALTH_BAR_POSITION = { 125.f, 30.f };
+const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
+const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
 
 // BOUNDS
 const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
 const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
-const vec2 HEALTH_BAR_BOUNDS = { 200.f, 40.f };
+const vec2 HEALTH_BAR_BOUNDS = { 175.f, 32.f };
+const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
 const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 100.0f };
@@ -154,6 +156,20 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
     restart_game();
 }
 
+// Updates Health bar when blendy gets hit
+void WorldSystem::update_health_bar()
+{
+	auto& blendy = registry.players.get(player_blendy);
+	int blendy_health = blendy.health;
+	if (blendy_health == 100) {
+		createLine(HEALTH_BAR_POSITION, HEALTH_BAR_BOUNDS);
+	}
+	else if (blendy_health < 100) {
+		float health_offset = HEALTH_BAR_BOUNDS.x * blendy_health / 200;
+		createLine(vec2{HEALTH_BAR_POSITION.x - health_offset, HEALTH_BAR_POSITION.y}, vec2{HEALTH_BAR_BOUNDS.x * blendy_health/100, HEALTH_BAR_BOUNDS.y});
+	}
+}
+
 // make powerups spawn randomly on the map
 void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 {
@@ -215,7 +231,6 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	return;
 }
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	// Remove debug info from the last step
@@ -234,6 +249,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		}
 	}
 
+	
+
 	if (is_dead) {
 		Motion& player_motion = registry.motions.get(player_blendy);
 		float sec_passed = elapsed_ms_since_last_update / 1000;
@@ -244,6 +261,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	update_minions(elapsed_ms_since_last_update);
 	//update_powerups(elapsed_ms_since_last_update);
+	update_health_bar();
+	
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
@@ -297,8 +316,10 @@ void WorldSystem::restart_game() {
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
-	health_bar = createHealthBar(renderer, HEALTH_BAR_POSITION, HEALTH_BAR_BOUNDS);
+	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
+	
 }
+
 
 void WorldSystem::hit_player(int damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
