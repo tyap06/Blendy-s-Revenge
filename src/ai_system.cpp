@@ -3,18 +3,57 @@
 #include <random>
 
 const int update_frequency = 100;
-const float ideal_range_from_player = 450.0f; 
-const float approach_speed_factor = 1.0f; // Speed factor when approaching
-const float dodge_speed_factor = 1.5f; // Speed factor when dodging
+const float ideal_range_from_player = 400.0f; 
+const float approach_speed_factor = 1.0f; 
+const float dodge_speed_factor = 1.5f; 
 static int frame_count = 0;
 
-std::random_device rd; // Obtain a seed from the system entropy device, or use a fixed seed for reproducible results
-std::mt19937 gen(rd()); // Seed the generator
-std::uniform_int_distribution<> distr(-2000, 100); // Define the range
+std::random_device rd; 
+std::mt19937 gen(rd());
+std::uniform_int_distribution<> distr(-2000, 100); 
 
-void AISystem::shoot(float time) {
-	
+float calculateDistance(const vec2& pos1, const vec2& pos2) {
+	vec2 diff = pos1 - pos2;
+	return sqrt(diff.x * diff.x + diff.y * diff.y);
 }
+
+ShooterState decideShooterState(const vec2& enemyPos, const vec2& playerPos, float idealRange) {
+	float distance = calculateDistance(enemyPos, playerPos);
+	if (distance > idealRange) {
+		return ShooterState::Approach;
+	}
+	else {
+		return ShooterState::Dodge;
+	}
+}
+
+void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float elapsed_ms) {
+	auto& shooter = registry.shooters.get(shooterEntity);
+	Motion& motion = registry.motions.get(shooterEntity);
+
+	// Update the shooting timer
+	shooter.time_since_last_shot_ms += elapsed_ms;
+	if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
+		vec2 bullet_direction = normalize(playerPosition - motion.position);
+
+		vec2 up_vector{ 0.0f, -1.0f };
+		float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+		float up_angle = std::atan2(up_vector.y, up_vector.x);
+		float angle_diff = bullet_angle - up_angle;
+		if (angle_diff < -M_PI) {
+			angle_diff += 2 * M_PI;
+		}
+		else if (angle_diff > M_PI) {
+			angle_diff -= 2 * M_PI;
+		}
+		// Call the function to create and launch the bullet
+		create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff);
+
+		// Reset the shoot timer randomly within specified range
+		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen)); // Ensure distr range is properly defined elsewhere
+	}
+}
+
 
 void AISystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
@@ -50,31 +89,16 @@ void AISystem::step(float elapsed_ms)
 			motion.velocity = chase_direction * original_speed;
 		}
 		else if (enemy.type == Enemy_TYPE::SHOOTER) {
-			auto& shooter = registry.shooters.get(enemy_enitiy);
-			float distance_to_player = length(predicted_player_pos - minions_pos);
-			if (distance_to_player > ideal_range_from_player) {
-				motion.velocity = chase_direction * original_speed;
+			ShooterState state = decideShooterState(motion.position, predicted_player_pos, ideal_range_from_player);
+			switch (state) {
+			case ShooterState::Approach:
+				motion.velocity = chase_direction * (original_speed * approach_speed_factor);
+				break;
+			case ShooterState::Dodge:
+				motion.velocity = -chase_direction * (original_speed * dodge_speed_factor);
+				break;
 			}
-			else if (distance_to_player < ideal_range_from_player) {
-				motion.velocity = -chase_direction * original_speed;
-			}
-			shooter.time_since_last_shot_ms += elapsed_ms * update_frequency;
-			if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
-				vec2 bullet_direction = normalize(player_position - motion.position);
-
-				vec2 up_vector{ 0.0f, -1.0f };
-				float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
-				float up_angle = std::atan2(up_vector.y, up_vector.x);
-				float angle_diff = bullet_angle - up_angle;
-				if (angle_diff < -M_PI) {
-					angle_diff += 2 * M_PI;
-				}
-				else if (angle_diff > M_PI) {
-					angle_diff -= 2 * M_PI;
-				}
-				create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff); 
-				shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
-			}
+			shoot(enemy_enitiy, player_position, elapsed_ms * update_frequency);
 		}
 
 	}
