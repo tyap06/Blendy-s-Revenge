@@ -417,7 +417,6 @@ void WorldSystem::hit_enemy(Entity& target, int damage) {
 	if (minion.health <= 0) {
 		registry.score += minion.score;
 
-		std::cout << registry.score << std::endl;
 		registry.remove_all_components_of(target);
 	}
 }
