@@ -219,22 +219,28 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	vec2& blendy_pos = motion.position;
 	vec2 mouse_position = getCurrentMousePosition();
 	if (!is_dead) {
-		if (bullet_timer <= 0.0f) {
-			vec2 bullet_direction = normalize(mouse_position - blendy_pos);
-			vec2 up_vector{ 0.0f, -1.0f };
-			float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
-			float up_angle = std::atan2(up_vector.y, up_vector.x);
-			float angle_diff = bullet_angle - up_angle;
-			if (angle_diff < -M_PI) {
-				angle_diff += 2 * M_PI;
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
+			if (bullet_timer <= 0.0f) {
+				vec2 bullet_direction = normalize(mouse_position - blendy_pos);
+				vec2 up_vector{ 0.0f, -1.0f };
+				float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+				float up_angle = std::atan2(up_vector.y, up_vector.x);
+				float angle_diff = bullet_angle - up_angle;
+				if (angle_diff < -M_PI) {
+					angle_diff += 2 * M_PI;
+				}
+				else if (angle_diff > M_PI) {
+					angle_diff -= 2 * M_PI;
+				}
+				createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
+				bullet_timer = bullet_launch_interval;
 			}
-			else if (angle_diff > M_PI) {
-				angle_diff -= 2 * M_PI;
+			if (bullet_timer > 0.0f) {
+				bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
 			}
-			createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
-			bullet_timer = bullet_launch_interval;
+			
 		}
-		bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
+		
 	}
 	return;
 }
