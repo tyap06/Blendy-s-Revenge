@@ -35,11 +35,23 @@ struct Player
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
+	float counter_ms = 50.f;
+	int frame_stage = 0;
+	bool up;
+	bool down;
+	bool left;
+	bool right;
+	int going_up = -1;
 	float invisible_counter = 0.0f;
 	float max_invisible_duraion = 100.f;
 };
 
 struct Panel {
+
+};
+
+
+struct Roamer {
 
 };
 
@@ -65,13 +77,14 @@ struct Minion
 {
 	int health = 50;
 	int damage = 50;
+	float speed = 100.f;
 	float armor = 0;
 	int score = 10;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
 };
 
 struct Shooter {
-	float shoot_interval_ms = 50.0f; 
+	float shoot_interval_ms = 2000.0f; 
 	float time_since_last_shot_ms = 0.0f;
 };
 
@@ -93,6 +106,8 @@ struct Motion {
 	float angle = 0;
 	vec2 velocity = { 0, 0 };
 	vec2 scale = { 10, 10 };
+	float y_animate = 0.f;
+	EntityType type = EntityType::Generic;
 
 	bool operator==(const Motion& other) const {
 		return position == other.position &&
@@ -113,6 +128,7 @@ struct Collision
 // Data structure for toggling debug mode
 struct Debug {
 	bool in_debug_mode = 0;
+	bool show_game_fps = 0;
 	bool in_freeze_mode = 0;
 };
 extern Debug debugging;
@@ -121,6 +137,26 @@ extern Debug debugging;
 struct ScreenState
 {
 	float darken_screen_factor = -1;
+};
+
+// A component to represent a help screen
+struct HelpScreen
+{
+	
+};
+
+// If an entity represents an FPS counter
+struct FpsCounter
+{
+	unsigned int current_fps = 0;
+	float scale = 1.f;
+};
+
+// If an entity represents a score counter
+struct ScoreCounter
+{
+	unsigned int current_score = 0;
+	float scale = 1.f;
 };
 
 // A struct to refer to debugging graphics in the ECS
@@ -212,7 +248,7 @@ struct box {
  * The final value in each enumeration is both a way to keep track of how many
  * enums there are, and as a default value to represent uninitialized fields.
  */
-
+//
 enum class TEXTURE_ASSET_ID {
 	BLENDY = 0,
 	BLENDY_NM = BLENDY + 1,
@@ -220,18 +256,55 @@ enum class TEXTURE_ASSET_ID {
 	MINION_NM = MINION + 1,
 	BACKGROUND = MINION_NM + 1,
 	DIRECTIONAL_LIGHT = BACKGROUND + 1,
-	BULLET = DIRECTIONAL_LIGHT + 1,
-	FULL_HEALTH_BAR = BULLET + 1,
+	LFRAME_0 = DIRECTIONAL_LIGHT + 1,
+	LFRAME_1 = LFRAME_0 + 1,
+	LFRAME_2 = LFRAME_1 + 1,
+	LFRAME_3 = LFRAME_2 + 1,
+	LFRAME_4 = LFRAME_3 + 1,
+	RFRAME_0 = LFRAME_4 + 1,
+	RFRAME_1 = RFRAME_0 + 1,
+	RFRAME_2 = RFRAME_1 + 1,
+	RFRAME_3 = RFRAME_2 + 1,
+	RFRAME_4 = RFRAME_3 + 1,
+	DFRAME_0 = RFRAME_4 + 1,
+	DFRAME_1 = DFRAME_0 + 1,
+	DFRAME_2 = DFRAME_1 + 1,
+	DFRAME_3 = DFRAME_2 + 1,
+	DFRAME_4 = DFRAME_3 + 1,
+	UFRAME_0 = DFRAME_4 + 1,
+	UFRAME_1 = UFRAME_0 + 1,
+	UFRAME_2 = UFRAME_1 + 1,
+	UFRAME_3 = UFRAME_2 + 1,
+	UFRAME_4 = UFRAME_3 + 1,
+	LFRAME_0_NM = UFRAME_4 + 1,
+	LFRAME_1_NM = LFRAME_0_NM + 1,
+	LFRAME_2_NM = LFRAME_1_NM + 1,
+	LFRAME_3_NM = LFRAME_2_NM + 1,
+	LFRAME_4_NM = LFRAME_3_NM + 1,
+	RFRAME_0_NM = LFRAME_4_NM + 1,
+	RFRAME_1_NM = RFRAME_0_NM + 1,
+	RFRAME_2_NM = RFRAME_1_NM + 1,
+	RFRAME_3_NM = RFRAME_2_NM + 1,
+	RFRAME_4_NM = RFRAME_3_NM + 1,
+	DFRAME_0_NM = RFRAME_4_NM + 1,
+	DFRAME_1_NM = DFRAME_0_NM + 1,
+	DFRAME_2_NM = DFRAME_1_NM + 1,
+	DFRAME_3_NM = DFRAME_2_NM + 1,
+	DFRAME_4_NM = DFRAME_3_NM + 1,
+	UFRAME_0_NM = DFRAME_4_NM + 1,
+	UFRAME_1_NM = UFRAME_0_NM + 1,
+	UFRAME_2_NM = UFRAME_1_NM + 1,
+	UFRAME_3_NM = UFRAME_2_NM + 1,
+	UFRAME_4_NM = UFRAME_3_NM + 1,
+	BULLET = UFRAME_4_NM + 1,
+	BULLET_NM = BULLET + 1,
+	FULL_HEALTH_BAR = BULLET_NM + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,
 	HEALTH_BAR_FRAME = HELP_SCREEN + 1,
-	//LFRAME_0 = DIRECTIONAL_LIGHT + 1,
-	//LFRAME_1 = LFRAME_0 + 1,
-	//LFRAME_2 = LFRAME_1 + 1,
-	//LFRAME_3 = LFRAME_2 + 1,
-	//LFRAME_4 = LFRAME_3 + 1,
-	//TEXTURE_COUNT = LFRAME_4 + 1
+
 	TEXTURE_COUNT = HEALTH_BAR_FRAME + 1
 	
+	TEXTURE_COUNT = HELP_SCREEN + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

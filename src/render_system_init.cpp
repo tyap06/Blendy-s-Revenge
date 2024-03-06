@@ -13,6 +13,11 @@
 #include <iostream>
 #include <sstream>
 
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+
 // World initialization
 bool RenderSystem::init(GLFWwindow* window_arg)
 {
@@ -48,17 +53,19 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	// code to use OpenGL 4.3 (not suported on mac) and add additional .h and .cpp
 	// glDebugMessageCallback((GLDEBUGPROC)errorCallback, nullptr);
 
+	
+
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	glGenVertexArrays(1, &dummy_vao);
+	glBindVertexArray(dummy_vao);
 	gl_has_errors();
 
 	initScreenTexture();
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	initializeFonts();
 
 	return true;
 }
@@ -246,6 +253,40 @@ RenderSystem::~RenderSystem()
 	// remove all entities created by the render system
 	while (registry.renderRequests.entities.size() > 0)
 	    registry.remove_all_components_of(registry.renderRequests.entities.back());
+}
+
+void RenderSystem::debug_fps(const mat3& projection)
+{
+	if (debugging.show_game_fps)
+	{
+		for (Entity entity : registry.fpsCounters.entities)
+		{
+			auto& fps_component = registry.fpsCounters.get(entity);
+			std::string display_text = std::to_string(fps_component.current_fps);
+
+			auto& color_component = registry.colors.get(entity);
+
+			auto& motion = registry.motions.get(entity);
+
+			renderText(display_text, motion.position.x, motion.position.y, fps_component.scale, color_component, glm::mat4(1.f));
+		}
+
+	}
+}
+
+void RenderSystem::display_score()
+{
+	for (Entity entity : registry.scoreCounters.entities)
+	{
+		auto& score_component = registry.scoreCounters.get(entity);
+		std::string display_text = "Score: " + std::to_string(score_component.current_score);
+
+		auto& color_component = registry.colors.get(entity);
+
+		auto& motion = registry.motions.get(entity);
+
+		renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+	}
 }
 
 // Initialize the screen texture from a standard sprite

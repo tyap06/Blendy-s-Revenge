@@ -3,7 +3,7 @@
 #include "world_init.hpp"
 #include <iostream>
 #include <vector>
-vec2 normalize(const vec2&);
+//vec2 normalize(const vec2&);
 float duration = 0;
 bool isParallel(const std::vector<vec2>&, const vec2&);
 std::pair<float, float> projectOntoAxis(const std::vector<vec2>&, const vec2&);
@@ -37,25 +37,37 @@ vec2 get_bounding_box(const Motion& motion)
 //	return false;
 //}
 
-bool collides(const Motion& motion1, const Motion& motion2)
+bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion1, const Motion& motion2)
 {
 	// search for the index of motion
-	auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
+	/*auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
 	int index_two = it_two - registry.motions.components.begin();
 	auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	int index_one = it_one - registry.motions.components.begin();
+	int index_one = it_one - registry.motions.components.begin();*/
+	
+	//auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
+	//Entity index_two = entity2;
+	//auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
+	//Entity index_one = entity1;
 
-	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])) 
-		|| (registry.bullets.has(registry.motions.entities[index_one]) && registry.bullets.has(registry.motions.entities[index_two]))
-		|| (registry.enemyBullets.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two]))
-		|| (registry.enemyBullets.has(registry.motions.entities[index_two]) && registry.minions.has(registry.motions.entities[index_one]))
-		|| (registry.debugComponents.has(registry.motions.entities[index_one]) || (registry.debugComponents.has(registry.motions.entities[index_two])))
-		|| (registry.panel.has(registry.motions.entities[index_one]) || (registry.panel.has(registry.motions.entities[index_two]))))
+
+	if (
+		(registry.minions.has(entity1) && registry.minions.has(entity2))
+		|| (registry.bullets.has(entity1) && registry.bullets.has(entity2))
+		|| (registry.enemyBullets.has(entity1) && registry.minions.has(entity2))
+		|| (registry.enemyBullets.has(entity2) && registry.minions.has(entity1))
+		|| (registry.scoreCounters.has(entity1) || registry.scoreCounters.has(entity2))
+		|| (registry.fpsCounters.has(entity1) || registry.fpsCounters.has(entity2))
+		|| (registry.lightSources.has(entity1) || registry.lightSources.has(entity2))
+		|| (registry.backgrounds.has(entity1) || registry.backgrounds.has(entity2))
+		//|| (registry.healthBars.has(entity1) || registry.healthBars.has(entity2)) // Uncomment when healthBar container added
+		|| (registry.helpScreens.has(entity1) || registry.helpScreens.has(entity2))
+		)
 	{
 		return false;
 	}
 
-	if ((registry.mesh_collision.has(registry.motions.entities[index_one]) && registry.mesh_collision.has(registry.motions.entities[index_two])))
+	if ((registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2)))
 	{
 		// pass
 	}
@@ -67,25 +79,26 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	vec2 center_dis = motion1.position - motion2.position;
 
 
+
 	// check bounding box overlap first 
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
-		if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
+		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 			box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
-			if (registry.meshPtrs.has(registry.motions.entities[index_one]) && registry.meshPtrs.has(registry.motions.entities[index_two])) {
-				Mesh* mesh_one = registry.meshPtrs.get(registry.motions.entities[index_one]);
-				Mesh* mesh_two = registry.meshPtrs.get(registry.motions.entities[index_two]);
+			if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
+				Mesh* mesh_one = registry.meshPtrs.get(entity1);
+				Mesh* mesh_two = registry.meshPtrs.get(entity2);
 				return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 			}
-			else {
+			/*else {
 				return false;
-			}
-		}
+			}*/
+		//}
 
-		else {
+		//else {
 
-			return true;
-		}
+			//return true;
+		//}
 	}
 	return false;
 }
@@ -103,14 +116,16 @@ void PhysicsSystem::step(float elapsed_ms)
 	auto& motion_registry = registry.motions;
 	static float accumulatedTime = 0.0f;
 	accumulatedTime += elapsed_ms;
-	for(uint i = 0; i< motion_registry.size(); i++)
-	{	
+	for (uint i = 0; i < motion_registry.size(); i++)
+	{
 		Motion& motion = motion_registry.components[i];
 		Entity entity = motion_registry.entities[i];
 		float step_seconds = elapsed_ms / 1000.f;
-		
+
 		if (registry.players.has(entity)) {
 			// Vicky M1: idle animation
+			// blendy animation
+			Player& blendy = registry.players.get(entity);
 			if (!registry.is_dead) {
 				const float cycleDuration = 4000.0f;
 				float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
@@ -124,23 +139,22 @@ void PhysicsSystem::step(float elapsed_ms)
 					normalizedTime = (1.0f - cycleTime) / 0.5f;
 				}
 
-
 				const float maxScale = 1.1f;
 
 				motion.scale.x = lerp(BLENDY_BB_WIDTH, maxScale * BLENDY_BB_WIDTH, normalizedTime);
 				motion.scale.y = lerp(BLENDY_BB_HEIGHT, maxScale * BLENDY_BB_HEIGHT, normalizedTime);
 			}
-			
+
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
-			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
+			if (new_x - half_width > 0 && new_x + half_width < window_width_px && blendy.frame_stage != 0 && !registry.deathTimers.has(entity)) {
 				motion.position.x = new_x;
 			}
 
-			if (new_y - half_height > 0 && new_y + half_height < window_height_px) {
+			if (new_y - half_height > 100 && new_y + half_height < window_height_px) {
 				motion.position.y = new_y;
 			}
 		}
@@ -151,69 +165,97 @@ void PhysicsSystem::step(float elapsed_ms)
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			if (new_x - half_width > 0 && new_x + half_width < window_width_px) {
-				motion.position.x = new_x;
+			if (new_x - half_width <= 0 || new_x + half_width >= window_width_px) {
+				if (registry.roamers.has(entity)) {
+					motion.velocity.x *= -1; // Invert X velocity upon boundary collision
+					new_x = motion.velocity.x * step_seconds + motion.position.x; // Recalculate new_x after velocity inversion
+				}
+			}
+			else {
+				motion.position.x = new_x; // Update position if within bounds
 			}
 
-			if (new_y> 0 && new_y + half_height < window_height_px) {
-				motion.position.y = new_y;
+			if (new_y <= 180 || new_y + half_height-20 >= window_height_px) {
+				if (registry.roamers.has(entity)) {
+					motion.velocity.y *= -1; // Invert Y velocity upon boundary collision
+					new_y = motion.velocity.y * step_seconds + motion.position.y; // Recalculate new_y after velocity inversion
+				}
+			}
+			else {
+				motion.position.y = new_y; // Update position if within bounds
 			}
 		}
 		else {
+			if (motion.position.x < 0.f || motion.position.x > window_width_px 
+				|| motion.position.y < 0 || motion.position.y > window_height_px) {
+
+				registry.remove_all_components_of(motion_registry.entities[i]);
+				continue;
+			}
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}
-		
+
 	}
 
 
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG UPDATES HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	// Vicky TODO M1: more blood loss, the screen will trun into black, until dead
+	float bloodLossPercentage;
+	bloodLossPercentage = std::max(0.0f, std::min(1.0f, bloodLossPercentage)) * 100.0f;
+	float alphaFactor = 1.0f - bloodLossPercentage / 100.0f;
+	//render_Screen(alphaFactor);
 
 	// Check for collisions between all moving entities
-    ComponentContainer<Motion> &motion_container = registry.motions;
-	for(uint i = 0; i<motion_container.components.size(); i++)
+	ComponentContainer<Motion>& motion_container = registry.motions;
+	for (uint i = 0; i < motion_container.components.size(); i++)
 	{
 		Motion& motion_i = motion_container.components[i];
 		Entity entity_i = motion_container.entities[i];
-		
+
 		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for(uint j = i+1; j<motion_container.components.size(); j++)
+		for (uint j = i + 1; j < motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
+			Entity entity_j = motion_container.entities[j];
+
+
+			//if (dontCheckForCollisions(entity_i, entity_j))
+			//{
+			//	continue;
+			//}
+
+			if (!registry.mesh_collision.has(motion_container.entities[i]) && registry.mesh_collision.has(motion_container.entities[j])) {
+				continue;
+			}
+
+			if (collides(entity_i, entity_j, motion_i, motion_j))
 			{	
-				Entity entity_j = motion_container.entities[j];
-			
 				// Create a collisions event
 				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+				
 				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
 				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-				if (registry.bullets.has(entity_i) && registry.minions.has(entity_j)) {
-					/*std::cout << "minion bullet collision" << std::endl;*/
-					if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-						/*std::cout << "collision added" << std::endl;*/
-					}
 
-				}
-				else if (registry.bullets.has(entity_j) && registry.minions.has(entity_i)) {
-					/*std::cout << "minion bullet collision" << std::endl;*/
-					if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-						/*std::cout << "collision added" << std::endl;*/
-					}
-				}
+
+				//if (registry.bullets.has(entity_i) && registry.minions.has(entity_j)) {
+				//	/*std::cout << "minion bullet collision" << std::endl;*/
+				//	if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
+				//		/*std::cout << "collision added" << std::endl;*/
+				//	}
+
+				//}
+				//else if (registry.bullets.has(entity_j) && registry.minions.has(entity_i)) {
+				//	/*std::cout << "minion bullet collision" << std::endl;*/
+				//	if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
+				//		/*std::cout << "collision added" << std::endl;*/
+				//	}
+				//}
 				
 			}
 		}
 	}
-
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	// TODO A2: HANDLE EGG collisions HERE
-	// DON'T WORRY ABOUT THIS UNTIL ASSIGNMENT 2
-	// !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 }
+
 
 
 
@@ -254,17 +296,17 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					continue;
 				}
 			}
+
 			vec2 v1 = positions[0];
 			vec2 v2 = positions[1];
 			vec2 v3 = positions[2];
-			
-
 			shape.push_back(v1);
 			shape.push_back(v2);
 			shape.push_back(v3);
-			edges.push_back({ v2.x - v1.x, v2.y - v1.y });
-			edges.push_back({ v3.x - v2.x, v3.y - v2.y });
-			edges.push_back({ v1.x - v3.x, v1.y - v3.y });
+			edges.push_back(v2 - v1);
+			edges.push_back(v3 - v2);
+			edges.push_back(v1 - v3);
+
 			for (const auto& edge : edges) {
 				if (axises.size() == 0) {
 					axises.push_back(normalize(edge));
@@ -298,15 +340,17 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					}
 				}
 			}
+
 			vec2 v1 = positions_2[0];
 			vec2 v2 = positions_2[1];
 			vec2 v3 = positions_2[2];
 			otherShape.push_back(v1);
 			otherShape.push_back(v2);
 			otherShape.push_back(v3);
-			edges.push_back({ v2.x - v1.x, v2.y - v1.y });
-			edges.push_back({ v3.x - v2.x, v3.y - v2.y });
-			edges.push_back({ v1.x - v3.x, v1.y - v3.y });
+			edges.push_back(v2 - v1);
+			edges.push_back(v3 - v2);
+			edges.push_back(v1 - v3);
+
 			for (const auto& edge : edges) {
 				if (axises.size() == 0) {
 					axises_copy.push_back(normalize(edge));
@@ -315,6 +359,7 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					axises_copy.push_back(normalize(edge));
 				}
 			}
+
 			bool haveCollision = true;
 			for (const vec2 axis : axises_copy) {
 				// check projection on axises
@@ -324,20 +369,20 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					haveCollision = false;
 				}
 			}
-			if (haveCollision) {
+
+			if (haveCollision)
 				return haveCollision;
-			}
 		}
 		
 	}
+
 	return collision;
-
 }
 
-vec2 normalize(const vec2& v) {
-	float length = std::sqrt(v.x * v.x + v.y * v.y);
-	return { v.x / length, v.y / length };
-}
+//vec2 normalize(const vec2& v) {
+//	float length = std::sqrt(v.x * v.x + v.y * v.y);
+//	return { v.x / length, v.y / length };
+//}
 
 
 bool isParallel(const std::vector<vec2>& axis, const vec2& edge) {
@@ -363,10 +408,10 @@ std::vector<vec2> getRectangleEdge(const Motion& motion, std::vector<vec2>& shap
 	shape.push_back(bottomLeft);
 	shape.push_back(bottomRight);
 
-	rectangle[0] = normalize({ topRight.x - topLeft.x, topRight.y - topLeft.y }); // Top edge
-	rectangle[1] = normalize({ bottomRight.x - topRight.x, bottomRight.y - topRight.y }); // Right edge
-	rectangle[2] = normalize({ bottomLeft.x - bottomRight.x, bottomLeft.y - bottomRight.y }); // Bottom edge
-	rectangle[3] = normalize({ topLeft.x - bottomLeft.x, topLeft.y - bottomLeft.y }); // Left edge
+	rectangle[0] = normalize(topRight - topLeft); // Top edge
+	rectangle[1] = normalize(bottomRight - topRight); // Right edge
+	rectangle[2] = normalize(bottomLeft - bottomRight); // Bottom edge
+	rectangle[3] = normalize(topLeft - bottomLeft); // Left edge
 	return rectangle;
 }
 
