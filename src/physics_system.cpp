@@ -3,7 +3,7 @@
 #include "world_init.hpp"
 #include <iostream>
 #include <vector>
-vec2 normalize(const vec2&);
+//vec2 normalize(const vec2&);
 float duration = 0;
 bool isParallel(const std::vector<vec2>&, const vec2&);
 std::pair<float, float> projectOntoAxis(const std::vector<vec2>&, const vec2&);
@@ -37,23 +37,36 @@ vec2 get_bounding_box(const Motion& motion)
 //	return false;
 //}
 
-bool collides(const Motion& motion1, const Motion& motion2)
+bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion1, const Motion& motion2)
 {
 	// search for the index of motion
-	auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
+	/*auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
 	int index_two = it_two - registry.motions.components.begin();
 	auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	int index_one = it_one - registry.motions.components.begin();
+	int index_one = it_one - registry.motions.components.begin();*/
+	
+	//auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
+	//Entity index_two = entity2;
+	//auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
+	//Entity index_one = entity1;
 
-	if ((registry.minions.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two])) 
-		|| (registry.bullets.has(registry.motions.entities[index_one]) && registry.bullets.has(registry.motions.entities[index_two]))
-		|| (registry.enemyBullets.has(registry.motions.entities[index_one]) && registry.minions.has(registry.motions.entities[index_two]))
-		|| (registry.enemyBullets.has(registry.motions.entities[index_two]) && registry.minions.has(registry.motions.entities[index_one])))
+	if (
+		(registry.minions.has(entity1) && registry.minions.has(entity2))
+		|| (registry.bullets.has(entity1) && registry.bullets.has(entity2))
+		|| (registry.enemyBullets.has(entity1) && registry.minions.has(entity2))
+		|| (registry.enemyBullets.has(entity2) && registry.minions.has(entity1))
+		|| (registry.scoreCounters.has(entity1) || registry.scoreCounters.has(entity2))
+		|| (registry.fpsCounters.has(entity1) || registry.fpsCounters.has(entity2))
+		|| (registry.lightSources.has(entity1) || registry.lightSources.has(entity2))
+		|| (registry.backgrounds.has(entity1) || registry.backgrounds.has(entity2))
+		//|| (registry.healthBars.has(entity1) || registry.healthBars.has(entity2)) // Uncomment when healthBar container added
+		|| (registry.helpScreens.has(entity1) || registry.helpScreens.has(entity2))
+		)
 	{
 		return false;
 	}
 
-	if ((registry.mesh_collision.has(registry.motions.entities[index_one]) && registry.mesh_collision.has(registry.motions.entities[index_two])))
+	if ((registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2)))
 	{
 		// pass
 	}
@@ -68,22 +81,22 @@ bool collides(const Motion& motion1, const Motion& motion2)
 	// check bounding box overlap first 
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
-		if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
+		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 			box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
-			if (registry.meshPtrs.has(registry.motions.entities[index_one]) && registry.meshPtrs.has(registry.motions.entities[index_two])) {
-				Mesh* mesh_one = registry.meshPtrs.get(registry.motions.entities[index_one]);
-				Mesh* mesh_two = registry.meshPtrs.get(registry.motions.entities[index_two]);
+			if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
+				Mesh* mesh_one = registry.meshPtrs.get(entity1);
+				Mesh* mesh_two = registry.meshPtrs.get(entity2);
 				return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 			}
-			else {
+			/*else {
 				return false;
-			}
-		}
+			}*/
+		//}
 
-		else {
+		//else {
 
-			return true;
-		}
+			//return true;
+		//}
 	}
 	return false;
 }
@@ -195,27 +208,40 @@ void PhysicsSystem::step(float elapsed_ms)
 		for (uint j = i + 1; j < motion_container.components.size(); j++)
 		{
 			Motion& motion_j = motion_container.components[j];
-			if (collides(motion_i, motion_j))
+			Entity entity_j = motion_container.entities[j];
+
+
+			//if (dontCheckForCollisions(entity_i, entity_j))
+			//{
+			//	continue;
+			//}
+
+			if (!registry.mesh_collision.has(motion_container.entities[i]) && registry.mesh_collision.has(motion_container.entities[j])) {
+				continue;
+			}
+
+			if (collides(entity_i, entity_j, motion_i, motion_j))
 			{	
-				Entity entity_j = motion_container.entities[j];
-			
 				// Create a collisions event
 				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+				
 				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
 				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-				if (registry.bullets.has(entity_i) && registry.minions.has(entity_j)) {
-					/*std::cout << "minion bullet collision" << std::endl;*/
-					if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-						/*std::cout << "collision added" << std::endl;*/
-					}
 
-				}
-				else if (registry.bullets.has(entity_j) && registry.minions.has(entity_i)) {
-					/*std::cout << "minion bullet collision" << std::endl;*/
-					if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-						/*std::cout << "collision added" << std::endl;*/
-					}
-				}
+
+				//if (registry.bullets.has(entity_i) && registry.minions.has(entity_j)) {
+				//	/*std::cout << "minion bullet collision" << std::endl;*/
+				//	if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
+				//		/*std::cout << "collision added" << std::endl;*/
+				//	}
+
+				//}
+				//else if (registry.bullets.has(entity_j) && registry.minions.has(entity_i)) {
+				//	/*std::cout << "minion bullet collision" << std::endl;*/
+				//	if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
+				//		/*std::cout << "collision added" << std::endl;*/
+				//	}
+				//}
 				
 			}
 		}
@@ -262,17 +288,17 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					continue;
 				}
 			}
+
 			vec2 v1 = positions[0];
 			vec2 v2 = positions[1];
 			vec2 v3 = positions[2];
-			
-
 			shape.push_back(v1);
 			shape.push_back(v2);
 			shape.push_back(v3);
-			edges.push_back({ v2.x - v1.x, v2.y - v1.y });
-			edges.push_back({ v3.x - v2.x, v3.y - v2.y });
-			edges.push_back({ v1.x - v3.x, v1.y - v3.y });
+			edges.push_back(v2 - v1);
+			edges.push_back(v3 - v2);
+			edges.push_back(v1 - v3);
+
 			for (const auto& edge : edges) {
 				if (axises.size() == 0) {
 					axises.push_back(normalize(edge));
@@ -306,15 +332,17 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					}
 				}
 			}
+
 			vec2 v1 = positions_2[0];
 			vec2 v2 = positions_2[1];
 			vec2 v3 = positions_2[2];
 			otherShape.push_back(v1);
 			otherShape.push_back(v2);
 			otherShape.push_back(v3);
-			edges.push_back({ v2.x - v1.x, v2.y - v1.y });
-			edges.push_back({ v3.x - v2.x, v3.y - v2.y });
-			edges.push_back({ v1.x - v3.x, v1.y - v3.y });
+			edges.push_back(v2 - v1);
+			edges.push_back(v3 - v2);
+			edges.push_back(v1 - v3);
+
 			for (const auto& edge : edges) {
 				if (axises.size() == 0) {
 					axises_copy.push_back(normalize(edge));
@@ -323,6 +351,7 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					axises_copy.push_back(normalize(edge));
 				}
 			}
+
 			bool haveCollision = true;
 			for (const vec2 axis : axises_copy) {
 				// check projection on axises
@@ -332,20 +361,20 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					haveCollision = false;
 				}
 			}
-			if (haveCollision) {
+
+			if (haveCollision)
 				return haveCollision;
-			}
 		}
 		
 	}
+
 	return collision;
-
 }
 
-vec2 normalize(const vec2& v) {
-	float length = std::sqrt(v.x * v.x + v.y * v.y);
-	return { v.x / length, v.y / length };
-}
+//vec2 normalize(const vec2& v) {
+//	float length = std::sqrt(v.x * v.x + v.y * v.y);
+//	return { v.x / length, v.y / length };
+//}
 
 
 bool isParallel(const std::vector<vec2>& axis, const vec2& edge) {
@@ -371,10 +400,10 @@ std::vector<vec2> getRectangleEdge(const Motion& motion, std::vector<vec2>& shap
 	shape.push_back(bottomLeft);
 	shape.push_back(bottomRight);
 
-	rectangle[0] = normalize({ topRight.x - topLeft.x, topRight.y - topLeft.y }); // Top edge
-	rectangle[1] = normalize({ bottomRight.x - topRight.x, bottomRight.y - topRight.y }); // Right edge
-	rectangle[2] = normalize({ bottomLeft.x - bottomRight.x, bottomLeft.y - bottomRight.y }); // Bottom edge
-	rectangle[3] = normalize({ topLeft.x - bottomLeft.x, topLeft.y - bottomLeft.y }); // Left edge
+	rectangle[0] = normalize(topRight - topLeft); // Top edge
+	rectangle[1] = normalize(bottomRight - topRight); // Right edge
+	rectangle[2] = normalize(bottomLeft - bottomRight); // Bottom edge
+	rectangle[3] = normalize(topLeft - bottomLeft); // Left edge
 	return rectangle;
 }
 
