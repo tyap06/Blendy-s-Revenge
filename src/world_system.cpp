@@ -188,7 +188,7 @@ void WorldSystem::update_health_bar()
 
 	vec2 health_bar_center = { HEALTH_BAR_POSITION.x + offset_to_center, HEALTH_BAR_POSITION.y };
 
-	vec2 health_bar_scale = { current_width, HEALTH_BAR_BOUNDS.y-5 };
+	vec2 health_bar_scale = { current_width, HEALTH_BAR_BOUNDS.y };
 
 	createLine(health_bar_center, health_bar_scale);
 	
@@ -304,7 +304,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	update_minions(elapsed_ms_since_last_update);
 	//update_powerups(elapsed_ms_since_last_update);
 
-	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
+	
 
 	// BLENDY ANIMATION
 	Player& blendy = registry.players.get(player_blendy);
@@ -373,7 +373,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
-
+	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 	return true;
 }
 
