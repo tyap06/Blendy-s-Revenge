@@ -28,6 +28,7 @@ public:
 	ComponentContainer<FpsCounter> fpsCounters;
 	ComponentContainer<ScoreCounter> scoreCounters;
 	ComponentContainer<Roamer> roamers;
+	ComponentContainer<HelpScreen> helpScreens;
 
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
@@ -63,6 +64,7 @@ public:
 		registry_list.push_back(&enemyBullets);
 		registry_list.push_back(&scoreCounters);
 		registry_list.push_back(&roamers);
+		registry_list.push_back(&helpScreens);
 	}
 
 	void clear_all_components() {

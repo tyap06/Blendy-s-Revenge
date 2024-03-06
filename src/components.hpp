@@ -133,6 +133,12 @@ struct ScreenState
 	float darken_screen_factor = -1;
 };
 
+// A component to represent a help screen
+struct HelpScreen
+{
+	
+};
+
 // If an entity represents an FPS counter
 struct FpsCounter
 {
@@ -236,7 +242,7 @@ struct box {
  * The final value in each enumeration is both a way to keep track of how many
  * enums there are, and as a default value to represent uninitialized fields.
  */
-
+//
 enum class TEXTURE_ASSET_ID {
 	BLENDY = 0,
 	BLENDY_NM = BLENDY + 1,
