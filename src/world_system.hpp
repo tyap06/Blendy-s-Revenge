@@ -74,12 +74,13 @@ private:
 	Entity directional_light;
 	Entity fps_counter;
 	float next_minion_spawn;
-	Entity health_bar;
+	Entity health_bar_frame;
 	Entity help_screen;
 	bool showHelpScreen;
 	float next_dodger_spawn;
 	float next_roamer_spawn;
 	float next_powerup_spawn;
+	Entity health_bar_box;
 
 	// music references
 	Mix_Music* background_music;
@@ -113,6 +114,7 @@ private:
 	vec2 getCurrentMousePosition();
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);
+	void update_health_bar();
 };
 
 

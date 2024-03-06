@@ -15,6 +15,8 @@ const float BACKGROUND_BB_HEIGHT = 0.62f * 1563.f;
 const float DIRECTIONAL_LIGHT_BB_WIDTH = 0.1f * 512.f;
 const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
+Entity createLine(vec2 position, vec2 scale);
+
 Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds);
 
 Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds);

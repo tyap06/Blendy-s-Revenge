@@ -97,7 +97,8 @@ class RenderSystem {
 			textures_path("bullet.png"),
 			textures_path("bullet_nm.png"),
 			textures_path("fullHealthBar.png"),
-			textures_path("HelpScreen.png")
+			textures_path("HelpScreen.png"),
+			textures_path("HealthBarFrame.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
@@ -183,8 +184,7 @@ private:
 	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
 	                             RenderRequest& render_request);
 	void handle_health_bar_rendering(const RenderRequest& render_request, GLuint program);
-	void drawQuad(float x, float y, float width, float height, const glm::vec3& color);
-	void handle_health_bar_rendering(float health);
+
 
 	// Debugging FPS
 	void debug_fps(const mat3& projection);

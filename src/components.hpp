@@ -50,6 +50,10 @@ struct Roamer {
 
 };
 
+struct Panel {
+
+};
+
 struct EnemyBullet{
 	
 };
@@ -294,7 +298,8 @@ enum class TEXTURE_ASSET_ID {
 	BULLET_NM = BULLET + 1,
 	FULL_HEALTH_BAR = BULLET_NM + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,
-	TEXTURE_COUNT = HELP_SCREEN + 1
+	HEALTH_BAR_FRAME = HELP_SCREEN + 1,
+	TEXTURE_COUNT = HEALTH_BAR_FRAME + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
