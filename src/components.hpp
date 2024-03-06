@@ -71,13 +71,14 @@ struct Minion
 {
 	int health = 50;
 	int damage = 50;
+	float speed = 100.f;
 	float armor = 0;
 	int score = 10;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
 };
 
 struct Shooter {
-	float shoot_interval_ms = 50.0f; 
+	float shoot_interval_ms = 2000.0f; 
 	float time_since_last_shot_ms = 0.0f;
 };
 

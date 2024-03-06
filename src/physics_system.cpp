@@ -144,7 +144,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
-			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
@@ -152,8 +152,8 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.position.x = new_x;
 			}
 
-			if (new_y - half_height > 0 && new_y + half_height < window_height_px) {
-				motion.position.y = new_y + motion.y_animate;
+			if (new_y - half_height > 100 && new_y + half_height < window_height_px) {
+				motion.position.y = new_y;
 			}
 		}
 
@@ -173,7 +173,7 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.position.x = new_x; // Update position if within bounds
 			}
 
-			if (new_y <= 0 || new_y + half_height-20 >= window_height_px) {
+			if (new_y <= 180 || new_y + half_height-20 >= window_height_px) {
 				if (registry.roamers.has(entity)) {
 					motion.velocity.y *= -1; // Invert Y velocity upon boundary collision
 					new_y = motion.velocity.y * step_seconds + motion.position.y; // Recalculate new_y after velocity inversion
@@ -184,6 +184,12 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 		else {
+			if (motion.position.x < 0.f || motion.position.x > window_width_px 
+				|| motion.position.y < 0 || motion.position.y > window_height_px) {
+
+				registry.remove_all_components_of(motion_registry.entities[i]);
+				continue;
+			}
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}
