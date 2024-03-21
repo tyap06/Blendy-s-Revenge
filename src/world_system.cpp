@@ -21,8 +21,9 @@ const size_t MAX_POWERUPS = 25;
 const size_t POWERUP_DELAY_MS = 200 * 3;
 
 // UI
-const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
 const vec3 MAGENTA = { 0.78f, 0.39f, 0.62f };
+const vec3 DARK_PINK = { 0.91f, 0.32f, 0.53f };
+const vec3 BLENDY_COLOR = DARK_PINK;
 
 // DEFAULT START POSITIONS
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
@@ -61,9 +62,9 @@ const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
 
 // SCORE COUNTER
 const float SCORE_COUNTER_X = 30.f;
-const float SCORE_COUNTER_Y = window_height_px - 160.f;
+const float SCORE_COUNTER_Y = window_height_px - 110.f;
 const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTER_X, SCORE_COUNTER_Y };
-const vec2 SCORE_COUNTER_SCALE = { 1.f,1.f };
+const vec2 SCORE_COUNTER_SCALE = { 1.5f,1.5f };
 const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 
 // Create the bug world

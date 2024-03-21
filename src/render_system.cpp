@@ -244,7 +244,7 @@ bool RenderSystem::fontInit_internal(const std::string& font_filename, unsigned 
 
 bool RenderSystem::initializeFonts()
 {
-	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Pixel_Square + DOT_TTF, FONT_DEFAULT_SIZE);
+	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Future_Narrow + DOT_TTF, FONT_DEFAULT_SIZE);
 }
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color,
