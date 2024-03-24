@@ -58,46 +58,39 @@ class RenderSystem {
 			textures_path("blendy_left_1.png"),
 			textures_path("blendy_left_2.png"),
 			textures_path("blendy_left_3.png"),
-			textures_path("blendy_left_4.png"),
 			textures_path("blendy_right_0.png"),
 			textures_path("blendy_right_1.png"),
 			textures_path("blendy_right_2.png"),
 			textures_path("blendy_right_3.png"),
-			textures_path("blendy_right_4.png"),
 			textures_path("blendy_down_0.png"),
 			textures_path("blendy_down_1.png"),
 			textures_path("blendy_down_2.png"),
 			textures_path("blendy_down_3.png"),
-			textures_path("blendy_down_4.png"),
 			textures_path("blendy_up_0.png"),
 			textures_path("blendy_up_1.png"),
 			textures_path("blendy_up_2.png"),
 			textures_path("blendy_up_3.png"),
-			textures_path("blendy_up_4.png"),
 			textures_path("blendy_left_0_nm.png"),
 			textures_path("blendy_left_1_nm.png"),
 			textures_path("blendy_left_2_nm.png"),
 			textures_path("blendy_left_3_nm.png"),
-			textures_path("blendy_left_4_nm.png"),
 			textures_path("blendy_right_0_nm.png"),
 			textures_path("blendy_right_1_nm.png"),
 			textures_path("blendy_right_2_nm.png"),
 			textures_path("blendy_right_3_nm.png"),
-			textures_path("blendy_right_4_nm.png"),
 			textures_path("blendy_down_0_nm.png"),
 			textures_path("blendy_down_1_nm.png"),
 			textures_path("blendy_down_2_nm.png"),
 			textures_path("blendy_down_3_nm.png"),
-			textures_path("blendy_down_4_nm.png"),
 			textures_path("blendy_up_0_nm.png"),
 			textures_path("blendy_up_1_nm.png"),
 			textures_path("blendy_up_2_nm.png"),
 			textures_path("blendy_up_3_nm.png"),
-			textures_path("blendy_up_4_nm.png"),
 			textures_path("bullet.png"),
 			textures_path("bullet_nm.png"),
 			textures_path("fullHealthBar.png"),
-			textures_path("HelpScreen.png")
+			textures_path("HelpScreen.png"),
+			textures_path("HealthBarFrame.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
@@ -183,8 +176,7 @@ private:
 	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
 	                             RenderRequest& render_request);
 	void handle_health_bar_rendering(const RenderRequest& render_request, GLuint program);
-	void drawQuad(float x, float y, float width, float height, const glm::vec3& color);
-	void handle_health_bar_rendering(float health);
+
 
 	// Debugging FPS
 	void debug_fps(const mat3& projection);

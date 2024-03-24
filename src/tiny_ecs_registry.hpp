@@ -29,13 +29,12 @@ public:
 	ComponentContainer<ScoreCounter> scoreCounters;
 	ComponentContainer<Roamer> roamers;
 	ComponentContainer<HelpScreen> helpScreens;
-
 	ComponentContainer<Bullet> bullets;
 	ComponentContainer<Shooter> shooters;
 	ComponentContainer<PowerUp> powerUps;
 	ComponentContainer<EnemyBullet> enemyBullets;
-
 	ComponentContainer<Mesh_collision> mesh_collision;
+	ComponentContainer<Panel> panel;
 
 	int score;
 	bool is_pause;
@@ -65,6 +64,7 @@ public:
 		registry_list.push_back(&scoreCounters);
 		registry_list.push_back(&roamers);
 		registry_list.push_back(&helpScreens);
+		registry_list.push_back(&panel);
 	}
 
 	void clear_all_components() {
