@@ -917,7 +917,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MUP_0,
-					TEXTURE_ASSET_ID::MUP_0,
+					TEXTURE_ASSET_ID::MUP_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -925,7 +925,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MUP_1,
-					TEXTURE_ASSET_ID::MUP_1,
+					TEXTURE_ASSET_ID::MUP_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -933,7 +933,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MUP_2,
-					TEXTURE_ASSET_ID::MUP_2,
+					TEXTURE_ASSET_ID::MUP_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -944,7 +944,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MDOWN_0,
-				 TEXTURE_ASSET_ID::MDOWN_0,
+				 TEXTURE_ASSET_ID::MDOWN_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -952,7 +952,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MDOWN_1,
-					TEXTURE_ASSET_ID::MDOWN_1,
+					TEXTURE_ASSET_ID::MDOWN_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -960,7 +960,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MDOWN_2,
-					TEXTURE_ASSET_ID::MDOWN_2,
+					TEXTURE_ASSET_ID::MDOWN_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -971,7 +971,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MRIGHT_0,
-					TEXTURE_ASSET_ID::MRIGHT_0,
+					TEXTURE_ASSET_ID::MRIGHT_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -979,7 +979,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MRIGHT_1,
-					TEXTURE_ASSET_ID::MRIGHT_1,
+					TEXTURE_ASSET_ID::MRIGHT_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -987,7 +987,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MRIGHT_2,
-					TEXTURE_ASSET_ID::MRIGHT_2,
+					TEXTURE_ASSET_ID::MRIGHT_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -998,7 +998,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MLEFT_0,
-					TEXTURE_ASSET_ID::MLEFT_0,
+					TEXTURE_ASSET_ID::MLEFT_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -1006,7 +1006,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MLEFT_1,
-					TEXTURE_ASSET_ID::MLEFT_1,
+					TEXTURE_ASSET_ID::MLEFT_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}
@@ -1014,7 +1014,7 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 			registry.renderRequests.insert(
 				minion,
 				{ TEXTURE_ASSET_ID::MLEFT_2,
-					TEXTURE_ASSET_ID::MLEFT_2,
+					TEXTURE_ASSET_ID::MLEFT_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}

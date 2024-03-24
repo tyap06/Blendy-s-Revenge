@@ -102,7 +102,19 @@ class RenderSystem {
 			textures_path("m_up_2.png"),
 			textures_path("m_down_0.png"),
 			textures_path("m_down_1.png"),
-			textures_path("m_down_2.png")
+			textures_path("m_down_2.png"),
+			textures_path("m_left_0_n.png"),
+			textures_path("m_left_1_n.png"),
+			textures_path("m_left_2_n.png"),
+			textures_path("m_right_0_n.png"),
+			textures_path("m_right_1_n.png"),
+			textures_path("m_right_2_n.png"),
+			textures_path("m_up_0_n.png"),
+			textures_path("m_up_1_n.png"),
+			textures_path("m_up_2_n.png"),
+			textures_path("m_down_0_n.png"),
+			textures_path("m_down_1_n.png"),
+			textures_path("m_down_2_n.png")
 
 	};
 
