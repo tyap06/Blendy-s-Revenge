@@ -20,6 +20,7 @@ public:
 	void step(float elapsed_ms);
 private:
 	void shoot(Entity shooterEntity, const vec2& playerPosition, float elapsed_ms);
+	void updateCharger(Entity chargerEntity, vec2 chase_direction, Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos);
 	RenderSystem* renderer;
 };
 

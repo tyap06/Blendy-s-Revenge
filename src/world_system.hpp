@@ -79,6 +79,7 @@ private:
 	bool showHelpScreen;
 	float next_dodger_spawn;
 	float next_roamer_spawn;
+	float next_charger_spawn;
 	float next_powerup_spawn;
 	Entity health_bar_box;
 

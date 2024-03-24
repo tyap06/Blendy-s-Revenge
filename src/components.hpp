@@ -25,6 +25,19 @@ enum class Enemy_TYPE {
 	BASIC = 0,
 	SHOOTER = BASIC + 1,
 	ROAMER = SHOOTER + 1,
+	CHARGER = ROAMER + 1,
+	HEALER = CHARGER + 1,
+	GIANT = HEALER + 1,
+	SNIPER = GIANT + 1,
+	SHILDER = SNIPER +1,
+	MANAGER = SHILDER +1,
+};
+
+enum class Charger_State {
+	Approaching = 0,
+	Aiming = Approaching + 1,
+	Charging = Aiming +1,
+	Resting = Charging + 1,
 };
 
 // Player component
@@ -49,6 +62,26 @@ struct Player
 struct Roamer {
 
 };
+
+struct Charger {
+	Charger_State state = Charger_State::Approaching;
+	float aim_timer = 0;
+	vec2 charge_direction;
+	float rest_timer = 0;
+};
+
+struct HEALER {
+
+};
+
+struct GIANT {
+
+};
+
+struct SNIPER {
+
+};
+
 
 struct Panel {
 
