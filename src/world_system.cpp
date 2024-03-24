@@ -256,12 +256,17 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 	if (blendy_motion.velocity.x == 0 && blendy_motion.velocity.y == 0) {
 		// just keep the current image
 		registry.renderRequests.remove(player_blendy);
-		registry.renderRequests.insert(
-			player_blendy,
-			{ TEXTURE_ASSET_ID::BLENDY,
-				TEXTURE_ASSET_ID::BLENDY_NM,
-			 EFFECT_ASSET_ID::TEXTURED,
-			 GEOMETRY_BUFFER_ID::SPRITE });
+		if (!blendy.up && !blendy.down && !blendy.right && !blendy.left) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLENDY,
+					TEXTURE_ASSET_ID::BLENDY_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else {
+			get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
+		}
 		blendy.going_up = 1;
 		blendy_motion.y_animate = 0.f;
 	}
@@ -605,35 +610,41 @@ void WorldSystem::update_player_movement() {
 		float length = sqrt(direction.x * direction.x + direction.y * direction.y);
 		direction.x /= length;
 		direction.y /= length;
-	}
+		// BLENDY ANIMATION
+		blendy.up = false;
+		blendy.down = false;
+		blendy.left = false;
+		blendy.right = false;
+		if (direction.y == 0 && direction.x > 0) {
+			// going right
+			blendy.right = true;
+		}
+		else if (direction.y == 0 && direction.x < 0) {
+			// going left
+			blendy.left = true;
+		}
+		else if (direction.y > 0 && direction.x == 0) {
+			// going down
+			blendy.down = true;
+		}
+		else if (direction.y < 0 && direction.x == 0) {
+			// going up
+			blendy.up = true;
+		}
+		else {
+			// other direction - setting blendy as down for now bc I don't have the diagonal images done
+			blendy.down = true;
+		}
 
-	// BLENDY ANIMATION
-	blendy.up = false;
-	blendy.down = false;
-	blendy.left = false;
-	blendy.right = false;
-	if (direction.y == 0  && direction.x > 0) {
-		// going right
-		blendy.right = true;
-	} 
-	else if (direction.y == 0  && direction.x < 0) {
-		// going left
-		blendy.left = true;
-	}
-	else if (direction.y > 0  && direction.x == 0) {
-		// going down
-		blendy.down = true;
-	}
-	else if (direction.y < 0  && direction.x == 0) {
-		// going up
-		blendy.up = true;
+		
 	}
 	else {
-		// other direction - setting blendy as down for now bc I don't have the diagonal images done
-		blendy.down = true;
+		
+		blendy.frame_stage = 4;
 	}
-
 	move_player(direction);
+
+	
 }
 
 
