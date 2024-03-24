@@ -78,6 +78,12 @@ struct Minion
 	float speed = 100.f;
 	float armor = 0;
 	int score = 10;
+	float counter_ms = 50.f;
+	int frame_stage = 0;
+	bool up;
+	bool down;
+	bool left;
+	bool right;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
 };
 
@@ -291,7 +297,20 @@ enum class TEXTURE_ASSET_ID {
 	FULL_HEALTH_BAR = BULLET_NM + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,
 	HEALTH_BAR_FRAME = HELP_SCREEN + 1,
-	TEXTURE_COUNT = HEALTH_BAR_FRAME + 1
+	MLEFT_0 = HEALTH_BAR_FRAME + 1,
+	MLEFT_1 = MLEFT_0 + 1,
+	MLEFT_2 = MLEFT_1 + 1,
+	MRIGHT_0 = MLEFT_2 + 1,
+	MRIGHT_1 = MRIGHT_0 + 1,
+	MRIGHT_2 = MRIGHT_1 + 1,
+	MUP_0 = MRIGHT_2 + 1,
+	MUP_1 = MUP_0 + 1,
+	MUP_2 = MUP_1 + 1,
+	MDOWN_0 = MUP_2 + 1,
+	MDOWN_1 = MDOWN_0 + 1,
+	MDOWN_2 = MDOWN_1 + 1,
+	TEXTURE_COUNT = MDOWN_2 + 1,
+	
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
