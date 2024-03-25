@@ -90,7 +90,32 @@ class RenderSystem {
 			textures_path("bullet_nm.png"),
 			textures_path("fullHealthBar.png"),
 			textures_path("HelpScreen.png"),
-			textures_path("HealthBarFrame.png")
+			textures_path("HealthBarFrame.png"),
+			textures_path("m_left_0.png"),
+			textures_path("m_left_1.png"),
+			textures_path("m_left_2.png"),
+			textures_path("m_right_0.png"),
+			textures_path("m_right_1.png"),
+			textures_path("m_right_2.png"),
+			textures_path("m_up_0.png"),
+			textures_path("m_up_1.png"),
+			textures_path("m_up_2.png"),
+			textures_path("m_down_0.png"),
+			textures_path("m_down_1.png"),
+			textures_path("m_down_2.png"),
+			textures_path("m_left_0_n.png"),
+			textures_path("m_left_1_n.png"),
+			textures_path("m_left_2_n.png"),
+			textures_path("m_right_0_n.png"),
+			textures_path("m_right_1_n.png"),
+			textures_path("m_right_2_n.png"),
+			textures_path("m_up_0_n.png"),
+			textures_path("m_up_1_n.png"),
+			textures_path("m_up_2_n.png"),
+			textures_path("m_down_0_n.png"),
+			textures_path("m_down_1_n.png"),
+			textures_path("m_down_2_n.png")
+
 	};
 
 	std::array<GLuint, effect_count> effects;
