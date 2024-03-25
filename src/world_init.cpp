@@ -482,11 +482,9 @@ Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::HEALER;
 	minion.score = 100;
-	minion.armor = 20;
 	minion.health = 100;
 	minion.speed = 35.f;
 	motion.angle = 0.f;
-	minion.health = 250;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
