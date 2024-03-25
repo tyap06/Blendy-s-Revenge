@@ -37,7 +37,7 @@ vec2 get_bounding_box(const Motion& motion)
 //	return false;
 //}
 
-bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion1, const Motion& motion2)
+bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  Motion& motion2)
 {
 	// search for the index of motion
 	/*auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
@@ -49,6 +49,40 @@ bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion
 	//Entity index_two = entity2;
 	//auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
 	//Entity index_one = entity1;
+
+	
+	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
+	//plase don't touch the code in the next if statement
+	if (registry.minions.has(entity1) && registry.minions.has(entity2)) {
+		vec2 center_dis = motion1.position - motion2.position;
+		// Calculate the distance between the two entities
+		float distance = sqrt(dot(center_dis, center_dis));
+		// Calculate the sum of the radii
+		float sum_radii = (motion1.scale.y / 2) + (motion2.scale.y / 2);
+
+		// Check if the distance between the centers is less than the sum of the radii (collision)
+		if (distance < sum_radii) {
+			// Calculate how much they are overlapping
+			float overlap = sum_radii - distance;
+
+			// If they are not exactly in the same position
+			if (distance != 0) {
+				vec2 direction = { center_dis.x / distance, center_dis.y / distance }; // Normalize the direction vector
+
+				// Determine the separation speed. This could be a fixed value or based on the overlap
+				float overlap = sum_radii - distance;
+				float separationSpeed = overlap / 2; // You can adjust this value as needed
+
+				// Adjust the velocities to separate the minions
+				// Entity1 moves away in the direction, Entity2 in the opposite
+				motion1.velocity.x += direction.x * separationSpeed;
+				motion1.velocity.y += direction.y * separationSpeed;
+				motion2.velocity.x -= direction.x * separationSpeed;
+				motion2.velocity.y -= direction.y * separationSpeed;
+			}
+			
+		}
+	}
 
 	if (
 		(registry.minions.has(entity1) && registry.minions.has(entity2))
@@ -123,7 +157,24 @@ void PhysicsSystem::step(float elapsed_ms)
 			// Vicky M1: idle animation
 			// blendy animation
 			Player& blendy = registry.players.get(entity);
-			
+			if (!registry.is_dead) {
+				const float cycleDuration = 4000.0f;
+				float cycleTime = fmod(accumulatedTime, cycleDuration) / cycleDuration;
+
+
+				float normalizedTime;
+				if (cycleTime < 0.5f) {
+					normalizedTime = cycleTime / 0.5f;
+				}
+				else {
+					normalizedTime = (1.0f - cycleTime) / 0.5f;
+				}
+
+				const float maxScale = 1.1f;
+
+				motion.scale.x = lerp(BLENDY_BB_WIDTH, maxScale * BLENDY_BB_WIDTH, normalizedTime);
+				motion.scale.y = lerp(BLENDY_BB_HEIGHT, maxScale * BLENDY_BB_HEIGHT, normalizedTime);
+			}
 
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
@@ -199,10 +250,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			Entity entity_j = motion_container.entities[j];
 
 
-			//if (dontCheckForCollisions(entity_i, entity_j))
-			//{
-			//	continue;
-			//}
+			
 
 			if (!registry.mesh_collision.has(motion_container.entities[i]) && registry.mesh_collision.has(motion_container.entities[j])) {
 				continue;

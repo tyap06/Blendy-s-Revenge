@@ -106,7 +106,7 @@ private:
 	// Private Helpers For Initialization
 	void update_blendy_animation(float elapsed_ms_since_last_update);
 	void update_minion_animation(float elapsed_ms_since_last_update);
-	void update_minions(float elapsed_ms_since_last_update);
+	void spawn_minions(float elapsed_ms_since_last_update);
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);

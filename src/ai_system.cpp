@@ -22,60 +22,61 @@ float calculateDistance(const vec2& pos1, const vec2& pos2) {
 }
 
 
-	void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction, 
-		Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
-		auto& charger = registry.chargers.get(chargerEntity);
 
-		float distanceToPlayer = calculateDistance(motion.position, player_pos);
+void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction, 
+	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
+	auto& charger = registry.chargers.get(chargerEntity);
 
-		switch (charger.state) {
-		case Charger_State::Approaching:
-			if (distanceToPlayer <= charger_aggro_range) {
-				charger.state = Charger_State::Aiming;
-				charger.aim_timer = charger_aim_time;
-			}
-			else {
-				motion.velocity = chase_direction * enemy.speed;
-			}
-			break;
-		case Charger_State::Aiming:
-		{
-			motion.velocity = { 0, 0 };
-			charger.aim_timer -= elapsed_ms;
-			float color_r = ((50 - charger.aim_timer) / 50) + 0.5;
-			vec3 color = { color_r,0.2,0.2 };
-			registry.colors.remove(chargerEntity);
-			registry.colors.insert(chargerEntity, color);
-			if (charger.aim_timer <= 0) {
-				charger.aim_timer = 0;
-				charger.state = Charger_State::Charging;
-				charger.charge_direction = chase_direction;
-			}
+	float distanceToPlayer = calculateDistance(motion.position, player_pos);
+
+	switch (charger.state) {
+	case Charger_State::Approaching:
+		if (distanceToPlayer <= charger_aggro_range) {
+			charger.state = Charger_State::Aiming;
+			charger.aim_timer = charger_aim_time;
 		}
-			break;
-		case Charger_State::Charging:
-			motion.velocity = charger.charge_direction * charger_charge_speed * enemy.speed;
-			charger.rest_timer += elapsed_ms * 2;
-			if (charger.rest_timer >= charger_rest_time) {
-				charger.rest_timer = 80;
-				charger.state = Charger_State::Resting;
-			}
-			break;
-		case Charger_State::Resting:
-		{
-			motion.velocity = chase_direction * enemy.speed * ((80 - charger.rest_timer) / 80);
-			float color_r = (charger.rest_timer / 160) + 0.5;
-			vec3 color = { color_r,0.2,0.2 };
-			registry.colors.remove(chargerEntity);
-			registry.colors.insert(chargerEntity, color);
-			charger.rest_timer -= elapsed_ms;
-			if (charger.rest_timer <= 0) {
-				charger.state = Charger_State::Approaching;
-			}
+		else {
+			motion.velocity = chase_direction * enemy.speed;
 		}
-			break;
+		break;
+	case Charger_State::Aiming:
+	{
+		motion.velocity = { 0, 0 };
+		charger.aim_timer -= elapsed_ms;
+		float color_r = ((50 - charger.aim_timer) / 50) + 0.5;
+		vec3 color = { color_r,0.2,0.2 };
+		registry.colors.remove(chargerEntity);
+		registry.colors.insert(chargerEntity, color);
+		if (charger.aim_timer <= 0) {
+			charger.aim_timer = 0;
+			charger.state = Charger_State::Charging;
+			charger.charge_direction = chase_direction;
 		}
 	}
+		break;
+	case Charger_State::Charging:
+		motion.velocity = charger.charge_direction * charger_charge_speed * enemy.speed;
+		charger.rest_timer += elapsed_ms * 2;
+		if (charger.rest_timer >= charger_rest_time) {
+			charger.rest_timer = 80;
+			charger.state = Charger_State::Resting;
+		}
+		break;
+	case Charger_State::Resting:
+	{
+		motion.velocity = chase_direction * enemy.speed * ((80 - charger.rest_timer) / 80);
+		float color_r = (charger.rest_timer / 160) + 0.5;
+		vec3 color = { color_r,0.2,0.2 };
+		registry.colors.remove(chargerEntity);
+		registry.colors.insert(chargerEntity, color);
+		charger.rest_timer -= elapsed_ms;
+		if (charger.rest_timer <= 0) {
+			charger.state = Charger_State::Approaching;
+		}
+	}
+		break;
+	}
+}
 
 ShooterState decideShooterState(const vec2& enemyPos, const vec2& playerPos, float idealRange) {
 	float distance = calculateDistance(enemyPos, playerPos);

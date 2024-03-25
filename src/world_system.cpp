@@ -208,7 +208,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 }
 
 
-void WorldSystem::update_minions(float elapsed_ms_since_last_update)
+void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
@@ -216,10 +216,10 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	/*if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
+	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
-	}*/
+	}
 	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
@@ -228,10 +228,10 @@ void WorldSystem::update_minions(float elapsed_ms_since_last_update)
 		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f && registry.score < 500) {
+	/*if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f && registry.score < 500) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_charger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
-	}
+	}*/
 
 }
 
@@ -416,7 +416,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		player_motion.scale= player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
 	}
 
-	update_minions(elapsed_ms_since_last_update);
+	spawn_minions(elapsed_ms_since_last_update);
 	//update_powerups(elapsed_ms_since_last_update);
 
 	// BLENDY ANIMATION
