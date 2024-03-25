@@ -96,14 +96,21 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.angle = angle;
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
-	motion.scale = vec2(100.0f, 100.0f);
+	motion.scale = vec2(100.f, 100.f);
 	registry.bullets.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 EFFECT_ASSET_ID::CHICKEN,
+		 GEOMETRY_BUFFER_ID::BULLET});
+
+	//registry.renderRequests.insert(
+	//	entity,
+	//	{ TEXTURE_ASSET_ID::BULLET,
+	//		TEXTURE_ASSET_ID::BULLET_NM,
+	//	 EFFECT_ASSET_ID::TEXTURED,
+	//	 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 
@@ -164,8 +171,8 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 		entity,
 		{ TEXTURE_ASSET_ID::BLENDY,
 			TEXTURE_ASSET_ID::BLENDY_NM,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 EFFECT_ASSET_ID::CHICKEN,
+		 GEOMETRY_BUFFER_ID::BLENDY });
 
 	return entity;
 }
@@ -273,8 +280,8 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 		entity,
 		{ TEXTURE_ASSET_ID::MINION,
 			TEXTURE_ASSET_ID::MINION_NM,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 EFFECT_ASSET_ID::CHICKEN,
+		 GEOMETRY_BUFFER_ID::MINION });
 
 	return entity;
 }
@@ -339,8 +346,8 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 		entity,
 		{ TEXTURE_ASSET_ID::MINION, 
 		  TEXTURE_ASSET_ID::MINION_NM, 
-		  EFFECT_ASSET_ID::TEXTURED,
-		  GEOMETRY_BUFFER_ID::SPRITE });
+		  EFFECT_ASSET_ID::CHICKEN,
+		  GEOMETRY_BUFFER_ID::MINION });
 
 	return entity;
 }
@@ -381,8 +388,8 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 		entity,
 		{ TEXTURE_ASSET_ID::MINION,
 		  TEXTURE_ASSET_ID::MINION_NM,
-		  EFFECT_ASSET_ID::TEXTURED,
-		  GEOMETRY_BUFFER_ID::SPRITE });
+		  EFFECT_ASSET_ID::CHICKEN,
+		  GEOMETRY_BUFFER_ID::MINION });
 
 	return entity;
 }
@@ -410,7 +417,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 EFFECT_ASSET_ID::CHICKEN,
+		 GEOMETRY_BUFFER_ID::BULLET });
 	return entity;
 }

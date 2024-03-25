@@ -9,7 +9,6 @@
 #include "tiny_ecs.hpp"
 
 // Fonts
-// fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>
@@ -41,7 +40,7 @@ class RenderSystem {
 	{
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BLENDY, mesh_path("Blendy-Reduced.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::MINION, mesh_path("Minion-Reduced.obj")),
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BULLET, mesh_path("Bullet-Reduced.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BULLET, mesh_path("bullet-recenter.obj"))
 
 		  // specify meshes of other assets here
 	};

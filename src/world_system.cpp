@@ -622,6 +622,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		showHelpScreen = !showHelpScreen;
 	}
 
+	if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
+		if (showHelpScreen) {
+			registry.is_pause = true;
+		}
+		else {
+			registry.is_pause = false;
+		}
+
+	}
+
 	// check window boundary
 	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
 	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
@@ -714,32 +724,32 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_0,
 					TEXTURE_ASSET_ID::UFRAME_0_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_1,
 					TEXTURE_ASSET_ID::UFRAME_1_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_2,
 					TEXTURE_ASSET_ID::UFRAME_2_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::UFRAME_3,
 					TEXTURE_ASSET_ID::UFRAME_3_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 	}
 	else if (down) {
@@ -749,32 +759,32 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_0,
 					TEXTURE_ASSET_ID::DFRAME_0_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_1,
 					TEXTURE_ASSET_ID::DFRAME_1_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_2,
 					TEXTURE_ASSET_ID::DFRAME_2_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_3,
 					TEXTURE_ASSET_ID::DFRAME_3_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 	}
 	else if (right) {
@@ -784,32 +794,32 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_0,
 					TEXTURE_ASSET_ID::RFRAME_0_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_1,
 					TEXTURE_ASSET_ID::RFRAME_1_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_2,
 					TEXTURE_ASSET_ID::RFRAME_2_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::RFRAME_3,
 					TEXTURE_ASSET_ID::RFRAME_3_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 	}
 	else if (left) {
@@ -819,32 +829,32 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_0,
 					TEXTURE_ASSET_ID::LFRAME_0_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_1,
 					TEXTURE_ASSET_ID::LFRAME_1_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_2,
 					TEXTURE_ASSET_ID::LFRAME_2_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_3,
 					TEXTURE_ASSET_ID::LFRAME_3_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				 EFFECT_ASSET_ID::CHICKEN,
+				 GEOMETRY_BUFFER_ID::BLENDY });
 		}
 	}
 }
