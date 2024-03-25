@@ -36,6 +36,10 @@ public:
 	ComponentContainer<Mesh_collision> mesh_collision;
 	ComponentContainer<Panel> panel;
 	ComponentContainer<Charger> chargers;
+	ComponentContainer<Giant> giants;
+	ComponentContainer<Healer> healers;
+	ComponentContainer<Tank> tanks;
+	ComponentContainer<Sniper> snipers;
 
 	int score;
 	bool is_pause;
@@ -67,6 +71,10 @@ public:
 		registry_list.push_back(&helpScreens);
 		registry_list.push_back(&panel);
 		registry_list.push_back(&chargers);
+		registry_list.push_back(&healers);
+		registry_list.push_back(&giants);
+		registry_list.push_back(&tanks);
+		registry_list.push_back(&snipers);
 	}
 
 	void clear_all_components() {

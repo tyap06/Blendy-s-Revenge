@@ -228,10 +228,21 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
+
+	if (registry.snipers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
+		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
+		create_sniper(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+	}
+	/*if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_charger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
-	}
+	}*/
+
+	/*if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
+		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 bound = { MINION_BOUNDS.x*1.2, MINION_BOUNDS.y*1.2 };
+		create_giant(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), bound,100);
+	}*/
 
 }
 
@@ -540,7 +551,8 @@ void WorldSystem::hit_player(const int& damage) {
 
 void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	Minion& minion = registry.minions.get(target);
-	minion.health -= damage;
+	minion.health -= std::max((damage-minion.armor),1.f);
+	std::cout << minion.health << std::endl;
 	if (minion.health <= 0) {
 		registry.score += minion.score;
 		registry.remove_all_components_of(target);

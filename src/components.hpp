@@ -29,8 +29,8 @@ enum class Enemy_TYPE {
 	HEALER = CHARGER + 1,
 	GIANT = HEALER + 1,
 	SNIPER = GIANT + 1,
-	SHILDER = SNIPER +1,
-	MANAGER = SHILDER +1,
+	TANK = SNIPER +1,
+	Manager = TANK +1,
 };
 
 enum class Charger_State {
@@ -70,15 +70,19 @@ struct Charger {
 	float rest_timer = 0;
 };
 
-struct HEALER {
+struct Healer {
 
 };
 
-struct GIANT {
+struct Giant {
 
 };
 
-struct SNIPER {
+struct Tank {
+
+};
+
+struct Sniper {
 
 };
 

@@ -77,10 +77,10 @@ private:
 	Entity health_bar_frame;
 	Entity help_screen;
 	bool showHelpScreen;
-	float next_dodger_spawn;
-	float next_roamer_spawn;
-	float next_charger_spawn;
-	float next_powerup_spawn;
+	float next_dodger_spawn = 100;
+	float next_roamer_spawn = 100;
+	float next_charger_spawn = 100;
+	float next_powerup_spawn = 100;
 	Entity health_bar_box;
 
 	// music references

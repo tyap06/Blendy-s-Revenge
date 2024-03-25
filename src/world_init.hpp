@@ -51,3 +51,9 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bounds, int score);
