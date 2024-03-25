@@ -329,7 +329,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y});
-	vec3 color = { 1,0,0 };
+	vec3 color = { 0.8,0.8,0.0 };
 	registry.colors.insert(entity, color);
 
 
@@ -354,12 +354,13 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::CHARGER;
-	minion.score = 25;
+	minion.score = 100;
 	motion.angle = 0.f;
+	minion.health = 250;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	vec3 color = { 1,0,0 };
+	vec3 color = {0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);
 
 	auto& charger = registry.chargers.emplace(entity);

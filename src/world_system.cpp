@@ -49,7 +49,7 @@ const vec2 dead_scale = { 0, 0 };
 
 // ANIMATION VALUES
 const size_t BLENDY_FRAME_DELAY = 20 * 3;
-const size_t MINION_FRAME_DELAY = 20 * 9;
+const size_t MINION_FRAME_DELAY = 20 * 6;
 
 // EYE POSITION (For Lighting Purposes)
 const float CAMERA_Z_DEPTH = 1500.f;
