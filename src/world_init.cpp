@@ -405,6 +405,35 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	return entity;
 }
 
+Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.mesh_collision.emplace(entity);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	minion.type = Enemy_TYPE::CHARGER;
+	minion.score = 25;
+	motion.angle = 0.f;
+	motion.velocity = { 0, -80.f };
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	vec3 color = { 1,0,0 };
+	registry.colors.insert(entity, color);
+
+	auto& charger = registry.chargers.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MINION,
+		  TEXTURE_ASSET_ID::MINION_NM,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
@@ -446,6 +475,8 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	return entity;
 }
+
+
 
 
 Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {

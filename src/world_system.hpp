@@ -81,6 +81,8 @@ private:
 	float next_roamer_spawn;
 	float next_battery_powerup_spawn;
 	float next_protein_powerup_spawn;
+	float next_charger_spawn;
+	float next_powerup_spawn;
 	Entity health_bar_box;
 
 	// music references
@@ -104,11 +106,14 @@ private:
 	void hit_enemy(const Entity& target, const int& damage);
 
 	// Private Helpers For Initialization
+	void update_blendy_animation(float elapsed_ms_since_last_update);
+	void update_minion_animation(float elapsed_ms_since_last_update);
 	void update_minions(float elapsed_ms_since_last_update);
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
 	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
+	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion);
 	float get_y_animate(int stage, int going_up);
 	void update_fps(float elapsed_ms_since_last_update);
 	void update_score();

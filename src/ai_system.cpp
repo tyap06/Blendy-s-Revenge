@@ -2,11 +2,15 @@
 #include "world_init.hpp"
 #include <random>
 
-const int update_frequency = 100;
+const int update_frequency = 50;
 const float ideal_range_from_player = 400.0f; 
 const float approach_speed_factor = 1.0f; 
 const float dodge_speed_factor = 1.5f; 
 static int frame_count = 0;
+const float charger_aggro_range = 450.0f;
+const float charger_aim_time = 50.0f;
+const float charger_rest_time = 80.0f;
+const float charger_charge_speed = 4.0f;
 
 std::random_device rd; 
 std::mt19937 gen(rd());
@@ -15,6 +19,49 @@ std::uniform_int_distribution<> distr(-2000, 100);
 float calculateDistance(const vec2& pos1, const vec2& pos2) {
 	vec2 diff = pos1 - pos2;
 	return sqrt(diff.x * diff.x + diff.y * diff.y);
+}
+
+
+void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction, 
+	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
+	auto& charger = registry.chargers.get(chargerEntity);
+
+	float distanceToPlayer = calculateDistance(motion.position, player_pos);
+
+	switch (charger.state) {
+	case Charger_State::Approaching:
+		if (distanceToPlayer <= charger_aggro_range) {
+			charger.state = Charger_State::Aiming;
+			charger.aim_timer = charger_aim_time;
+		}
+		else {
+			motion.velocity = chase_direction * enemy.speed;
+		}
+		break;
+	case Charger_State::Aiming:
+		motion.velocity = { 0, 0 }; 
+		charger.aim_timer -= elapsed_ms;
+		if (charger.aim_timer <= 0) {
+			charger.aim_timer = 0;
+			charger.state = Charger_State::Charging;
+			charger.charge_direction = chase_direction;
+		}
+		break;
+	case Charger_State::Charging:
+		motion.velocity = charger.charge_direction * charger_charge_speed * enemy.speed;
+		charger.rest_timer += elapsed_ms * 2;
+		if (charger.rest_timer >= charger_rest_time) {
+			charger.state = Charger_State::Resting;
+		}
+		break;
+	case Charger_State::Resting:
+		motion.velocity = chase_direction * enemy.speed * ((60 - charger.rest_timer) /60);
+		charger.rest_timer -= elapsed_ms;
+		if (charger.rest_timer <= 0) {
+			charger.state = Charger_State::Approaching;
+		}
+		break;
+	}
 }
 
 ShooterState decideShooterState(const vec2& enemyPos, const vec2& playerPos, float idealRange) {
@@ -31,7 +78,7 @@ void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float ela
 	auto& shooter = registry.shooters.get(shooterEntity);
 	Motion& motion = registry.motions.get(shooterEntity);
 
-	// Update the shooting timer
+	
 	shooter.time_since_last_shot_ms += elapsed_ms;
 	if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
 		vec2 bullet_direction = normalize(playerPosition - motion.position);
@@ -46,11 +93,11 @@ void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float ela
 		else if (angle_diff > M_PI) {
 			angle_diff -= 2 * M_PI;
 		}
-		// Call the function to create and launch the bullet
+		
 		create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff);
 
-		// Reset the shoot timer randomly within specified range
-		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen)); // Ensure distr range is properly defined elsewhere
+		
+		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
 	}
 }
 
@@ -99,6 +146,9 @@ void AISystem::step(float elapsed_ms)
 				break;
 			}
 			shoot(enemy_enitiy, player_position, elapsed_ms * update_frequency);
+		}
+		else if (enemy.type == Enemy_TYPE::CHARGER) {
+			updateCharger(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
 		}
 
 	}

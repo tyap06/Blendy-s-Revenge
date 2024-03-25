@@ -35,6 +35,7 @@ public:
 	ComponentContainer<EnemyBullet> enemyBullets;
 	ComponentContainer<Mesh_collision> mesh_collision;
 	ComponentContainer<Panel> panel;
+	ComponentContainer<Charger> chargers;
 
 	int score;
 	bool is_pause;
@@ -65,6 +66,7 @@ public:
 		registry_list.push_back(&roamers);
 		registry_list.push_back(&helpScreens);
 		registry_list.push_back(&panel);
+		registry_list.push_back(&chargers);
 	}
 
 	void clear_all_components() {
