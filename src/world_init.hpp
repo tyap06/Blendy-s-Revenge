@@ -41,10 +41,14 @@ Entity create_score_counter(RenderSystem* renderer, const vec2& position, const 
 // the minions
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
-Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);

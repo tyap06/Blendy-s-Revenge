@@ -17,7 +17,8 @@ const size_t MAX_DODGERS = 5;
 const size_t MAX_ROAMER = 5;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
-const size_t MAX_POWERUPS = 25;
+const size_t MAX_BATTERY_POWERUPS = 1;
+const size_t MAX_PROTEIN_POWDER_POWERUPS = 1;
 const size_t POWERUP_DELAY_MS = 200 * 3;
 
 // UI
@@ -197,12 +198,17 @@ void WorldSystem::update_health_bar()
 // make powerups spawn randomly on the map
 void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 {
-	next_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_battery_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_protein_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.powerUps.components.size() <= MAX_POWERUPS && next_powerup_spawn < 0.f) {
-		next_powerup_spawn = (POWERUP_DELAY_MS / 2) + uniform_dist(rng) * (POWERUP_DELAY_MS / 2);
+	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 100) {
+		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 10) + uniform_dist(rng) * POWERUP_DELAY_MS;
+		create_battery_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 
-		create_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 50.f + uniform_dist(rng) * (window_width_px - 100.f)), MINION_BOUNDS);
+		if (registry.score > 300) {
+			next_protein_powerup_spawn = POWERUP_DELAY_MS * 20  + uniform_dist(rng) * POWERUP_DELAY_MS;
+			create_protein_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+		}
 	}
 }
 
@@ -248,14 +254,26 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
 				float up_angle = std::atan2(up_vector.y, up_vector.x);
 				float angle_diff = bullet_angle - up_angle;
+				auto& blendy = registry.players.get(player_blendy);
 				if (angle_diff < -M_PI) {
 					angle_diff += 2 * M_PI;
 				}
 				else if (angle_diff > M_PI) {
 					angle_diff -= 2 * M_PI;
 				}
-				createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
-				bullet_timer = bullet_launch_interval;
+				if (blendy.protein_powerup_duration_ms > 0.0f) {
+					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
+					float new_bullet_speed = bullet_speed * 3;
+					create_fast_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
+					bullet_timer = bullet_launch_interval / 3;
+					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+					//std::cout << "Blendy protein powerup duration: " << blendy.protein_powerup_duration_ms << std::endl;
+				}
+				else {
+					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
+					createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
+					bullet_timer = bullet_launch_interval;
+				}
 			}
 			if (bullet_timer > 0.0f) {
 				bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
@@ -272,6 +290,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
+	update_powerups(elapsed_ms_since_last_update);
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	
@@ -308,7 +327,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	update_minions(elapsed_ms_since_last_update);
-	//update_powerups(elapsed_ms_since_last_update);
 
 	
 
@@ -499,6 +517,23 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 					hit_player(damage);
 				}
+			}
+			// Check blendy - collisions with power ups
+			else if (registry.powerUps.has(entity_other)) {
+				PowerUp powerup = registry.powerUps.get(entity_other);
+				if (powerup.type == POWERUP_TYPE::BATTERY) {
+					registry.players.get(player_blendy).health = 100;
+					update_health_bar();
+					registry.remove_all_components_of(entity_other);
+				}
+				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
+					auto& blendy = registry.players.get(player_blendy);
+					//blendy.protein_powerup = true;
+					blendy.protein_powerup_duration_ms = 1000.f;
+					registry.remove_all_components_of(entity_other);
+					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
+				}
+				
 			}
 		}
 		else if (registry.bullets.has(entity)) {

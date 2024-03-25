@@ -90,7 +90,9 @@ class RenderSystem {
 			textures_path("bullet_nm.png"),
 			textures_path("fullHealthBar.png"),
 			textures_path("HelpScreen.png"),
-			textures_path("HealthBarFrame.png")
+			textures_path("HealthBarFrame.png"),
+			textures_path("battery.png"),
+			textures_path("orange.png")
 	};
 
 	std::array<GLuint, effect_count> effects;

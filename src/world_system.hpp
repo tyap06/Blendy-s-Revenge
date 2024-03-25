@@ -79,7 +79,8 @@ private:
 	bool showHelpScreen;
 	float next_dodger_spawn;
 	float next_roamer_spawn;
-	float next_powerup_spawn;
+	float next_battery_powerup_spawn;
+	float next_protein_powerup_spawn;
 	Entity health_bar_box;
 
 	// music references

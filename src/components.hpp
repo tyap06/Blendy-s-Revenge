@@ -15,8 +15,8 @@ enum class EntityType {
 enum class POWERUP_TYPE {
 
 	PAC_FRUIT = 0,
-	LASER = PAC_FRUIT + 1,
-	PROTIEN = LASER + 1,
+	BATTERY = PAC_FRUIT + 1,
+	PROTEIN = BATTERY + 1,
 };
 
 
@@ -35,6 +35,8 @@ struct Player
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
+	bool protein_powerup = false;
+	float protein_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up;
@@ -291,7 +293,9 @@ enum class TEXTURE_ASSET_ID {
 	FULL_HEALTH_BAR = BULLET_NM + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,
 	HEALTH_BAR_FRAME = HELP_SCREEN + 1,
-	TEXTURE_COUNT = HEALTH_BAR_FRAME + 1
+	BATTERY_POWERUP = HEALTH_BAR_FRAME + 1,
+	PACFRUIT_POWERUP = BATTERY_POWERUP + 1,
+	TEXTURE_COUNT = PACFRUIT_POWERUP + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
