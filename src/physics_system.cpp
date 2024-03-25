@@ -37,6 +37,40 @@ vec2 get_bounding_box(const Motion& motion)
 //	return false;
 //}
 
+//void applyBoidsRuleSeparation(Entity entity, Motion& motion) {
+//	float desiredSeparation = motion.scale.y; 
+//	vec2 steer = { 0.0f, 0.0f };
+//	int count = 0;
+//
+//	for (uint j = 0; j < registry.motions.size(); j++) {
+//		Motion& other_motion = registry.motions.components[j];
+//		Entity other_entity = registry.motions.entities[j];
+//
+//		// Don't compare to itself and ensure it's a minion
+//		if (entity == other_entity || !registry.minions.has(other_entity)) continue;
+//
+//		float d = sqrt(dot(motion.position - other_motion.position, motion.position - other_motion.position));
+//		// If the distance is greater than 0 and less than an arbitrary amount (0 indicates the same position)
+//		if ((d > 0) && (d < desiredSeparation)) {
+//			// Calculate vector pointing away from neighbor
+//			vec2 diff = motion.position - other_motion.position;
+//			diff = normalize(diff);
+//			diff = diff / d; // Weight by distance
+//			steer = steer + diff;
+//			count++; // Keep track of how many
+//		}
+//	}
+//
+//	// Average -- divide by how many
+//	if (count > 0) {
+//		steer = steer / float(count);
+//		// Implement Reynolds: Steering = Desired - Velocity
+//		steer = normalize(steer) * registry.minions.get(entity).speed - motion.velocity;
+//		// Adjust the velocity
+//		motion.velocity = motion.velocity + steer;
+//	}
+//}
+
 bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  Motion& motion2)
 {
 	// search for the index of motion
@@ -65,13 +99,13 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 			// Calculate how much they are overlapping
 			float overlap = sum_radii - distance;
 
-			// If they are not exactly in the same position
+			
 			if (distance != 0) {
-				vec2 direction = { center_dis.x / distance, center_dis.y / distance }; // Normalize the direction vector
+				vec2 direction = { center_dis.x / distance, center_dis.y / distance };
 
 				// Determine the separation speed. This could be a fixed value or based on the overlap
 				float overlap = sum_radii - distance;
-				float separationSpeed = overlap / 2; // You can adjust this value as needed
+				float separationSpeed = overlap / 6; 
 
 				// Adjust the velocities to separate the minions
 				// Entity1 moves away in the direction, Entity2 in the opposite
@@ -191,6 +225,7 @@ void PhysicsSystem::step(float elapsed_ms)
 		}
 
 		else if(registry.minions.has(entity)){
+			/*applyBoidsRuleSeparation(entity, motion);*/
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };

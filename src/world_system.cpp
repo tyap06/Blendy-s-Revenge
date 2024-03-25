@@ -220,18 +220,18 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f ) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.roamers.components.size() < MAX_MELEE_ELITE && next_roamer_spawn < 0.f && registry.score > 250) {
+	if (registry.roamers.components.size() < MAX_MELEE_ELITE && next_roamer_spawn < 0.f ) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	/*if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f && registry.score < 500) {
+	if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_charger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
-	}*/
+	}
 
 }
 
