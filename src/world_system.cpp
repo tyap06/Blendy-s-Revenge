@@ -615,31 +615,24 @@ void WorldSystem::update_player_movement() {
 		blendy.down = false;
 		blendy.left = false;
 		blendy.right = false;
-		if (direction.y == 0 && direction.x > 0) {
+		if (direction.x > 0) {
 			// going right
 			blendy.right = true;
 		}
-		else if (direction.y == 0 && direction.x < 0) {
+		else if (direction.x < 0) {
 			// going left
 			blendy.left = true;
 		}
-		else if (direction.y > 0 && direction.x == 0) {
+		if (direction.y > 0) {
 			// going down
 			blendy.down = true;
 		}
-		else if (direction.y < 0 && direction.x == 0) {
+		else if (direction.y < 0) {
 			// going up
 			blendy.up = true;
 		}
-		else {
-			// other direction - setting blendy as down for now bc I don't have the diagonal images done
-			blendy.down = true;
-		}
-
-		
 	}
 	else {
-		
 		blendy.frame_stage = 4;
 	}
 	move_player(direction);
@@ -779,7 +772,145 @@ float WorldSystem::get_y_animate(int stage, int going_up) {
 
 void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool left, int stage) {
 	// BLENDY ANIMATION
-	if (up) {
+	if (up && right) {
+		// going up
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_0,
+					TEXTURE_ASSET_ID::BRT_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_1,
+					TEXTURE_ASSET_ID::BRT_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_2,
+					TEXTURE_ASSET_ID::BRT_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_3,
+					TEXTURE_ASSET_ID::BRT_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (down && right) {
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_0,
+					TEXTURE_ASSET_ID::BRB_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_1,
+					TEXTURE_ASSET_ID::BRB_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_2,
+					TEXTURE_ASSET_ID::BRB_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_3,
+					TEXTURE_ASSET_ID::BRB_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (up && left) {
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_0,
+					TEXTURE_ASSET_ID::BLT_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_1,
+					TEXTURE_ASSET_ID::BLT_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_2,
+					TEXTURE_ASSET_ID::BLT_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_3,
+					TEXTURE_ASSET_ID::BLT_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (down && left) {
+		// going up
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_0,
+					TEXTURE_ASSET_ID::BLB_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_1,
+					TEXTURE_ASSET_ID::BLB_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_2,
+					TEXTURE_ASSET_ID::BLB_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_3,
+					TEXTURE_ASSET_ID::BLB_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (up) {
 		// going up
 		if (stage == 0) {
 			registry.renderRequests.insert(

@@ -114,7 +114,41 @@ class RenderSystem {
 			textures_path("m_up_2_n.png"),
 			textures_path("m_down_0_n.png"),
 			textures_path("m_down_1_n.png"),
-			textures_path("m_down_2_n.png")
+			textures_path("m_down_2_n.png"),
+			textures_path("bright_bot_0.png"),
+			textures_path("bright_bot_1.png"),
+			textures_path("bright_bot_2.png"),
+			textures_path("bright_bot_3.png"),
+			textures_path("bright_top_0.png"),
+			textures_path("bright_top_1.png"),
+			textures_path("bright_top_2.png"),
+			textures_path("bright_top_3.png"),
+			textures_path("bleft_bot_0.png"),
+			textures_path("bleft_bot_1.png"),
+			textures_path("bleft_bot_2.png"),
+			textures_path("bleft_bot_3.png"),
+			textures_path("bleft_top_0.png"),
+			textures_path("bleft_top_1.png"),
+			textures_path("bleft_top_2.png"),
+			textures_path("bleft_top_3.png"),
+
+			textures_path("bright_bot_0_n.png"),
+			textures_path("bright_bot_1_n.png"),
+			textures_path("bright_bot_2_n.png"),
+			textures_path("bright_bot_3_n.png"),
+			textures_path("bright_top_0_n.png"),
+			textures_path("bright_top_1_n.png"),
+			textures_path("bright_top_2_n.png"),
+			textures_path("bright_top_3_n.png"),
+			textures_path("bleft_bot_0_n.png"),
+			textures_path("bleft_bot_1_n.png"),
+			textures_path("bleft_bot_2_n.png"),
+			textures_path("bleft_bot_3_n.png"),
+			textures_path("bleft_top_0_n.png"),
+			textures_path("bleft_top_1_n.png"),
+			textures_path("bleft_top_2_n.png"),
+			textures_path("bleft_top_3_n.png")
+
 
 	};
 
