@@ -26,6 +26,30 @@ Entity createLine(vec2 position, vec2 scale)
 	return entity;
 }
 
+Entity create_particle_emitter(const vec2& position, const vec2& scale, const float& particle_lifetime)
+{
+	Entity entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::PARTICLES,
+			GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE });
+
+	// Create motion
+	Motion& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = scale;
+
+	registry.particle_emitters.emplace(entity);
+
+	return entity;
+}
+
 
 Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
 {

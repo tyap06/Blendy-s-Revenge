@@ -38,6 +38,9 @@ Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const ve
 // the score counter on the screen
 Entity create_score_counter(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& color);
 
+// a particle emitter that emits particles
+Entity create_particle_emitter(const vec2& position, const vec2& scale, const float& particle_lifetime);
+
 // the minions
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
