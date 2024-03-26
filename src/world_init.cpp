@@ -99,22 +99,22 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.angle = angle;
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
-	motion.scale = vec2(100.f, 100.f);
+	motion.scale = vec2(40.f, 100.f);
 	motion.mesh_scale = vec2(10.f, 1000.f);
 	registry.bullets.emplace(entity);
-	//registry.renderRequests.insert(
-	//	entity,
-	//	{ TEXTURE_ASSET_ID::BULLET,
-	//		TEXTURE_ASSET_ID::BULLET_NM,
-	//	 EFFECT_ASSET_ID::CHICKEN,
-	//	 GEOMETRY_BUFFER_ID::BULLET});
-
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::CHICKEN,
+		 GEOMETRY_BUFFER_ID::BULLET});
+
+/*	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		 GEOMETRY_BUFFER_ID::SPRITE })*/;
 	return entity;
 }
 
@@ -578,7 +578,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int damage, vec3 color) {
 	auto entity = Entity();
 	// Store a reference to the potentially re-used mesh object, like createChicken
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION_BULLET);
 	registry.enemyBullets.emplace(entity);
 	registry.meshPtrs.emplace(entity, &mesh);
 
@@ -587,7 +587,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.position = pos;
 	motion.angle = angle;
 	motion.velocity = velocity; 
-	motion.scale = vec2(100.0f, 100.0f);
+	motion.scale = vec2(40.0f, 100.0f);
 	motion.mesh_scale = vec2(50.0f, 100.0f);
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
@@ -598,7 +598,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
-		 EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE });
+		 EFFECT_ASSET_ID::CHICKEN,
+		GEOMETRY_BUFFER_ID::MINION_BULLET });
 	return entity;
 }

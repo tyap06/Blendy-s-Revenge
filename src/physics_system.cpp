@@ -121,8 +121,6 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 		|| (registry.backgrounds.has(entity1) || registry.backgrounds.has(entity2))
 		//|| (registry.healthBars.has(entity1) || registry.healthBars.has(entity2)) // Uncomment when healthBar container added
 		|| (registry.helpScreens.has(entity1) || registry.helpScreens.has(entity2))
-		|| (registry.players.has(entity1) && registry.bullets.has(entity2))
-		|| (registry.players.has(entity2) && registry.bullets.has(entity1))
 		)
 	{
 		return false;
