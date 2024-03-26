@@ -10,8 +10,10 @@ const float BLENDY_BB_WIDTH = 0.2f * 423.f;
 const float BLENDY_BB_HEIGHT = 0.2F * 800.f;
 const float MINION_BB_WIDTH = 0.2f * 346.f;
 const float MINION_BB_HEIGHT = 0.2f * 593.f;
-const float BACKGROUND_BB_WIDTH = 0.62f * 2131.f;
-const float BACKGROUND_BB_HEIGHT = 0.62f * 1563.f;
+// const float BACKGROUND_BB_WIDTH = 0.62f * 2131.f;
+// const float BACKGROUND_BB_HEIGHT = 0.62f * 1563.f;
+const float BACKGROUND_BB_WIDTH = 1900.f*0.9;
+const float BACKGROUND_BB_HEIGHT = 1080.f*0.9;
 const float DIRECTIONAL_LIGHT_BB_WIDTH = 0.1f * 512.f;
 const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
