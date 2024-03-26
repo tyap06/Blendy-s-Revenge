@@ -4,7 +4,6 @@
 #include "tiny_ecs.hpp"
 #include "render_system.hpp"
 
-
 // ENTITY TEXTURE CONSTANTS
 const float BLENDY_BB_WIDTH = 0.2f * 423.f;
 const float BLENDY_BB_HEIGHT = 0.2F * 800.f;
