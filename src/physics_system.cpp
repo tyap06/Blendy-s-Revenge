@@ -252,6 +252,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 		// Power ups move around the map
+		/*
 		else if (registry.powerUps.has(entity)) {
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y;
@@ -278,6 +279,7 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.position.y = new_y; // Update position if within bounds
 			}
 		}
+		*/
 
 		else {
 			if (motion.position.x < 0.f || motion.position.x > window_width_px 

@@ -116,7 +116,16 @@ class RenderSystem {
 			textures_path("m_down_1_n.png"),
 			textures_path("m_down_2_n.png"),
 			textures_path("battery.png"),
-			textures_path("orange.png")
+			textures_path("orange.png"),
+			textures_path("lemon.png"),
+			textures_path("grape.png"),
+			textures_path("protein powder.png"),
+			textures_path("battery_nm.png"),
+			textures_path("orange_nm.png"),
+			textures_path("lemon_nm.png"),
+			textures_path("grape_nm.png"),
+			textures_path("protein_powder_nm.png")
+			
 	};
 
 	std::array<GLuint, effect_count> effects;

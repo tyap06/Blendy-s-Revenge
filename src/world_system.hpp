@@ -81,6 +81,8 @@ private:
 	float next_roamer_spawn;
 	float next_battery_powerup_spawn;
 	float next_protein_powerup_spawn;
+	float next_grape_powerup_spawn;
+	float next_lemon_powerup_spawn;
 	float next_charger_spawn;
 	float next_powerup_spawn;
 	Entity health_bar_box;
@@ -121,6 +123,7 @@ private:
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, float bullet_speed);
 };
 
 
