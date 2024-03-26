@@ -356,7 +356,7 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
-	motion.angle = 25.f;
+	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 
@@ -366,7 +366,6 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::GRAPE;
-	powerup.duration_ms = 2000.f;
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::GRAPE_POWERUP,
@@ -398,7 +397,6 @@ Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::LEMON;
-	powerup.duration_ms = 2000.f;
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::LEMON_POWERUP,

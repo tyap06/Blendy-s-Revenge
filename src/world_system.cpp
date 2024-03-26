@@ -17,9 +17,11 @@ const size_t MAX_DODGERS = 5;
 const size_t MAX_MELEE_ELITE = 1;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
-const size_t MAX_BATTERY_POWERUPS = 1;
-const size_t MAX_PROTEIN_POWDER_POWERUPS = 1;
-const size_t POWERUP_DELAY_MS = 200 * 3;
+const size_t MAX_BATTERY_POWERUPS = 2;
+const size_t MAX_PROTEIN_POWDER_POWERUPS = 2;
+const size_t MAX_GRAPE_POWERUPS = 2;
+const size_t MAX_LEMON_POWERUPS = 2;
+const size_t POWERUP_DELAY_MS = 200 * 4;
 
 // UI
 const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
@@ -43,6 +45,10 @@ const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 175.f, 32.f };
 const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
 const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
+const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
+const vec2 PROTEIN_POWDER_POWERUP_BOUNDS = { 70.f, 80.f };
+const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 80.f };
+const vec2 GRAPE_POWERUP_BOUNDS = { 80.f, 70.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
@@ -206,23 +212,22 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 0) {
 		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 10) + uniform_dist(rng) * POWERUP_DELAY_MS;
-		create_battery_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), MINION_BOUNDS);
-
-		if (registry.score > 0) {
-			next_grape_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
-			create_grape_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150), MINION_BOUNDS);
-		}
-
-		if (registry.score > 0) {
-			next_lemon_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
-			create_lemon_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), MINION_BOUNDS);
-		}
-
-		if (registry.score > 0) {
-			next_protein_powerup_spawn = POWERUP_DELAY_MS * 20  + uniform_dist(rng) * POWERUP_DELAY_MS;
-			create_protein_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), MINION_BOUNDS);
-		}
+		create_battery_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), BATTERY_POWERUP_BOUNDS);
 	}
+	if (registry.powerUps.components.size() <= MAX_GRAPE_POWERUPS && next_grape_powerup_spawn < 0.f && registry.score > 0) {
+		next_grape_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+		create_grape_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150), GRAPE_POWERUP_BOUNDS);
+	}
+	if (registry.powerUps.components.size() <= MAX_LEMON_POWERUPS && next_lemon_powerup_spawn < 0.f && registry.score > 150) {
+		next_lemon_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+		create_lemon_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), LEMON_POWERUP_BOUNDS);
+	}
+
+	if (registry.powerUps.components.size() <= MAX_PROTEIN_POWDER_POWERUPS && next_protein_powerup_spawn < 0.f && registry.score > 0) {
+		next_protein_powerup_spawn = POWERUP_DELAY_MS * 20  + uniform_dist(rng) * POWERUP_DELAY_MS;
+		create_protein_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), PROTEIN_POWDER_POWERUP_BOUNDS);
+	}
+	
 }
 
 
@@ -657,16 +662,16 @@ void WorldSystem::handle_collisions() {
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
 					//blendy.protein_powerup = true;
-					blendy.protein_powerup_duration_ms = 750.f;
+					blendy.protein_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
 					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
-					blendy.grape_powerup_duration_ms = 500.f;
+					blendy.grape_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
-					blendy.lemon_powerup_duration_ms = 500.f;
+					blendy.lemon_powerup_duration_ms = 150.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				
