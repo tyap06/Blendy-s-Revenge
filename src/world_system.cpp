@@ -12,9 +12,15 @@
 
 
 // Game configuration
-const size_t MAX_MINIONS = 80;
-const size_t MAX_DODGERS = 5;
-const size_t MAX_ROAMER = 5;
+const size_t MAX_TOTAL_MINIONS = 30;
+const size_t MAX_MINIONS = 10;
+const size_t MAX_DODGERS = 3;
+const size_t MAX_ROAMER = 2;
+const size_t MAX_CHARGER = 3;
+const size_t MAX_TANK = 2;
+const size_t MAX_SNIPER = 2;
+const size_t MAX_HEALER = 1;
+const size_t MAX_GIANT = 1;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 const size_t MAX_POWERUPS = 25;
@@ -50,6 +56,7 @@ const vec2 dead_scale = { 0, 0 };
 
 // ANIMATION VALUES
 const size_t BLENDY_FRAME_DELAY = 20 * 3;
+const size_t MINION_FRAME_DELAY = 20 * 6;
 
 // EYE POSITION (For Lighting Purposes)
 const float CAMERA_Z_DEPTH = 1500.f;
@@ -214,29 +221,146 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 }
 
+vec2 generateRandomEdgePosition(float window_width_px, float window_height_px, std::uniform_real_distribution<float>& uniform_dist, std::mt19937& rng) {
+	// Randomly select an edge: 0 for bottom, 1 for left, 2 for right
+	int edge = std::uniform_int_distribution<int>(0, 2)(rng);
 
-void WorldSystem::update_minions(float elapsed_ms_since_last_update)
+	switch (edge) {
+	case 0: // Bottom edge (spawn just below visible area)
+		return vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px+200);
+	case 1: // Left edge (spawn just to the left of visible area)
+		return vec2(-200.f, 40.f + uniform_dist(rng) * (window_height_px - 80.f));
+	case 2: // Right edge (spawn just to the right of visible area)
+		return vec2(window_width_px+200, 40.f + uniform_dist(rng) * (window_height_px - 80.f));
+	default:
+		return vec2(); // This should never happen
+	}
+}
+
+
+void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_sniper_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
-		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_minion(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
-		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
-		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f ) {
+		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_dodger(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score > 250) {
-		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
-		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f ) {
+		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_roamer(renderer, spawnPos, MINION_BOUNDS);
+	}
+	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f) {
+		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_tank(renderer, spawnPos, MINION_BOUNDS);
+	}
+	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f) {
+		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_sniper(renderer, spawnPos, MINION_BOUNDS);
+	}
+	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f) {
+		next_charger_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_charger(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f) {
+		next_giant_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_giant(renderer, spawnPos, bound, registry.score);
 	}
 
 }
 
+void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
+	Player& blendy = registry.players.get(player_blendy);
+	Motion& blendy_motion = registry.motions.get(player_blendy);
+
+	blendy.counter_ms -= elapsed_ms_since_last_update;
+	if (blendy.counter_ms < 0.f) {
+		blendy.counter_ms = BLENDY_FRAME_DELAY;
+		if (blendy.going_up < 0) {
+			blendy.frame_stage += 1;
+			if (blendy.frame_stage > 4) {
+				blendy.frame_stage = 4;
+				blendy.going_up = 1;
+			}
+		}
+		else {
+			blendy.frame_stage -= 1;
+			if (blendy.frame_stage < 0) {
+				blendy.frame_stage = 0;
+				blendy.going_up = -1;
+			}
+		}
+	}
+	// get what the render request status should be
+	if (blendy_motion.velocity.x == 0 && blendy_motion.velocity.y == 0) {
+		// just keep the current image
+		registry.renderRequests.remove(player_blendy);
+		if (!blendy.up && !blendy.down && !blendy.right && !blendy.left) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLENDY,
+					TEXTURE_ASSET_ID::BLENDY_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else {
+			get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
+		}
+		blendy.going_up = 1;
+		blendy_motion.y_animate = 0.f;
+	}
+	else {
+		// blendy is moving - calculate appropriate frame to put in render request
+		registry.renderRequests.remove(player_blendy);
+		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
+		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up);
+	}
+}
+
+void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
+	
+	for (int j = 0; j < registry.minions.entities.size(); j++) {
+		Minion& minion = registry.minions.get(registry.minions.entities[j]);
+		Motion& minion_motion = registry.motions.get(registry.minions.entities[j]);
+		// get what the render request status should be
+		// if minion is not moving, render original image
+		if (minion_motion.velocity.x == 0 && minion_motion.velocity.y == 0) {
+			// just keep the current image
+			registry.renderRequests.remove(registry.minions.entities[j]);
+			registry.renderRequests.insert(
+				registry.minions.entities[j],
+				{ TEXTURE_ASSET_ID::MINION,
+					TEXTURE_ASSET_ID::MINION_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else {
+			// minion is moving - calculate appropriate frame to put in render request
+			registry.renderRequests.remove(registry.minions.entities[j]);
+			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage, registry.minions.entities[j]);
+		}
+	}
+}
 // Update our game world
 vec2 WorldSystem::getCurrentMousePosition() {
 	double xpos, ypos;
@@ -278,29 +402,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
 	}
+
+	update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
 	
 	auto& motions_registry = registry.motions;
-
-
-	auto& bullet_registry = registry.bullets;
-	// Handling removing bullets
-	for (int i = (int)bullet_registry.entities.size() - 1; i >= 0; --i) {
-		Entity& bullet_entity = bullet_registry.entities[i];
-		Motion& motion = motions_registry.get(bullet_entity);
-
-		if (motion.position.x + abs(motion.scale.x) < 0.f
-			|| motion.position.x - abs(motion.scale.x) > window_width_px
-			|| motion.position.y + abs(motion.scale.y) < 0.f
-			|| motion.position.y - abs(motion.scale.x) > window_height_px
-			) 
-		{
-			registry.remove_all_components_of(bullet_entity);
-		}
-	}
 
 	if (is_dead) {
 		Motion& player_motion = registry.motions.get(player_blendy);
@@ -310,52 +419,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		player_motion.scale= player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
 	}
 
-	update_minions(elapsed_ms_since_last_update);
+	spawn_minions(elapsed_ms_since_last_update);
 	//update_powerups(elapsed_ms_since_last_update);
 
-	
-
 	// BLENDY ANIMATION
-	Player& blendy = registry.players.get(player_blendy);
-	Motion& blendy_motion = registry.motions.get(player_blendy);
+	update_blendy_animation(elapsed_ms_since_last_update);
 
-	blendy.counter_ms -= elapsed_ms_since_last_update;
-	if (blendy.counter_ms < 0.f) {
-		blendy.counter_ms = BLENDY_FRAME_DELAY;
-		if (blendy.going_up < 0) {
-			blendy.frame_stage += 1;
-			if (blendy.frame_stage > 4) {
-				blendy.frame_stage = 4;
-				blendy.going_up = 1;
-			}
-		}
-		else {
-			blendy.frame_stage -= 1;
-			if (blendy.frame_stage < 0) {
-				blendy.frame_stage = 0;
-				blendy.going_up = -1;
-			}
-		}
-	}
-	// get what the render request status should be
-	if (blendy_motion.velocity.x == 0 && blendy_motion.velocity.y == 0) {
-		// just keep the current image
-		registry.renderRequests.remove(player_blendy);
-		registry.renderRequests.insert(
-			player_blendy,
-			{ TEXTURE_ASSET_ID::BLENDY,
-				TEXTURE_ASSET_ID::BLENDY_NM,
-			 EFFECT_ASSET_ID::TEXTURED,
-			 GEOMETRY_BUFFER_ID::SPRITE });
-		blendy.going_up = 1;
-		blendy_motion.y_animate = 0.f;
-	}
-	else {
-		// blendy is moving - calculate appropriate frame to put in render request
-		registry.renderRequests.remove(player_blendy);
-		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
-		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up);
-	}
+
+
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
@@ -485,7 +556,7 @@ void WorldSystem::hit_player(const int& damage) {
 
 void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	Minion& minion = registry.minions.get(target);
-	minion.health -= damage;
+	minion.health -= std::max((damage-minion.armor),1.f);
 	if (minion.health <= 0) {
 		registry.score += minion.score;
 		registry.remove_all_components_of(target);
@@ -560,35 +631,41 @@ void WorldSystem::update_player_movement() {
 		float length = sqrt(direction.x * direction.x + direction.y * direction.y);
 		direction.x /= length;
 		direction.y /= length;
-	}
+		// BLENDY ANIMATION
+		blendy.up = false;
+		blendy.down = false;
+		blendy.left = false;
+		blendy.right = false;
+		if (direction.y == 0 && direction.x > 0) {
+			// going right
+			blendy.right = true;
+		}
+		else if (direction.y == 0 && direction.x < 0) {
+			// going left
+			blendy.left = true;
+		}
+		else if (direction.y > 0 && direction.x == 0) {
+			// going down
+			blendy.down = true;
+		}
+		else if (direction.y < 0 && direction.x == 0) {
+			// going up
+			blendy.up = true;
+		}
+		else {
+			// other direction - setting blendy as down for now bc I don't have the diagonal images done
+			blendy.down = true;
+		}
 
-	// BLENDY ANIMATION
-	blendy.up = false;
-	blendy.down = false;
-	blendy.left = false;
-	blendy.right = false;
-	if (direction.y == 0  && direction.x > 0) {
-		// going right
-		blendy.right = true;
-	} 
-	else if (direction.y == 0  && direction.x < 0) {
-		// going left
-		blendy.left = true;
-	}
-	else if (direction.y > 0  && direction.x == 0) {
-		// going down
-		blendy.down = true;
-	}
-	else if (direction.y < 0  && direction.x == 0) {
-		// going up
-		blendy.up = true;
+		
 	}
 	else {
-		// other direction - setting blendy as down for now bc I don't have the diagonal images done
-		blendy.down = true;
+		
+		blendy.frame_stage = 4;
 	}
-
 	move_player(direction);
+
+	
 }
 
 
@@ -668,6 +745,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	// switch to next cutscene
 	if (action == GLFW_RELEASE && key == GLFW_KEY_C && cutscene_active) {
 		handle_cutScenes();
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
+		if (showHelpScreen) {
+			registry.is_pause = true;
+		}
+		else {
+			registry.is_pause = false;
+		}
+
 	}
 
 	// check window boundary
@@ -764,7 +851,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_0,
 					TEXTURE_ASSET_ID::UFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -772,7 +859,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_1,
 					TEXTURE_ASSET_ID::UFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
@@ -780,7 +867,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_2,
 					TEXTURE_ASSET_ID::UFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
@@ -788,7 +875,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_3,
 					TEXTURE_ASSET_ID::UFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 	}
 	else if (down) {
@@ -799,7 +886,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::DFRAME_0,
 					TEXTURE_ASSET_ID::DFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -807,15 +894,15 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::DFRAME_1,
 					TEXTURE_ASSET_ID::DFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_2,
 					TEXTURE_ASSET_ID::DFRAME_2_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+					EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
@@ -823,7 +910,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::DFRAME_3,
 					TEXTURE_ASSET_ID::DFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 	}
 	else if (right) {
@@ -834,7 +921,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_0,
 					TEXTURE_ASSET_ID::RFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -842,7 +929,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_1,
 					TEXTURE_ASSET_ID::RFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
@@ -850,7 +937,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_2,
 					TEXTURE_ASSET_ID::RFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
@@ -858,7 +945,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_3,
 					TEXTURE_ASSET_ID::RFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 	}
 	else if (left) {
@@ -869,7 +956,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::LFRAME_0,
 					TEXTURE_ASSET_ID::LFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -877,7 +964,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::LFRAME_1,
 					TEXTURE_ASSET_ID::LFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
@@ -885,13 +972,124 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::LFRAME_2,
 					TEXTURE_ASSET_ID::LFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_3,
 					TEXTURE_ASSET_ID::LFRAME_3_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+}
+
+void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion) {
+	if (up) {
+		// going up
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MUP_0,
+					TEXTURE_ASSET_ID::MUP_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MUP_1,
+					TEXTURE_ASSET_ID::MUP_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MUP_2,
+					TEXTURE_ASSET_ID::MUP_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (down) {
+		// going down
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MDOWN_0,
+				 TEXTURE_ASSET_ID::MDOWN_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MDOWN_1,
+					TEXTURE_ASSET_ID::MDOWN_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MDOWN_2,
+					TEXTURE_ASSET_ID::MDOWN_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (right) {
+		// going right
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MRIGHT_0,
+					TEXTURE_ASSET_ID::MRIGHT_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MRIGHT_1,
+					TEXTURE_ASSET_ID::MRIGHT_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MRIGHT_2,
+					TEXTURE_ASSET_ID::MRIGHT_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (left) {
+		// going left
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MLEFT_0,
+					TEXTURE_ASSET_ID::MLEFT_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MLEFT_1,
+					TEXTURE_ASSET_ID::MLEFT_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MLEFT_2,
+					TEXTURE_ASSET_ID::MLEFT_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}

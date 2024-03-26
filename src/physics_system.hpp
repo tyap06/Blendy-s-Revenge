@@ -10,8 +10,20 @@ class PhysicsSystem
 {
 public:
 	void step(float elapsed_ms);
+    static std::map<Direction, Mesh> loaded_meshes;
 
 	PhysicsSystem()
 	{
+        for (const auto& entry : direction_mesh) {
+            Direction dir = entry.first;
+            std::string path = entry.second;
+            Mesh mesh;
+            if (Mesh::loadFromOBJFile(path, mesh.vertices, mesh.vertex_indices, mesh.original_size)) {
+                loaded_meshes[dir] = mesh;
+            }
+            else {
+                // Handle loading failure
+            }
+        }
 	}
 };
