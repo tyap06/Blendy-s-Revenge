@@ -18,8 +18,6 @@ const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
 Entity createLine(vec2 position, vec2 scale);
 
-Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage);
-
 Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds);
 
 Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds);
