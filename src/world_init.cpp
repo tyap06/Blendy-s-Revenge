@@ -295,10 +295,13 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	motion.velocity = { 0, -100.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	
+	auto& minion = registry.minions.emplace(entity);
+	minion.score = 200;
+	minion.health = score;
+	minion.max_health = score;
+	minion.speed = 50;
 
-	// Create and (empty) Minion component to be able to refer to all minions
-	registry.minions.emplace(entity);
+	
 	registry.giants.emplace(entity);
 	registry.renderRequests.insert(
 		entity,

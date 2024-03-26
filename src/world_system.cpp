@@ -223,6 +223,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_sniper_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
@@ -249,11 +250,11 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		create_charger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
 
-	/*if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
-		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
-		vec2 bound = { MINION_BOUNDS.x*1.2, MINION_BOUNDS.y*1.2 };
-		create_giant(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), bound,100);
-	}*/
+	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f) {
+		next_giant_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
+		create_giant(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), bound, registry.score);
+	}
 
 }
 
@@ -414,22 +415,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	auto& motions_registry = registry.motions;
 
 
-	auto& bullet_registry = registry.bullets;
-	// Handling removing bullets
-	/*for (int i = (int)bullet_registry.entities.size() - 1; i >= 0; --i) {
-		Entity& bullet_entity = bullet_registry.entities[i];
-		Motion& motion = motions_registry.get(bullet_entity);
-
-		if (motion.position.x + abs(motion.scale.x) < 0.f
-			|| motion.position.x - abs(motion.scale.x) > window_width_px
-			|| motion.position.y + abs(motion.scale.y) < 0.f
-			|| motion.position.y - abs(motion.scale.x) > window_height_px
-			) 
-		{
-
-			registry.remove_all_components_of(bullet_entity);
-		}
-	}*/
 
 
 	if (is_dead) {

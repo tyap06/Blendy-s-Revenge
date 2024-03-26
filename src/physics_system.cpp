@@ -247,27 +247,52 @@ void PhysicsSystem::step(float elapsed_ms)
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			if (new_x - half_width <= 0 || new_x + half_width >= window_width_px) {
-				if (registry.roamers.has(entity)) {
-					motion.velocity.x *= -1; // Invert X velocity upon boundary collision
-					new_x = motion.velocity.x * step_seconds + motion.position.x; // Recalculate new_x after velocity inversion
+
+			if (new_x - half_width <= 0) {
+				if (registry.roamers.has(entity) && motion.velocity.x < 0) {
+					motion.velocity.x *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.x > 0) {
+					motion.position.x = std::max(new_x, half_width);
+				}
+			}
+			else if (new_x + half_width >= window_width_px) {
+				if (registry.roamers.has(entity) && motion.velocity.x > 0) {
+					motion.velocity.x *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.x < 0) {
+					motion.position.x = std::min(new_x, window_width_px - half_width);
 				}
 			}
 			else {
-				motion.position.x = new_x; // Update position if within bounds
+				motion.position.x = new_x;
 			}
 
-			if (new_y <= 180 || new_y + half_height-20 >= window_height_px) {
-				if (registry.roamers.has(entity)) {
-					motion.velocity.y *= -1; // Invert Y velocity upon boundary collision
-					new_y = motion.velocity.y * step_seconds + motion.position.y; // Recalculate new_y after velocity inversion
+			// Check for Y-axis boundaries and adjust the position or velocity accordingly
+			if (new_y - half_height <= 70) {
+				if (registry.roamers.has(entity) && motion.velocity.y < 0) {
+					motion.velocity.y *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.y > 0) {
+					motion.position.y = std::max(new_y, 70 + half_height);
+				}
+			}
+			else if (new_y + half_height >= window_height_px) {
+				if (registry.roamers.has(entity) && motion.velocity.y > 0) {
+					motion.velocity.y *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.y < 0) {
+					motion.position.y = std::min(new_y, window_height_px - half_height);
 				}
 			}
 			else {
-				motion.position.y = new_y; // Update position if within bounds
+				motion.position.y = new_y;
 			}
+
+
 		}
 		else {
+			//handle bullet movement
 			if (motion.position.x < 0.f || motion.position.x > window_width_px 
 				|| motion.position.y < 0 || motion.position.y > window_height_px) {
 
