@@ -201,6 +201,13 @@ struct Background
 	
 };
 
+// A component to represent entities that are particle emitters
+struct ParticleEmitter
+{
+
+};
+
+
 // LightSource component for entities that represent a LightSource
 struct LightSource
 {
