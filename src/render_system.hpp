@@ -98,7 +98,7 @@ class RenderSystem {
 			textures_path("cutscene_2_1.png"),
 			textures_path("cutscene_2_2.png"),
 			textures_path("cutscene_3_1.png"),
-			textures_path("title_screen.png"),
+			textures_path("title_screen.png")
 			textures_path("m_left_0.png"),
 			textures_path("m_left_1.png"),
 			textures_path("m_left_2.png"),
