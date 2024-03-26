@@ -35,8 +35,10 @@ inline std::string textures_path(const std::string& name) {return data_path() + 
 inline std::string audio_path(const std::string& name) {return data_path() + "/audio/" + std::string(name);};
 inline std::string mesh_path(const std::string& name) {return data_path() + "/meshes/" + std::string(name);};
 
-const int window_width_px = 0.62f * 2131.f;
-const int window_height_px = 0.62f * 1563.f;
+//const int window_width_px = 0.62f * 2131.f;
+//const int window_height_px = 0.62f * 1563.f;
+const int window_width_px = 1900.f*0.90;
+const int window_height_px = 1080.f*0.90;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f

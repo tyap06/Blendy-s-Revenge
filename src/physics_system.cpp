@@ -39,8 +39,76 @@ vec2 get_bounding_box(const Motion& motion)
 //	return false;
 //}
 
-bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion1, const Motion& motion2)
+//void applyBoidsRuleSeparation(Entity entity, Motion& motion) {
+//	float desiredSeparation = motion.scale.y; 
+//	vec2 steer = { 0.0f, 0.0f };
+//	int count = 0;
+//
+//	for (uint j = 0; j < registry.motions.size(); j++) {
+//		Motion& other_motion = registry.motions.components[j];
+//		Entity other_entity = registry.motions.entities[j];
+//
+//		// Don't compare to itself and ensure it's a minion
+//		if (entity == other_entity || !registry.minions.has(other_entity)) continue;
+//
+//		float d = sqrt(dot(motion.position - other_motion.position, motion.position - other_motion.position));
+//		// If the distance is greater than 0 and less than an arbitrary amount (0 indicates the same position)
+//		if ((d > 0) && (d < desiredSeparation)) {
+//			// Calculate vector pointing away from neighbor
+//			vec2 diff = motion.position - other_motion.position;
+//			diff = normalize(diff);
+//			diff = diff / d; // Weight by distance
+//			steer = steer + diff;
+//			count++; // Keep track of how many
+//		}
+//	}
+//
+//	// Average -- divide by how many
+//	if (count > 0) {
+//		steer = steer / float(count);
+//		// Implement Reynolds: Steering = Desired - Velocity
+//		steer = normalize(steer) * registry.minions.get(entity).speed - motion.velocity;
+//		// Adjust the velocity
+//		motion.velocity = motion.velocity + steer;
+//	}
+//}
+
+bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  Motion& motion2)
 {
+
+	
+	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
+	//plase don't touch the code in the next if statement
+	if (registry.minions.has(entity1) && registry.minions.has(entity2)) {
+		vec2 center_dis = motion1.position - motion2.position;
+		// Calculate the distance between the two entities
+		float distance = sqrt(dot(center_dis, center_dis));
+		// Calculate the sum of the radii
+		float sum_radii = (motion1.scale.y / 2) + (motion2.scale.y / 2);
+
+		// Check if the distance between the centers is less than the sum of the radii (collision)
+		if (distance < sum_radii) {
+			// Calculate how much they are overlapping
+			float overlap = sum_radii - distance;
+
+			
+			if (distance != 0) {
+				vec2 direction = { center_dis.x / distance, center_dis.y / distance };
+
+				// Determine the separation speed. This could be a fixed value or based on the overlap
+				float overlap = sum_radii - distance;
+				float separationSpeed = overlap / 6; 
+
+				// Adjust the velocities to separate the minions
+				// Entity1 moves away in the direction, Entity2 in the opposite
+				motion1.velocity.x += direction.x * separationSpeed;
+				motion1.velocity.y += direction.y * separationSpeed;
+				motion2.velocity.x -= direction.x * separationSpeed;
+				motion2.velocity.y -= direction.y * separationSpeed;
+			}
+			
+		}
+	}
 
 	if (
 		(registry.minions.has(entity1) && registry.minions.has(entity2))
@@ -169,12 +237,13 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.position.x = new_x;
 			}
 
-			if (new_y - half_height > 100 && new_y + half_height < window_height_px) {
+			if (new_y - half_height > 10 && new_y + half_height < window_height_px) {
 				motion.position.y = new_y;
 			}
 		}
 
 		else if(registry.minions.has(entity)){
+			/*applyBoidsRuleSeparation(entity, motion);*/
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
@@ -234,10 +303,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			Entity entity_j = motion_container.entities[j];
 
 
-			//if (dontCheckForCollisions(entity_i, entity_j))
-			//{
-			//	continue;
-			//}
+			
 
 			if (!registry.mesh_collision.has(motion_container.entities[i]) && registry.mesh_collision.has(motion_container.entities[j])) {
 				continue;
