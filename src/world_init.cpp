@@ -549,7 +549,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 
 
 
-Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int damage, vec3 color) {
 	auto entity = Entity();
 	// Store a reference to the potentially re-used mesh object, like createChicken
 	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
@@ -564,7 +564,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.scale = vec2(100.0f, 100.0f);
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
-	vec3 color = { 0,40,0 };
+	bullet.damage = damage;
 	registry.colors.insert(entity, color);
 
 	registry.renderRequests.insert(

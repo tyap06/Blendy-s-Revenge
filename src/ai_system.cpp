@@ -21,6 +21,62 @@ float calculateDistance(const vec2& pos1, const vec2& pos2) {
 	return sqrt(diff.x * diff.x + diff.y * diff.y);
 }
 
+void AISystem::updateSniper(Entity sniperEntity, vec2 chase_direction,
+	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
+	auto& sniper = registry.snipers.get(sniperEntity); 
+
+	float distanceToPlayer = calculateDistance(motion.position, player_pos);
+	float aimDistance = 700.0f; 
+	float avoidDistance = 500.0f; 
+
+	switch (sniper.state) {
+	case Sniper_State::Avoiding:
+		if (distanceToPlayer < avoidDistance) {
+			vec2 flee_direction = normalize(motion.position - player_pos);
+			motion.velocity = -chase_direction * enemy.speed;
+		}
+		else if (distanceToPlayer >= avoidDistance && distanceToPlayer <= aimDistance) {
+			sniper.state = Sniper_State::Aiming;
+			sniper.aim_timer = charger_aim_time; 
+		}
+		else {
+			motion.velocity = chase_direction * enemy.speed;
+		}
+		break;
+	case Sniper_State::Aiming: {
+		motion.velocity = { 0, 0 };
+		sniper.aim_timer -= elapsed_ms;
+		float color_offset = ((50 - sniper.aim_timer) / 50) /4;
+		vec3 color = { 0.2 - color_offset ,0.8 - color_offset,0.8 + color_offset };
+		registry.colors.remove(sniperEntity);
+		registry.colors.insert(sniperEntity, color);
+		if (sniper.aim_timer <= 0) {
+			sniper.state = Sniper_State::Shooting;
+		}
+		break;
+	}
+	case Sniper_State::Shooting: {
+		vec2 bullet_direction = normalize(player_pos - motion.position);
+
+		vec2 up_vector{ 0.0f, -1.0f };
+		float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+		float up_angle = std::atan2(up_vector.y, up_vector.x);
+		float angle_diff = bullet_angle - up_angle;
+		if (angle_diff < -M_PI) {
+			angle_diff += 2 * M_PI;
+		}
+		else if (angle_diff > M_PI) {
+			angle_diff -= 2 * M_PI;
+		}
+		vec3 color = { 0.2,0.8,0.8 };
+		registry.colors.remove(sniperEntity);
+		registry.colors.insert(sniperEntity, color);
+		create_enemy_bullet(renderer, motion.position, bullet_direction * 500.0f, angle_diff, 50, { 0,0,0 });
+		sniper.state = Sniper_State::Avoiding;
+		break;
+	}
+	}
+}
 
 
 void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction, 
@@ -108,7 +164,7 @@ void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float ela
 			angle_diff -= 2 * M_PI;
 		}
 		
-		create_enemy_bullet(renderer, motion.position, bullet_direction * 300.0f, angle_diff);
+		create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
 
 		
 		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
@@ -163,6 +219,9 @@ void AISystem::step(float elapsed_ms)
 		}
 		else if (enemy.type == Enemy_TYPE::CHARGER) {
 			updateCharger(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
+		} 
+		else if (enemy.type == Enemy_TYPE::SNIPER) {
+			updateSniper(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
 		}
 
 	}

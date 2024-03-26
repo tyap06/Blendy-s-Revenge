@@ -19,6 +19,13 @@ enum class POWERUP_TYPE {
 	PROTIEN = LASER + 1,
 };
 
+enum class Sniper_State {
+	Avoiding,
+	Aiming,
+	Shooting,
+	Reloading
+};
+
 
 
 enum class Enemy_TYPE {
@@ -83,7 +90,8 @@ struct Tank {
 };
 
 struct Sniper {
-
+	Sniper_State state = Sniper_State::Avoiding;
+	float aim_timer = 100.f;
 };
 
 
@@ -135,6 +143,8 @@ struct Bullet
 	int penetration = 1;
 	int damage = 25;
 };
+
+
 
 struct Eatable
 {

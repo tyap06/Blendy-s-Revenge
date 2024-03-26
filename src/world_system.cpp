@@ -216,7 +216,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
+	/*if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
@@ -227,7 +227,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	if (registry.roamers.components.size() < MAX_MELEE_ELITE && next_roamer_spawn < 0.f ) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
 		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
-	}
+	}*/
 
 	if (registry.snipers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
@@ -552,7 +552,6 @@ void WorldSystem::hit_player(const int& damage) {
 void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	Minion& minion = registry.minions.get(target);
 	minion.health -= std::max((damage-minion.armor),1.f);
-	std::cout << minion.health << std::endl;
 	if (minion.health <= 0) {
 		registry.score += minion.score;
 		registry.remove_all_components_of(target);
