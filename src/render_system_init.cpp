@@ -279,14 +279,33 @@ void RenderSystem::display_score()
 	for (Entity entity : registry.scoreCounters.entities)
 	{
 		auto& score_component = registry.scoreCounters.get(entity);
-		std::string display_text = "Score: " + std::to_string(score_component.current_score);
+		if (score_component.show) {
+			std::string display_text = "Score: " + std::to_string(score_component.current_score);
 
-		auto& color_component = registry.colors.get(entity);
+			auto& color_component = registry.colors.get(entity);
 
-		auto& motion = registry.motions.get(entity);
+			auto& motion = registry.motions.get(entity);
 
-		renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+			renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+		}
 	}
+}
+
+void RenderSystem::display_text()
+{
+	for (Entity entity : registry.cutScenes.entities)
+	{
+		auto& cutscene = registry.cutScenes.get(entity);
+		for (int i = 0; i < 3; i++) {
+			if (cutscene.text_position[i].x != 0) {
+				std::string cutscene_text(cutscene.text[i]);
+				// std::cout << cutscene_text << std::endl;
+				renderText(cutscene_text, cutscene.text_position[i].x, cutscene.text_position[i].y, cutscene.scale, vec3(0.f, 0.f, 0.f), glm::mat4(1.f));
+			}
+		}
+		renderText("Press 'C' to  skip", 1520, window_height_px - 50, 0.8, vec3(0.4f, 0.f, 0.3f), glm::mat4(1.f));
+	}
+
 }
 
 // Initialize the screen texture from a standard sprite

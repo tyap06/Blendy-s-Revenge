@@ -229,6 +229,16 @@ struct HelpScreen
 	
 };
 
+// A component to represent cut scene
+struct CutScene
+{
+	int stage = 0;
+	// std::string text = "";
+	std::string text[3] = { "", "", "" };
+	vec2 text_position[3] = { {0, 0},  {0, 0} , {0, 0} };
+	float scale = 1;
+};
+
 // If an entity represents an FPS counter
 struct FpsCounter
 {
@@ -241,6 +251,7 @@ struct ScoreCounter
 {
 	unsigned int current_score = 0;
 	float scale = 1.f;
+	bool show = true;
 };
 
 // A struct to refer to debugging graphics in the ECS
@@ -377,7 +388,16 @@ enum class TEXTURE_ASSET_ID {
 	FULL_HEALTH_BAR = BULLET_NM + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,
 	HEALTH_BAR_FRAME = HELP_SCREEN + 1,
-	MLEFT_0 = HEALTH_BAR_FRAME + 1,
+	CUTSCENE_1_1 = HEALTH_BAR_FRAME + 1,
+	CUTSCENE_1_2 = CUTSCENE_1_1 + 1,
+	CUTSCENE_1_3 = CUTSCENE_1_2 + 1,
+	CUTSCENE_1_4 = CUTSCENE_1_3 + 1,
+	CUTSCENE_2_1 = CUTSCENE_1_4 + 1,
+	CUTSCENE_2_2 = CUTSCENE_2_1 + 1,
+	CUTSCENE_3_1 = CUTSCENE_2_2 + 1,
+	START_SCREEN = CUTSCENE_3_1 + 1,
+	TEXTURE_COUNT = START_SCREEN + 1
+	MLEFT_0 = TEXTURE_COUNT + 1,
 	MLEFT_1 = MLEFT_0 + 1,
 	MLEFT_2 = MLEFT_1 + 1,
 	MRIGHT_0 = MLEFT_2 + 1,
@@ -402,7 +422,6 @@ enum class TEXTURE_ASSET_ID {
 	MDOWN_1_NM = MDOWN_0_NM + 1,
 	MDOWN_2_NM = MDOWN_1_NM + 1,
 	TEXTURE_COUNT = MDOWN_2_NM + 1,
-	
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
