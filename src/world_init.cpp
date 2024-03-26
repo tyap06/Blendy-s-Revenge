@@ -21,6 +21,7 @@ Entity createLine(vec2 position, vec2 scale)
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	motion.scale = scale;
+	motion.mesh_scale = motion.scale;
 
 	registry.debugComponents.emplace(entity);
 	return entity;
@@ -41,6 +42,7 @@ Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = bounds;
+	motion.mesh_scale = motion.scale;
 
 	registry.helpScreens.emplace(entity);
 	// Create a render request for the help Screen
@@ -69,6 +71,7 @@ Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = bounds;
+	motion.mesh_scale = motion.scale;
 
 	// add health bar to panel component
 	registry.panel.emplace(entity);
@@ -96,8 +99,16 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.angle = angle;
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
-	motion.scale = vec2(100.0f, 100.0f);
+	motion.scale = vec2(100.f, 100.f);
+	motion.mesh_scale = vec2(10.f, 1000.f);
 	registry.bullets.emplace(entity);
+	//registry.renderRequests.insert(
+	//	entity,
+	//	{ TEXTURE_ASSET_ID::BULLET,
+	//		TEXTURE_ASSET_ID::BULLET_NM,
+	//	 EFFECT_ASSET_ID::CHICKEN,
+	//	 GEOMETRY_BUFFER_ID::BULLET});
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
@@ -125,6 +136,7 @@ Entity create_background(RenderSystem* renderer, const vec2& position, const vec
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 
 	// Create an (empty) background
 	registry.backgrounds.emplace(entity);
@@ -157,7 +169,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-
+	motion.mesh_scale = motion.scale;
 	// Create an (empty) Blendy component to be able to refer to Blendy
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
@@ -165,7 +177,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 		{ TEXTURE_ASSET_ID::BLENDY,
 			TEXTURE_ASSET_ID::BLENDY_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -186,6 +198,7 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 
 	// Create a directional light
 	auto& directional_light = registry.lightSources.emplace(entity);
@@ -219,6 +232,7 @@ Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const ve
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 
 	// Create an Fps Counter component to be able to refer to Blendy
 	registry.fpsCounters.emplace(entity);
@@ -240,6 +254,7 @@ Entity create_score_counter(RenderSystem* renderer, const vec2& position, const 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 
 	// Create an score counter to display the game score
 	registry.scoreCounters.emplace(entity);
@@ -266,7 +281,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-
+	motion.mesh_scale = motion.scale;
 	// Create and (empty) Minion component to be able to refer to all minions
 	registry.minions.emplace(entity);
 	registry.renderRequests.insert(
@@ -274,7 +289,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 		{ TEXTURE_ASSET_ID::MINION,
 			TEXTURE_ASSET_ID::MINION_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -335,7 +350,7 @@ Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-
+	motion.mesh_scale = motion.scale;
 	// Create and (empty) powerup component to be able to refer to all minions
 	registry.powerUps.emplace(entity);
 	registry.renderRequests.insert(
@@ -365,6 +380,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y});
+	motion.mesh_scale = motion.scale;
 	vec3 color = { 0.8,0.8,0.0 };
 	registry.colors.insert(entity, color);
 
@@ -376,7 +392,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 		{ TEXTURE_ASSET_ID::MINION, 
 		  TEXTURE_ASSET_ID::MINION_NM, 
 		  EFFECT_ASSET_ID::TEXTURED,
-		  GEOMETRY_BUFFER_ID::SPRITE });
+		GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -539,6 +555,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 	vec3 color = { 0,1,0 };
 	registry.colors.insert(entity, color);
 
@@ -550,7 +567,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 		{ TEXTURE_ASSET_ID::MINION,
 		  TEXTURE_ASSET_ID::MINION_NM,
 		  EFFECT_ASSET_ID::TEXTURED,
-		  GEOMETRY_BUFFER_ID::SPRITE });
+		GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -571,6 +588,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.angle = angle;
 	motion.velocity = velocity; 
 	motion.scale = vec2(100.0f, 100.0f);
+	motion.mesh_scale = vec2(50.0f, 100.0f);
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
 	bullet.damage = damage;
@@ -581,6 +599,6 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
+		GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }

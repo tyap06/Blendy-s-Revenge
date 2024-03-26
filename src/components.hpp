@@ -3,7 +3,10 @@
 #include <vector>
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include <map>
 
+struct Mesh;
+enum class GEOMETRY_BUFFER_ID;
 enum class EntityType {
 	Generic,
 	Player,
@@ -31,7 +34,6 @@ enum class Tank_state {
 	protecting,
 };
 
-
 enum class Enemy_TYPE {
 	BASIC = 0,
 	SHOOTER = BASIC + 1,
@@ -51,9 +53,15 @@ enum class Charger_State {
 	Resting = Charging + 1,
 };
 
+enum class Direction {
+	Up,
+	Down,
+	Left,
+	Right
+};
 // Player component
-struct Player
-{
+
+struct Player {
 	float max_speed = 200.f;
 	int health = 10000;
 	int max_effect = 3;
@@ -61,14 +69,29 @@ struct Player
 	bool pac_mode = false;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
-	bool up;
-	bool down;
-	bool left;
-	bool right;
+	bool up = false;
+	bool down = false;
+	bool left = false;
+	bool right = false;
 	int going_up = -1;
 	float invisible_counter = 0.0f;
-	float max_invisible_duraion = 100.f;
+	float max_invisible_duration = 100.f;
+	std::map<Direction, Mesh> meshes;
+
+	//static const std::map<Direction, std::string> direction_mesh;
+
+
 };
+
+static const std::map<Direction, std::string> direction_mesh = {
+	{Direction::Up, mesh_path("Blendy-up.obj")},
+	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
+	{Direction::Left, mesh_path("Blendy-left.obj")},
+	{Direction::Right, mesh_path("Blendy-right.obj")}
+};
+
+
+
 
 struct Roamer {
 
@@ -168,6 +191,7 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 	float y_animate = 0.f;
 	EntityType type = EntityType::Generic;
+	vec2 mesh_scale = {0,0};
 
 	bool operator==(const Motion& other) const {
 		return position == other.position &&
@@ -402,9 +426,14 @@ enum class GEOMETRY_BUFFER_ID {
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1,
 	MINION = GEOMETRY_COUNT + 1,
-	BULLET = MINION + 1
+	BULLET = MINION + 1,
+
+	BLENDY_UP = BULLET + 1,
+	BLENDY_DOWN = BLENDY_UP + 1,
+	BLENDY_LEFT = BLENDY_DOWN + 1,
+	BLENDY_RIGHT = BLENDY_LEFT + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::BULLET + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BLENDY_RIGHT + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;

@@ -493,6 +493,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest &render_request = registry.renderRequests.get(entity);
 
+
 	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
 	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
 	const GLuint program = (GLuint)effects[used_effect_enum];

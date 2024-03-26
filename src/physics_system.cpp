@@ -5,6 +5,8 @@
 #include <vector>
 //vec2 normalize(const vec2&);
 float duration = 0;
+std::map<Direction, Mesh> PhysicsSystem::loaded_meshes;
+
 bool isParallel(const std::vector<vec2>&, const vec2&);
 std::pair<float, float> projectOntoAxis(const std::vector<vec2>&, const vec2&);
 bool projectionsOverlap(const std::pair<float, float>&, const std::pair<float, float>&);
@@ -73,16 +75,6 @@ vec2 get_bounding_box(const Motion& motion)
 
 bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  Motion& motion2)
 {
-	// search for the index of motion
-	/*auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
-	int index_two = it_two - registry.motions.components.begin();
-	auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	int index_one = it_one - registry.motions.components.begin();*/
-	
-	//auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
-	//Entity index_two = entity2;
-	//auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	//Entity index_one = entity1;
 
 	
 	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
@@ -129,6 +121,8 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 		|| (registry.backgrounds.has(entity1) || registry.backgrounds.has(entity2))
 		//|| (registry.healthBars.has(entity1) || registry.healthBars.has(entity2)) // Uncomment when healthBar container added
 		|| (registry.helpScreens.has(entity1) || registry.helpScreens.has(entity2))
+		|| (registry.players.has(entity1) && registry.bullets.has(entity2))
+		|| (registry.players.has(entity2) && registry.bullets.has(entity1))
 		)
 	{
 		return false;
@@ -149,25 +143,49 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
-			box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
-			if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
-				Mesh* mesh_one = registry.meshPtrs.get(entity1);
-				Mesh* mesh_two = registry.meshPtrs.get(entity2);
-				return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
+		if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
+			Mesh* mesh_one = registry.meshPtrs.get(entity1);
+			Mesh* mesh_two = registry.meshPtrs.get(entity2);
+			if (registry.players.has(entity1)) {
+				auto& player = registry.players.get(entity1);
+				if (registry.players.has(entity1)) {
+					auto& player = registry.players.get(entity1);
+					if (player.up) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Up);
+					}
+					else if (player.down) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Down);
+					}
+					else if (player.left) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Left);
+					}
+					else if (player.right) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Right);
+					}
+				}
+
+				if (registry.players.has(entity2)) {
+					auto& player = registry.players.get(entity2);
+					if (player.up) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Up);
+					}
+					else if (player.down) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Down);
+					}
+					else if (player.left) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Left);
+					}
+					else if (player.right) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Right);
+					}
+				}
 			}
-			/*else {
-				return false;
-			}*/
-		//}
-
-		//else {
-
-			//return true;
-		//}
+			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		}
 	}
 	return false;
 }
-
 
 float lerp(float start, float end, float t) {
 
@@ -404,11 +422,10 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 	Transform transform_two;
 	transform_one.translate(motion_one.position);
 	transform_one.rotate(motion_one.angle);
-	transform_one.scale(motion_one.scale);
-	
+	transform_one.scale(motion_one.mesh_scale);
 	transform_two.translate(motion_two.position);
 	transform_two.rotate(motion_two.angle);
-	transform_two.scale(motion_two.scale);
+	transform_two.scale(motion_two.mesh_scale);
 
 	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
 		axises.clear();
