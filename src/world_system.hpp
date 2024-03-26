@@ -52,6 +52,9 @@ private:
 	float elapsed_ms = 0.0f;
 	float bullet_speed = 500.f;
 	float bullet_launch_interval = 0.4f;
+	int cutscene_stage = 0;
+	float cutscene_timer = 0.f;
+	float cutscene_interval = 100.f;
 	// restart level
 	void restart_game();
 	void console_debug_fps();
@@ -70,6 +73,7 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_blendy;
+	Entity current_cutscene;
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
@@ -104,6 +108,7 @@ private:
 
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);
+	void handleCutScene(int key, int action);
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);

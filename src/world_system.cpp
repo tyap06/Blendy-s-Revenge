@@ -278,6 +278,11 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	
 	auto& motions_registry = registry.motions;
 
+	// silly little cutscene stuff
+	if (cutscene_timer > 0.0f) {
+		cutscene_timer -= elapsed_ms_since_last_update;
+		if (cutscene_timer < 0.f) cutscene_timer = 0.f;
+	}
 
 	auto& bullet_registry = registry.bullets;
 	// Handling removing bullets
@@ -291,14 +296,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 			|| motion.position.y - abs(motion.scale.x) > window_height_px
 			) 
 		{
-
 			registry.remove_all_components_of(bullet_entity);
 		}
 	}
-
-
-
-	
 
 	if (is_dead) {
 		Motion& player_motion = registry.motions.get(player_blendy);
@@ -588,11 +588,41 @@ void WorldSystem::handlePlayerMovement(int key, int action) {
 	}
 }
 
+void WorldSystem::handleCutScene(int key, int action) {
+	// for debugging purposes - actual game will not have this method of altering frames
+	if (action == GLFW_RELEASE && key == GLFW_KEY_1) {
+		cutscene_stage = 1;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_2) {
+		cutscene_stage = 2;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_3) {
+		cutscene_stage = 3;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
+		cutscene_stage = 4;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_5) {
+		cutscene_stage = 5;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_6) {
+		cutscene_stage = 6;
+	}
+	if (action == GLFW_RELEASE && key == GLFW_KEY_7) {
+		cutscene_stage = 7;
+	}
+
+	printf(" stage:%i ", cutscene_stage);
+
+}
+
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	handlePlayerMovement(key, action);
+	handleCutScene(key, action);
 
 	auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;
+
 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I) {
 		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
 	}
@@ -609,6 +639,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
 	}
 
+
 	// Toggle the help screen visibility when "H" is pressed
 	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
 		if (showHelpScreen) {
@@ -621,6 +652,24 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		}
 
 		showHelpScreen = !showHelpScreen;
+	}
+
+	// switch to next cutscene
+	if (action == GLFW_RELEASE && key == GLFW_KEY_C) {
+		cutscene_stage++;
+		registry.remove_all_components_of(current_cutscene);
+		printf("cutscene stage: %i ", cutscene_stage);
+		auto& score_component = registry.scoreCounters.get(score_counter);
+		if (cutscene_stage == 5 || cutscene_stage == 8) {
+			registry.is_pause = false;
+			score_component.show = true;
+		}
+		else {
+			registry.is_pause = true;
+			current_cutscene = createCutScene(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS, cutscene_stage);
+			score_component.show = false;
+		}
+
 	}
 
 	// check window boundary
@@ -661,6 +710,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+
 
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_MINUS) {

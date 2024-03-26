@@ -90,7 +90,14 @@ class RenderSystem {
 			textures_path("bullet_nm.png"),
 			textures_path("fullHealthBar.png"),
 			textures_path("HelpScreen.png"),
-			textures_path("HealthBarFrame.png")
+			textures_path("HealthBarFrame.png"),
+			textures_path("cutscene_1_1.png"),
+			textures_path("cutscene_1_2.png"),
+			textures_path("cutscene_1_3.png"),
+			textures_path("cutscene_1_4.png"),
+			textures_path("cutscene_2_1.png"),
+			textures_path("cutscene_2_2.png"),
+			textures_path("cutscene_3_1.png")
 	};
 
 	std::array<GLuint, effect_count> effects;
@@ -183,6 +190,9 @@ private:
 
 	// Score Counter
 	void display_score();
+
+	// display cutscene text
+	void display_text();
 
 	// Window handle
 	GLFWwindow* window;
