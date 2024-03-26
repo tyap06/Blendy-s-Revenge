@@ -26,6 +26,10 @@ enum class Sniper_State {
 	Reloading
 };
 
+enum class Tank_state {
+	defualt,
+	protecting,
+};
 
 
 enum class Enemy_TYPE {
@@ -86,7 +90,11 @@ struct Giant {
 };
 
 struct Tank {
+	Tank_state state = Tank_state::defualt;
+};
 
+struct Protection {
+	Entity link;
 };
 
 struct Sniper {
@@ -119,6 +127,7 @@ struct PowerUp
 struct Minion
 {
 	int health = 50;
+	int max_health = 50;
 	int damage = 50;
 	float speed = 100.f;
 	float armor = 0;

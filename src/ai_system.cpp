@@ -21,6 +21,73 @@ float calculateDistance(const vec2& pos1, const vec2& pos2) {
 	return sqrt(diff.x * diff.x + diff.y * diff.y);
 }
 
+vec2 calculateInterceptPosition(vec2 sniperPos, vec2 playerPos, float factor) {
+	// Calculates a position factor% of the way from playerPos to sniperPos
+	return playerPos + (sniperPos - playerPos) * factor;
+}
+
+Entity AISystem::findClosestSniper(vec2 tank_pos) {
+	float minDistance = std::numeric_limits<float>::max();
+	Entity closestSniper = registry.players.entities[0]; 
+
+	for (auto sniperEntity : registry.snipers.entities) {
+		if (registry.protections.has(sniperEntity)) {
+			continue;
+		}
+		auto& sniperMotion = registry.motions.get(sniperEntity);
+		float distance = calculateDistance(tank_pos, sniperMotion.position);
+
+		if (distance < minDistance) {
+			minDistance = distance;
+			closestSniper = sniperEntity;
+		}
+	}
+
+	return closestSniper;
+}
+
+void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
+	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
+	auto& tank = registry.tanks.get(tankEntity);
+
+	float distanceToPlayer = calculateDistance(motion.position, player_pos);
+
+	switch (tank.state) {
+	case Tank_state::defualt: {
+		if (registry.snipers.entities.size() != 0) {
+			Entity closestSniper = findClosestSniper(motion.position);
+			if (!registry.players.has(closestSniper)) {
+				auto& sniper_protect = registry.protections.emplace(closestSniper);
+				sniper_protect.link = tankEntity;
+				auto& tank_protect = registry.protections.emplace(tankEntity);
+				tank_protect.link = closestSniper;
+				tank.state = Tank_state::protecting;
+			}	
+		}
+		motion.velocity = chase_direction * enemy.speed;
+		break;
+	}
+	case Tank_state::protecting: {
+		auto& protect = registry.protections.get(tankEntity);
+		if (!registry.protections.has(protect.link)) {
+			registry.protections.remove(tankEntity);
+			tank.state = Tank_state::defualt;
+			motion.velocity = chase_direction * enemy.speed;
+			break;
+		}
+		else {
+			auto& sniperMotion = registry.motions.get(protect.link);
+			vec2 protectivePos = calculateInterceptPosition(sniperMotion.position, player_pos, 0.5f);
+			vec2 directionToProtectivePos = normalize(protectivePos - motion.position);
+			motion.velocity = directionToProtectivePos * enemy.speed;
+		}
+		break;
+	}
+	}
+
+}
+
+
 void AISystem::updateSniper(Entity sniperEntity, vec2 chase_direction,
 	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
 	auto& sniper = registry.snipers.get(sniperEntity); 
@@ -28,6 +95,13 @@ void AISystem::updateSniper(Entity sniperEntity, vec2 chase_direction,
 	float distanceToPlayer = calculateDistance(motion.position, player_pos);
 	float aimDistance = 700.0f; 
 	float avoidDistance = 500.0f; 
+
+	if (registry.protections.has(sniperEntity)) {
+		auto& protect = registry.protections.get(sniperEntity);
+		if (!registry.protections.has(protect.link)) {
+			registry.protections.remove(sniperEntity);
+		}
+	}
 
 	switch (sniper.state) {
 	case Sniper_State::Avoiding:
@@ -223,7 +297,9 @@ void AISystem::step(float elapsed_ms)
 		else if (enemy.type == Enemy_TYPE::SNIPER) {
 			updateSniper(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
 		}
-
+		else if (enemy.type == Enemy_TYPE::TANK) {
+			updateTank(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
+		}
 	}
 
 	

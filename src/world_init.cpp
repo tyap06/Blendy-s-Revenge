@@ -390,6 +390,7 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	minion.score = 100;
 	motion.angle = 0.f;
 	minion.health = 250;
+	minion.max_health = 250;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -423,6 +424,7 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.speed = 35.f;
 	motion.angle = 0.f;
 	minion.health = 100;
+	minion.max_health = 100;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -453,6 +455,8 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.score = 25;
 	motion.angle = 0.f;
 	motion.velocity = { 0, -80.f };
+	minion.health = 100;
+	minion.max_health = 100;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = { 0.2,0.8,0.8 };
@@ -483,6 +487,7 @@ Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.type = Enemy_TYPE::HEALER;
 	minion.score = 100;
 	minion.health = 100;
+	minion.max_health = 100;
 	minion.speed = 35.f;
 	motion.angle = 0.f;
 	motion.velocity = { 0, -80.f };

@@ -40,6 +40,7 @@ public:
 	ComponentContainer<Healer> healers;
 	ComponentContainer<Tank> tanks;
 	ComponentContainer<Sniper> snipers;
+	ComponentContainer<Protection> protections;
 
 	int score;
 	bool is_pause;
@@ -75,6 +76,7 @@ public:
 		registry_list.push_back(&giants);
 		registry_list.push_back(&tanks);
 		registry_list.push_back(&snipers);
+		registry_list.push_back(&protections);
 	}
 
 	void clear_all_components() {
