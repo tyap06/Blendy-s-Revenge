@@ -349,6 +349,7 @@ Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, cons
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -380,6 +381,7 @@ Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, cons
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -411,6 +413,7 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -468,6 +471,7 @@ Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.scale = vec2(100.0f, 100.0f);
+	motion.mesh_scale = vec2(10.f, 1000.f);
 	auto& bullet = registry.bullets.emplace(entity);
 
 	vec3 color = { 40,40,0 };
@@ -496,6 +500,7 @@ Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.scale = vec2(100.0f, 100.0f);
+	motion.mesh_scale = vec2(10.f, 1000.f);
 	auto& bullet = registry.bullets.emplace(entity);
 	
 	vec3 color = { 40,0,0 };
