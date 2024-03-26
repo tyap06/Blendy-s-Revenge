@@ -416,7 +416,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	auto& bullet_registry = registry.bullets;
 	// Handling removing bullets
-	for (int i = (int)bullet_registry.entities.size() - 1; i >= 0; --i) {
+	/*for (int i = (int)bullet_registry.entities.size() - 1; i >= 0; --i) {
 		Entity& bullet_entity = bullet_registry.entities[i];
 		Motion& motion = motions_registry.get(bullet_entity);
 
@@ -429,7 +429,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 			registry.remove_all_components_of(bullet_entity);
 		}
-	}
+	}*/
 
 
 	if (is_dead) {

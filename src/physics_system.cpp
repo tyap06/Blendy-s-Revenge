@@ -105,7 +105,7 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 
 				// Determine the separation speed. This could be a fixed value or based on the overlap
 				float overlap = sum_radii - distance;
-				float separationSpeed = overlap / 6; 
+				float separationSpeed = std::min(overlap / 6,80.f); 
 
 				// Adjust the velocities to separate the minions
 				// Entity1 moves away in the direction, Entity2 in the opposite
@@ -218,10 +218,26 @@ void PhysicsSystem::step(float elapsed_ms)
 			if (new_x - half_width > 0 && new_x + half_width < window_width_px && blendy.frame_stage != 0 && !registry.deathTimers.has(entity)) {
 				motion.position.x = new_x;
 			}
-
+			else {
+				if (new_x - half_width < 0 && new_x > motion.position.x) {
+					motion.position.x = new_x;
+				}else if (new_x + half_width > window_width_px && new_x < motion.position.x) {
+					motion.position.x = new_x;
+				}
+			}
+		
 			if (new_y - half_height > 10 && new_y + half_height < window_height_px) {
 				motion.position.y = new_y;
 			}
+			else {
+				if (new_y - half_height < 10 && new_y > motion.position.y) {
+					motion.position.y = new_y;
+				}
+				else if (new_y + half_height > window_height_px && new_y < motion.position.y) {
+					motion.position.y = new_y;
+				}
+			}
+
 		}
 
 		else if(registry.minions.has(entity)){

@@ -423,6 +423,7 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.armor = 20;
 	motion.angle = 0.f;
 	minion.health = 100;
+	minion.speed = 50;
 	minion.max_health = 100;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
@@ -454,7 +455,7 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.score = 25;
 	motion.angle = 0.f;
 	motion.velocity = { 0, -80.f };
-	minion.health = 100;
+	minion.health = 20;
 	minion.max_health = 100;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -520,6 +521,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::ROAMER;
 	minion.score = 25;
+	minion.speed = 100;
 	motion.angle = 0.f;
 
 	std::random_device rd; 
