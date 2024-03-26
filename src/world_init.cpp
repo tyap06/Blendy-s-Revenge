@@ -42,7 +42,7 @@ Entity create_particle_emitter(const vec2& position, const vec2& scale, const fl
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
-	motion.position = position;
+	motion.position = vec3{0.0,0.0,0.0};
 	motion.scale = scale;
 
 	registry.particle_emitters.emplace(entity);

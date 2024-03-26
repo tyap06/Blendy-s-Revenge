@@ -70,8 +70,8 @@ void RenderSystem::handle_particle_rendering(const RenderRequest& render_request
 	GLint M_v_loc = glGetUniformLocation(program, "M_v");
 	GLint M_p_loc = glGetUniformLocation(program, "M_p");
 	GLint particleSize_loc = glGetUniformLocation(program, "particleSize");
-	assert(M_v_loc > -1);
-	assert(M_p_loc > -1);
+	//assert(M_v_loc > -1);
+	//assert(M_p_loc > -1);
 	assert(particleSize_loc > -1);
 	gl_has_errors();
 
@@ -82,7 +82,7 @@ void RenderSystem::handle_particle_rendering(const RenderRequest& render_request
 	glUniformMatrix3fv(M_p_loc, 1, GL_FALSE, (float*)&projection);
 	gl_has_errors();
 
-	glUniform1f(particleSize_loc, 1000.f);
+	glUniform1f(particleSize_loc,0.05);
 	gl_has_errors();
 
 	emitter.draw();
