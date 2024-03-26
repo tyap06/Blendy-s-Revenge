@@ -14,8 +14,8 @@
 // Game configuration
 const size_t MAX_TOTAL_MINIONS = 30;
 const size_t MAX_MINIONS = 10;
-const size_t MAX_DODGERS = 5;
-const size_t MAX_ROAMER = 3;
+const size_t MAX_DODGERS = 3;
+const size_t MAX_ROAMER = 2;
 const size_t MAX_CHARGER = 3;
 const size_t MAX_TANK = 2;
 const size_t MAX_SNIPER = 2;
@@ -229,25 +229,25 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
 	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f ) {
-		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
+		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
 	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f ) {
-		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
+		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.tanks.components.size() < MAX_SNIPER && next_charger_spawn < 0.f) {
-		next_tank_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
+	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f) {
+		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
 		create_tank(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	if (registry.snipers.components.size() < MAX_SNIPER && next_charger_spawn < 0.f) {
-		next_sniper_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
+	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f) {
+		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
 		create_sniper(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
 	}
-	/*if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
-		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
+	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f) {
+		next_charger_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		create_charger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
-	}*/
+	}
 
 	/*if (registry.chargers.components.size() < MAX_MELEE_ELITE && next_charger_spawn < 0.f) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + uniform_dist(rng) * (MINION_DELAY_MS);
