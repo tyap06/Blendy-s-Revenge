@@ -360,9 +360,11 @@ void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
 	}
 }
 
-void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, float bullet_speed) {
-	const int num_bullets = 12; // Number of bullets to shoot in all directions
+
+void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity,float up_angle, float angle_diff) {
+	const int num_bullets = 12; 
 	const float angle_increment = 2 * M_PI / num_bullets; // Angle increment for each bullet
+
 
 	for (int i = 0; i < num_bullets; ++i) {
 		// Calculate the angle for the current bullet
@@ -371,10 +373,16 @@ void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, float bull
 		// Calculate the velocity based on the angle
 		vec2 velocity = { cos(angle) * bullet_speed, sin(angle) * bullet_speed };
 
+		// calculate final angle for bullet
+		float final_angle = up_angle + angle_diff + angle;
+
 		// Create the bullet with the calculated angle and velocity
-		createBullet(renderer, pos, velocity, angle);
+		createBullet(renderer, pos, velocity, final_angle);
 	}
 }
+
+
+
 
 // Update our game world
 vec2 WorldSystem::getCurrentMousePosition() {
@@ -411,7 +419,10 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 					//std::cout << "Blendy protein powerup duration: " << blendy.protein_powerup_duration_ms << std::endl;
 				}
 				else if (blendy.grape_powerup_duration_ms > 0.0f) {
-					shootGrapeBullets(renderer, blendy_pos, bullet_speed);
+					//std::cout << "bullet direction: (" << bullet_direction.x << ", " << bullet_direction.y << ")" << std::endl;
+					//std::cout << "angle diff: " << angle_diff << std::endl;
+					angle_diff = -3.02989;
+					shootGrapeBullets(renderer, blendy_pos, bullet_direction * bullet_speed, up_angle, angle_diff);
 					bullet_timer = bullet_launch_interval;
 					blendy.grape_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
 				}
@@ -651,7 +662,7 @@ void WorldSystem::handle_collisions() {
 					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
-					blendy.grape_powerup_duration_ms = 200.f;
+					blendy.grape_powerup_duration_ms = 500.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {

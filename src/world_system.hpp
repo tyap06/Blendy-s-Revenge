@@ -123,7 +123,7 @@ private:
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
-	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, float bullet_speed);
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 };
 
 
