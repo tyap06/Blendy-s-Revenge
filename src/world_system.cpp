@@ -611,15 +611,30 @@ void WorldSystem::handle_cutScenes()
 
 	if (cutscene_stage == FIRST_CUT_SCENE_END || cutscene_stage == SECOND_CUT_SCENE_END) {
 		// if reached the end of the cut scenes, resume gameplay
+		cutscene_active = false;
 		registry.is_pause = false;
 		score_component.show = true;
-		cutscene_active = false;
+		handle_help_screen();
+		
 	}
 	else {
 		registry.is_pause = true;
 		current_cutscene = createCutScene(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS, cutscene_stage);
 		score_component.show = false;
 	}
+}
+
+void WorldSystem::handle_help_screen() {
+	if (showHelpScreen) {
+		registry.is_pause = true;
+		help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
+	}
+	else {
+		registry.is_pause = false;
+		registry.remove_all_components_of(help_screen);
+	}
+
+	showHelpScreen = !showHelpScreen;
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod) {
@@ -647,16 +662,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	// Toggle the help screen visibility when "H" is pressed
 	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
-		if (showHelpScreen) {
-			registry.is_pause = true;
-			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
-		}
-		else {
-			registry.is_pause = false;
-			registry.remove_all_components_of(help_screen);
-		}
-
-		showHelpScreen = !showHelpScreen;
+		handle_help_screen();
 	}
 
 	// switch to next cutscene

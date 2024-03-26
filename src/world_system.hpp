@@ -37,6 +37,8 @@ public:
 
 	void handle_cutScenes();
 
+	void handle_help_screen();
+
 	// Should the game be over ?
 	bool is_over()const;
 
