@@ -97,7 +97,9 @@ class RenderSystem {
 			textures_path("cutscene_1_4.png"),
 			textures_path("cutscene_2_1.png"),
 			textures_path("cutscene_2_2.png"),
-			textures_path("cutscene_3_1.png")
+			textures_path("cutscene_3_1.png"),
+			textures_path("title_screen.png")
+			
 	};
 
 	std::array<GLuint, effect_count> effects;

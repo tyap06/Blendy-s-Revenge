@@ -68,8 +68,8 @@ const vec2 SCORE_COUNTER_SCALE = { 1.5f,1.5f };
 const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 
 // CUTSCENE STUFF
-const int FIRST_CUT_SCENE_END = 4;
-const int SECOND_CUT_SCENE_END = 7;
+const int FIRST_CUT_SCENE_END = 6;
+const int SECOND_CUT_SCENE_END = 9;
 const int SECOND_CUT_SCORE = 20;
 const int THIRD_CUT_SCORE = 50;
 
@@ -614,7 +614,7 @@ void WorldSystem::handle_cutScenes()
 		cutscene_active = false;
 		registry.is_pause = false;
 		score_component.show = true;
-		handle_help_screen();
+		if (cutscene_stage == FIRST_CUT_SCENE_END) handle_help_screen();
 		
 	}
 	else {
