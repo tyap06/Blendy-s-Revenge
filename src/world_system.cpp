@@ -403,7 +403,7 @@ void WorldSystem::restart_game() {
 	is_dead = false;
 	registry.is_dead = false;
 	registry.score = 0;
-	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
+	//game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	update_health_bar();
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
