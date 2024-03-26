@@ -89,11 +89,12 @@ void SimpleEmitter::set_particle_attributes(uint i)
 	//const float random_position_z = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
 	//const float random_lifetime = uniform_dist(rng) + 1.f; // [1,2]
 
-	const float random_position_x = window_width_px / 2 + uniform_dist(rng) * 31.f - 1.f; // [width/2-30,width/2+30];
-	const float random_position_y = window_height_px / 2 + uniform_dist(rng) * 31.f - 1.f; // [height/2-30,height/2+30];
+	constexpr float centre_offset = 60.f;
+	const float random_position_x = window_width_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [width/2-30,width/2+30];
+	const float random_position_y = window_height_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [height/2-30,height/2+30];
 	//const float random_position_x = 0.f;
 	//const float random_position_y = 0.f;
-	const float random_position_z = 10.0;
+	constexpr float random_position_z = 10.0;
 	const float random_lifetime = uniform_dist(rng) + 1.f; // [1,2]
 
 	this->particles[i].position = vec3(random_position_x, random_position_y, random_position_z);
