@@ -19,36 +19,8 @@ vec2 get_bounding_box(const Motion& motion)
 	return { abs(motion.scale.x), abs(motion.scale.y) };
 }
 
-// This is a SUPER APPROXIMATE check that puts a circle around the bounding boxes and sees
-// if the center point of either object is inside the other's bounding-box-circle. You can
-// surely implement a more accurate detection
-
-//bool collides(const Motion& motion1, const Motion& motion2)
-//{
-//	vec2 dp = motion1.position - motion2.position;
-//	float dist_squared = dot(dp, dp);
-//	const vec2 other_bonding_box = get_bounding_box(motion1) / 2.f;
-//	const float other_r_squared = dot(other_bonding_box, other_bonding_box);
-//	const vec2 my_bonding_box = get_bounding_box(motion2) / 2.f;
-//	const float my_r_squared = dot(my_bonding_box, my_bonding_box);
-//	const float r_squared = max(other_r_squared, my_r_squared);
-//	if (dist_squared < r_squared)
-//		return true;
-//	return false;
-//}
-
 bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion1, const Motion& motion2)
 {
-	// search for the index of motion
-	/*auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
-	int index_two = it_two - registry.motions.components.begin();
-	auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	int index_one = it_one - registry.motions.components.begin();*/
-	
-	//auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
-	//Entity index_two = entity2;
-	//auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	//Entity index_one = entity1;
 
 	if (
 		(registry.minions.has(entity1) && registry.minions.has(entity2))
@@ -83,8 +55,35 @@ bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 			box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
 			if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
-				Mesh* mesh_one = registry.meshPtrs.get(entity1);
-				Mesh* mesh_two = registry.meshPtrs.get(entity2);
+				if(registry.players.has(entity1)){
+					auto& player = registry.players.get(entity1);
+					if(player.up){
+
+					} else if(player.down){
+						
+					} else if(player.left){
+						
+					} else if(player.right){
+
+					}
+				} 
+				else if(registry.players.has(entity2)){
+					auto& player = registry.players.get(entity2);
+					if(player.up){
+
+					} else if(player.down){
+						
+					} else if(player.left){
+						
+					} else if(player.right){
+
+					}
+				}
+				else{
+					Mesh* mesh_one = registry.meshPtrs.get(entity1);
+					Mesh* mesh_two = registry.meshPtrs.get(entity2);
+				}
+				
 				return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 			}
 			/*else {
@@ -288,7 +287,7 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 				positions[j] = vec2(worldPos.x, worldPos.y);
 			}
 			// only check polygons with indices that inside the overlap box 
-			for (vec2 point: positions) {
+			for (vec2 point: positions) {`
 				if (!isPointInBox(point, overlapBox)) {
 					continue;
 				}
