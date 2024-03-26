@@ -288,7 +288,36 @@ void PhysicsSystem::step(float elapsed_ms)
 			else {
 				motion.position.y = new_y;
 			}
+			Minion& minion = registry.minions.get(entity);
+			minion.up = false;
+			minion.down = false;
+			minion.left = false;
+			minion.right = false;
+			if (motion.velocity.x < 0 && abs(motion.velocity.y) <= abs(motion.velocity.x)) {
+				// going right
+				minion.right = true;
+			}
+			else if (motion.velocity.x > 0 && abs(motion.velocity.y) <= abs(motion.velocity.x)) {
+				// going left
+				minion.left = true;
+			}
+			else if (motion.velocity.y > 0 && abs(motion.velocity.x) <= abs(motion.velocity.y)) {
+				// going down
+				minion.down = true;
+			}
+			else if (motion.velocity.y < 0 && abs(motion.velocity.x) <= abs(motion.velocity.y)) {
+				// going up
+				minion.up = true;
+			}
+			minion.counter_ms -= elapsed_ms;
+			if (minion.counter_ms < 0.f) {
+				minion.counter_ms = 120;
 
+				minion.frame_stage += 1;
+				if (minion.frame_stage > 2) {
+					minion.frame_stage = 0;
+				}
+			}
 
 		}
 		else {

@@ -330,41 +330,7 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
-	for (int i = 0; i < registry.minions.entities.size(); i++) {
-		Minion& minion = registry.minions.get(registry.minions.entities[i]);
-		Motion& minion_motion = registry.motions.get(registry.minions.entities[i]);
-		// update minion up down left right bool
-		minion.up = false;
-		minion.down = false;
-		minion.left = false;
-		minion.right = false;
-		if (minion_motion.velocity.x < 0 && abs(minion_motion.velocity.y) <= abs(minion_motion.velocity.x)) {
-			// going right
-			minion.right = true;
-		}
-		else if (minion_motion.velocity.x > 0 && abs(minion_motion.velocity.y) <= abs(minion_motion.velocity.x)) {
-			// going left
-			minion.left = true;
-		}
-		else if (minion_motion.velocity.y > 0 && abs(minion_motion.velocity.x) <= abs(minion_motion.velocity.y)) {
-			// going down
-			minion.down = true;
-		}
-		else if (minion_motion.velocity.y < 0 && abs(minion_motion.velocity.x) <= abs(minion_motion.velocity.y)) {
-			// going up
-			minion.up = true;
-		}
-		minion.counter_ms -= elapsed_ms_since_last_update;
-		if (minion.counter_ms < 0.f) {
-			minion.counter_ms = MINION_FRAME_DELAY;
-			
-			minion.frame_stage += 1;
-			if (minion.frame_stage > 2) {
-				minion.frame_stage = 0;
-			}
-		}
-		
-	}
+	
 	for (int j = 0; j < registry.minions.entities.size(); j++) {
 		Minion& minion = registry.minions.get(registry.minions.entities[j]);
 		Motion& minion_motion = registry.motions.get(registry.minions.entities[j]);

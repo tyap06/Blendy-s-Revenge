@@ -627,12 +627,30 @@ void RenderSystem::draw()
 
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
+	 // Phase 1: Draw all entities except bullets
+
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity))
-			continue;
-		// Note, its not very efficient to access elements indirectly via the entity
-		// albeit iterating through all Sprites in sequence. A good point to optimize
+		if (!registry.motions.has(entity) || registry.powerUps.has(entity))
+			continue; // Skip bullet entities in this phase
+
+		drawTexturedMesh(entity, projection_2D);
+	}
+
+	for (Entity entity : registry.renderRequests.entities)
+	{
+		if (!registry.motions.has(entity) || registry.bullets.has(entity))
+			continue; // Skip bullet entities in this phase
+
+		drawTexturedMesh(entity, projection_2D);
+	}
+
+	// Phase 2: Draw only bullet entities
+	for (Entity entity : registry.renderRequests.entities)
+	{
+		if (!registry.motions.has(entity) || !registry.bullets.has(entity))
+			continue; // Skip non-bullet entities in this phase
+
 		drawTexturedMesh(entity, projection_2D);
 	}
 
