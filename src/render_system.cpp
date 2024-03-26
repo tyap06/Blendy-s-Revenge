@@ -11,8 +11,6 @@
 
 void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_request, GLuint program)
 {
-	
-
 	GLuint health_bar_texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::FULL_HEALTH_BAR];
 
 	GLuint health_bar_effect_id = effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR];
@@ -64,7 +62,32 @@ void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_reque
 
 }
 
+void RenderSystem::handle_particle_rendering(const RenderRequest& render_request, const GLuint& program, const mat3& projection, const Transform& transform)
+{
+	// Redundantly calling set program again
+	glUseProgram(program);
 
+	GLint M_v_loc = glGetUniformLocation(program, "M_v");
+	GLint M_p_loc = glGetUniformLocation(program, "M_p");
+	GLint particleSize_loc = glGetUniformLocation(program, "particleSize");
+	assert(M_v_loc > -1);
+	assert(M_p_loc > -1);
+	assert(particleSize_loc > -1);
+	gl_has_errors();
+
+	// Setting uniform values to the currently bound program
+	glUniformMatrix3fv(M_v_loc, 1, GL_FALSE, (float*)&transform.mat);
+	gl_has_errors();
+
+	glUniformMatrix3fv(M_p_loc, 1, GL_FALSE, (float*)&projection);
+	gl_has_errors();
+
+	glUniform1f(particleSize_loc, 1000.f);
+	gl_has_errors();
+
+	emitter.draw();
+	gl_has_errors();
+}
 
 
 const char* fontVertexShaderSource =
@@ -322,6 +345,11 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 	gl_has_errors();
 }
 
+void RenderSystem::update_particle_emitter(const float& elapsed_ms)
+{
+	emitter.update(elapsed_ms);
+}
+
 void RenderSystem::handle_normal_map_uniform(Entity entity, const GLuint program)
 {
 	GLuint normal_map_id =
@@ -387,7 +415,6 @@ void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program
 	{
 		handle_normal_map_uniform(entity, program);
 	}
-
 }
 
 void RenderSystem::handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, const GLuint program)
@@ -523,7 +550,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	{
 		//glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR]);
 		handle_health_bar_rendering(render_request, program);
-		
+	} else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLES)
+	{
+		handle_particle_rendering(render_request, program, projection, transform);
 	}
 	else
 	{

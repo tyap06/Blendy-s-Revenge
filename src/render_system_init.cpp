@@ -65,6 +65,7 @@ bool RenderSystem::init(GLFWwindow* window_arg)
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	initializeParticleSystem();
 	initializeFonts();
 
 	return true;
@@ -212,6 +213,11 @@ void RenderSystem::initializeGlGeometryBuffers()
 		{{ 0.5,-0.5, depth}, red},
 	};
 
+	// 0 = bottom left
+	// 1 = top left
+	// 2 = top right
+	// 3 = bottom right
+
 	// Two triangles
 	line_indices = {0, 1, 3, 1, 2, 3};
 	
@@ -230,6 +236,11 @@ void RenderSystem::initializeGlGeometryBuffers()
 	// Counterclockwise as it's the default opengl front winding direction.
 	const std::vector<uint16_t> screen_indices = { 0, 1, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
+}
+
+void RenderSystem::initializeParticleSystem()
+{
+	emitter.init();
 }
 
 RenderSystem::~RenderSystem()

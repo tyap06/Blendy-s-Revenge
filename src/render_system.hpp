@@ -14,6 +14,9 @@
 #include FT_FREETYPE_H
 #include <map>
 
+#include "SimpleParticles.hpp"
+
+
 struct Character {
 	unsigned int TextureID;  // ID handle of the glyph texture
 	glm::ivec2   Size;       // Size of glyph
@@ -101,7 +104,9 @@ class RenderSystem {
 		shader_path("chicken"),
 		shader_path("textured"),
 		shader_path("wind"),
-		shader_path("healthBar")};
+		shader_path("healthBar"),
+		shader_path("particles")
+	};
 
 	std::array<GLuint, geometry_count> vertex_buffers;
 	std::array<GLuint, geometry_count> index_buffers;
@@ -123,6 +128,9 @@ class RenderSystem {
 	// Dummy VAO
 	GLuint dummy_vao;
 
+	// Particle System
+	SimpleEmitter emitter;
+
 public:
 	// Initialize the window
 	bool init(GLFWwindow* window);
@@ -136,9 +144,12 @@ public:
 
 	void initializeGlMeshes();
 
-	Mesh& getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; };
+	Mesh& getMesh(GEOMETRY_BUFFER_ID id) { return meshes[(int)id]; }
 
 	void initializeGlGeometryBuffers();
+
+	void initializeParticleSystem();
+
 	// Initialize the screen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the wind
 	// shader
@@ -162,7 +173,8 @@ public:
 	bool fontInit_internal(const std::string& font_filename, unsigned font_default_size);
 	void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
-
+	// Particle System
+	void update_particle_emitter(const float& elapsed_ms);
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
@@ -176,6 +188,7 @@ private:
 	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
 	                             RenderRequest& render_request);
 	void handle_health_bar_rendering(const RenderRequest& render_request, GLuint program);
+	void handle_particle_rendering(const RenderRequest& render_request, const GLuint& program, const mat3& projection, const Transform& transform);
 
 
 	// Debugging FPS
