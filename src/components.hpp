@@ -60,10 +60,10 @@ struct Player {
 };
 
 static const std::map<Direction, std::string> direction_mesh = {
-	{Direction::Up, mesh_path("Blendy-Reduced.obj")},
+	{Direction::Up, mesh_path("Blendy-up.obj")},
 	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
-	{Direction::Left, mesh_path("Blendy-Reduced.obj")},
-	{Direction::Right, mesh_path("Blendy-Reduced.obj")}
+	{Direction::Left, mesh_path("Blendy-left.obj")},
+	{Direction::Right, mesh_path("Blendy-right.obj")}
 };
 
 
