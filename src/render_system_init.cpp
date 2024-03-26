@@ -303,7 +303,9 @@ void RenderSystem::display_text()
 				renderText(cutscene_text, cutscene.text_position[i].x, cutscene.text_position[i].y, cutscene.scale, vec3(0.f, 0.f, 0.f), glm::mat4(1.f));
 			}
 		}
+		renderText("Press 'C' to  skip", 1520, window_height_px - 50, 0.8, vec3(0.4f, 0.f, 0.3f), glm::mat4(1.f));
 	}
+
 }
 
 // Initialize the screen texture from a standard sprite

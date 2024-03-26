@@ -35,6 +35,8 @@ public:
 	// Check for collisions
 	void handle_collisions();
 
+	void handle_cutScenes();
+
 	// Should the game be over ?
 	bool is_over()const;
 
@@ -53,7 +55,6 @@ private:
 	float bullet_speed = 500.f;
 	float bullet_launch_interval = 0.4f;
 	int cutscene_stage = 0;
-	float cutscene_timer = 0.f;
 	float cutscene_interval = 100.f;
 	// restart level
 	void restart_game();
@@ -85,6 +86,7 @@ private:
 	float next_roamer_spawn;
 	float next_powerup_spawn;
 	Entity health_bar_box;
+	bool cutscene_active;
 
 	// music references
 	Mix_Music* background_music;
@@ -108,7 +110,6 @@ private:
 
 	// Private Helpers For Initialization
 	void update_minions(float elapsed_ms_since_last_update);
-	void handleCutScene(int key, int action);
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);

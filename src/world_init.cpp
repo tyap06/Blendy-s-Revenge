@@ -50,9 +50,9 @@ Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 		cutScene.text_position[0].x = 40;
 		cutScene.text_position[0].y = window_height_px - 215;
 		cutScene.text_position[1].x = 1360;
-		cutScene.text_position[1].y = window_height_px - 150;
+		cutScene.text_position[1].y = window_height_px - 250;
 		cutScene.text_position[2].x = 1300;
-		cutScene.text_position[2].y = window_height_px - 250;
+		cutScene.text_position[2].y = window_height_px - 350;
 		cutScene.scale = 1.3f;
 		registry.renderRequests.insert(
 			entity,
@@ -109,7 +109,7 @@ Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE });
 	} 
-	else if (stage == 6) {
+	else if (stage == 5) {
 		// 2.1
 		cutScene.text[0] = "Blendy's replacement";
 		cutScene.text[1] = "begins to grow in power.";
@@ -125,7 +125,7 @@ Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE });
 	}
-	else if (stage == 7)
+	else if (stage == 6)
 	{
 		// 2.2
 		// cutScene.text[0] = "He is determined to take blendy down a peg.";
@@ -138,7 +138,7 @@ Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 			EFFECT_ASSET_ID::TEXTURED,
 			GEOMETRY_BUFFER_ID::SPRITE });
 	}
-	else if (stage == 9) {
+	else if (stage == 8) {
 		// 3.1
 		cutScene.text[0] = "Blendy is happy.";
 		cutScene.scale = 1.4;

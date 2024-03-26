@@ -67,6 +67,13 @@ const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTE
 const vec2 SCORE_COUNTER_SCALE = { 1.5f,1.5f };
 const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 
+// CUTSCENE STUFF
+const int FIRST_CUT_SCENE_END = 4;
+const int SECOND_CUT_SCENE_END = 7;
+const int SECOND_CUT_SCORE = 20;
+const int THIRD_CUT_SCORE = 50;
+
+
 // Create the bug world
 WorldSystem::WorldSystem()
 	: points(0)
@@ -278,11 +285,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	
 	auto& motions_registry = registry.motions;
 
-	// silly little cutscene stuff
-	if (cutscene_timer > 0.0f) {
-		cutscene_timer -= elapsed_ms_since_last_update;
-		if (cutscene_timer < 0.f) cutscene_timer = 0.f;
-	}
 
 	auto& bullet_registry = registry.bullets;
 	// Handling removing bullets
@@ -381,6 +383,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
+
+	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END) {
+		cutscene_active = true;
+		handle_cutScenes();
+	}
+
+	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END) {
+		cutscene_active = true;
+		handle_cutScenes();
+	}
+
 	return true;
 }
 
@@ -410,6 +423,8 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
+	cutscene_active == true;
+	handle_cutScenes();
 }
 
 void WorldSystem::console_debug_fps()
@@ -588,37 +603,27 @@ void WorldSystem::handlePlayerMovement(int key, int action) {
 	}
 }
 
-void WorldSystem::handleCutScene(int key, int action) {
-	// for debugging purposes - actual game will not have this method of altering frames
-	if (action == GLFW_RELEASE && key == GLFW_KEY_1) {
-		cutscene_stage = 1;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_2) {
-		cutscene_stage = 2;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_3) {
-		cutscene_stage = 3;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_4) {
-		cutscene_stage = 4;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_5) {
-		cutscene_stage = 5;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_6) {
-		cutscene_stage = 6;
-	}
-	if (action == GLFW_RELEASE && key == GLFW_KEY_7) {
-		cutscene_stage = 7;
-	}
+void WorldSystem::handle_cutScenes()
+{
+	cutscene_stage++;
+	registry.remove_all_components_of(current_cutscene);
+	auto& score_component = registry.scoreCounters.get(score_counter);
 
-	printf(" stage:%i ", cutscene_stage);
-
+	if (cutscene_stage == FIRST_CUT_SCENE_END || cutscene_stage == SECOND_CUT_SCENE_END) {
+		// if reached the end of the cut scenes, resume gameplay
+		registry.is_pause = false;
+		score_component.show = true;
+		cutscene_active = false;
+	}
+	else {
+		registry.is_pause = true;
+		current_cutscene = createCutScene(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS, cutscene_stage);
+		score_component.show = false;
+	}
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	handlePlayerMovement(key, action);
-	handleCutScene(key, action);
 
 	auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;
@@ -655,21 +660,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// switch to next cutscene
-	if (action == GLFW_RELEASE && key == GLFW_KEY_C) {
-		cutscene_stage++;
-		registry.remove_all_components_of(current_cutscene);
-		printf("cutscene stage: %i ", cutscene_stage);
-		auto& score_component = registry.scoreCounters.get(score_counter);
-		if (cutscene_stage == 5 || cutscene_stage == 8) {
-			registry.is_pause = false;
-			score_component.show = true;
-		}
-		else {
-			registry.is_pause = true;
-			current_cutscene = createCutScene(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS, cutscene_stage);
-			score_component.show = false;
-		}
-
+	if (action == GLFW_RELEASE && key == GLFW_KEY_C && cutscene_active) {
+		handle_cutScenes();
 	}
 
 	// check window boundary
