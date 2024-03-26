@@ -421,7 +421,6 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.type = Enemy_TYPE::TANK;
 	minion.score = 100;
 	minion.armor = 20;
-	minion.speed = 35.f;
 	motion.angle = 0.f;
 	minion.health = 100;
 	minion.max_health = 100;

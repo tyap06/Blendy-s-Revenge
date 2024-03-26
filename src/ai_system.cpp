@@ -77,7 +77,7 @@ void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
 		}
 		else {
 			auto& sniperMotion = registry.motions.get(protect.link);
-			vec2 protectivePos = calculateInterceptPosition(sniperMotion.position, player_pos, 0.5f);
+			vec2 protectivePos = calculateInterceptPosition(sniperMotion.position, player_pos, 0.7f);
 			vec2 directionToProtectivePos = normalize(protectivePos - motion.position);
 			motion.velocity = directionToProtectivePos * enemy.speed;
 		}
