@@ -4,7 +4,6 @@
 #include "tiny_ecs.hpp"
 #include "render_system.hpp"
 
-
 // ENTITY TEXTURE CONSTANTS
 const float BLENDY_BB_WIDTH = 0.2f * 423.f;
 const float BLENDY_BB_HEIGHT = 0.2F * 800.f;
@@ -48,9 +47,15 @@ Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, cons
 
 Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
-Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int damage = 25, vec3 color = { 0,40,0 });
 
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bounds, int score);
 
 Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
