@@ -384,6 +384,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_sniper(renderer, spawnPos, MINION_BOUNDS);
 	}
+
 	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f && registry.score >= 1100) {
 		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
