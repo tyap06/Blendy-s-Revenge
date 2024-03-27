@@ -245,14 +245,16 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
-	
+
+
 	// Helpers for drawTexturedMesh
 	void handle_textured_rendering(Entity entity, GLuint program, const RenderRequest& render_request);
 	void handle_normal_map_uniform(Entity entity, GLuint program);
 	void setUsesNormalMap(bool cond, const GLuint program);
 	void handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, GLuint program);
-	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
-	                             RenderRequest& render_request);
+	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const RenderRequest& render_request);
+	void handle_giant_uniform(const Entity entity, const GLuint program);
+	                             
 	void handle_health_bar_rendering(const RenderRequest& render_request, GLuint program);
 
 
