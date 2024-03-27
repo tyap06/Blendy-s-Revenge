@@ -648,7 +648,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
-	registry.score = 800;
+	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	update_health_bar();
