@@ -542,7 +542,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				}
 				else if (blendy.lemon_powerup_duration_ms > 0.0f) {
 					create_lemon_bullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval;
+					bullet_timer = bullet_launch_interval * 2 / 3;
 					blendy.lemon_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
 				}
 				else {
@@ -648,7 +648,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
-	registry.score = 0;
+	registry.score = 800;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	update_health_bar();
@@ -783,7 +783,7 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
-					blendy.lemon_powerup_duration_ms = 500.f;
+					blendy.lemon_powerup_duration_ms = 300.f;
 					blendy.grape_powerup_duration_ms = 0.f;
 					blendy.protein_powerup_duration_ms = 0.f;
 					Mix_PlayChannel(-1, powerup_pickup_lemon, 0);
