@@ -64,7 +64,7 @@ enum class Direction {
 // Player component
 
 struct Player {
-	float max_speed = 250.f;
+	float max_speed = 260.f;
 	int health = 200;
 	int max_health = 200;
 	int max_effect = 3;
