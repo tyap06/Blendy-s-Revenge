@@ -657,9 +657,6 @@ void RenderSystem::draw()
 		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity))
 			continue; 
 
-		if (registry.helpScreens.has(entity)) {
-			std::cout << "here" << std::endl;
-		}
 		drawTexturedMesh(entity, projection_2D);
 	}
 
@@ -668,10 +665,6 @@ void RenderSystem::draw()
 	{
 		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity)))
 			continue; // Skip non-bullet entities in this phase
-
-		if (registry.helpScreens.has(entity)) {
-			std::cout << "here" << std::endl;
-		}
 
 		drawTexturedMesh(entity, projection_2D);
 	}

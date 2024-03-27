@@ -693,7 +693,7 @@ void WorldSystem::handle_collisions() {
 				PowerUp powerup = registry.powerUps.get(entity_other);
 				auto& blendy = registry.players.get(player_blendy);
 				if (powerup.type == POWERUP_TYPE::BATTERY) {
-					blendy.health = 100;
+					blendy.health = blendy.max_health;
 					update_health_bar();
 					registry.remove_all_components_of(entity_other);
 				}
