@@ -10,6 +10,9 @@ uniform sampler2D normal_map;
 uniform bool usesNormalMap;
 uniform vec3 fcolor;
 
+// Giant Shading
+uniform int isGiant;
+
 // Eye Position
 uniform vec3 cameraPosition;       // The position of the eye
 
@@ -18,6 +21,9 @@ uniform vec3 lightPosition;     // Position of the light source
 uniform vec3 lightColor;        // Color of the light source
 uniform float shininess;        // Shininess parameter for specular reflection
 uniform float ambientIntensity; // Strength of ambient lighting
+
+// Time
+uniform float time;
 
 // Output color
 layout(location = 0) out  vec4 color;
@@ -56,8 +62,14 @@ void main()
     vec3 diffuseColor = lightColor * diffuseIntensity;
     vec3 specularColor = lightColor * specularIntensity;
     vec3 finalColor;
+
+    if (isGiant == 1) {
+        vec3 giantColor = vec3(clamp(sin(time * fcolor.x),0.0,1.0), clamp(cos(time * fcolor.y),0.0,1.0), tan(time * fcolor.z));
+        finalColor =  ambientColor + (giantColor * texColor.rgb * diffuseColor) + specularColor;
+    } else {
+        finalColor =  ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor;    
+    }
     
-    finalColor =  ambientColor + (fcolor * texColor.rgb * diffuseColor) + specularColor;
     color = vec4(finalColor, texColor.a);
 }
 
