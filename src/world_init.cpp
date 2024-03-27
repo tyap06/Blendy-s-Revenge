@@ -118,6 +118,8 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	return entity;
 }
 
+
+
 Entity create_background(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
@@ -310,10 +312,12 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	motion.velocity = { 0, -100.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	auto& minion = registry.minions.emplace(entity);
+	minion.score = 200;
+	minion.health = score;
+	minion.max_health = score;
+	minion.speed = 50;
 	
-
-	// Create and (empty) Minion component to be able to refer to all minions
-	registry.minions.emplace(entity);
 	registry.giants.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -328,35 +332,186 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 
 
 
-
-Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.mesh_collision.emplace(entity);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
-	registry.eatables.emplace(entity);
-	motion.angle = 0.f;
+	motion.angle = 25.f;
 	motion.velocity = { 0, 0};
 	motion.position = position;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	motion.mesh_scale = motion.scale;
+
 	// Create and (empty) powerup component to be able to refer to all minions
-	registry.powerUps.emplace(entity);
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::BATTERY;
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::BLENDY,
-			TEXTURE_ASSET_ID::BLENDY_NM,
+		{ TEXTURE_ASSET_ID::BATTERY_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
+	return entity;
+}
+
+Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 25.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
+
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::PROTEIN;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::PROTEIN_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
+
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::GRAPE;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::GRAPE_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 25.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::LEMON;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::LEMON_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	registry.mesh_collision.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.scale = vec2(100.0f, 100.0f);
+	motion.mesh_scale = vec2(10.f, 1000.f);
+	auto& bullet = registry.bullets.emplace(entity);
+
+	vec3 color = { 40,40,0 };
+	registry.colors.insert(entity, color);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+	return entity;
+}
+
+
+
+Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	registry.mesh_collision.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.scale = vec2(100.0f, 100.0f);
+	motion.mesh_scale = vec2(10.f, 1000.f);
+	auto& bullet = registry.bullets.emplace(entity);
+	
+	vec3 color = { 40,0,0 };
+	registry.colors.insert(entity, color);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 
@@ -439,6 +594,7 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.armor = 20;
 	motion.angle = 0.f;
 	minion.health = 100;
+	minion.speed = 50;
 	minion.max_health = 100;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
@@ -470,7 +626,7 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.score = 25;
 	motion.angle = 0.f;
 	motion.velocity = { 0, -80.f };
-	minion.health = 100;
+	minion.health = 20;
 	minion.max_health = 100;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -536,6 +692,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::ROAMER;
 	minion.score = 25;
+	minion.speed = 100;
 	motion.angle = 0.f;
 
 	std::random_device rd; 

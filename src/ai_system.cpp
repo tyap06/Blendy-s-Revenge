@@ -279,6 +279,10 @@ void AISystem::step(float elapsed_ms)
 		if (enemy.type == Enemy_TYPE::BASIC) {
 			motion.velocity = chase_direction * original_speed;
 		}
+		else if(enemy.type == Enemy_TYPE::ROAMER){
+			vec2 direction = normalize(motion.velocity);
+			motion.velocity = direction * (original_speed);
+		}
 		else if (enemy.type == Enemy_TYPE::SHOOTER) {
 			ShooterState state = decideShooterState(motion.position, predicted_player_pos, ideal_range_from_player);
 			switch (state) {

@@ -85,6 +85,10 @@ private:
 	float next_tank_spawn = 100;
 	float next_giant_spawn = 100;
 	float next_healer_spawn = 100;
+	float next_battery_powerup_spawn;
+	float next_protein_powerup_spawn;
+	float next_grape_powerup_spawn;
+	float next_lemon_powerup_spawn;
 	Entity health_bar_box;
 
 	// music references
@@ -123,6 +127,7 @@ private:
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 };
 
 

@@ -91,6 +91,14 @@ class RenderSystem {
 			textures_path("fullHealthBar.png"),
 			textures_path("HelpScreen.png"),
 			textures_path("HealthBarFrame.png"),
+			textures_path("cutscene_1_1.png"),
+			textures_path("cutscene_1_2.png"),
+			textures_path("cutscene_1_3.png"),
+			textures_path("cutscene_1_4.png"),
+			textures_path("cutscene_2_1.png"),
+			textures_path("cutscene_2_2.png"),
+			textures_path("cutscene_3_1.png"),
+			textures_path("title_screen.png"),
 			textures_path("m_left_0.png"),
 			textures_path("m_left_1.png"),
 			textures_path("m_left_2.png"),
@@ -114,7 +122,51 @@ class RenderSystem {
 			textures_path("m_up_2_n.png"),
 			textures_path("m_down_0_n.png"),
 			textures_path("m_down_1_n.png"),
-			textures_path("m_down_2_n.png")
+			textures_path("m_down_2_n.png"),
+
+			textures_path("battery.png"),
+			textures_path("orange.png"),
+			textures_path("lemon.png"),
+			textures_path("grape.png"),
+			textures_path("protein powder.png"),
+			textures_path("battery_nm.png"),
+			textures_path("orange_nm.png"),
+			textures_path("lemon_nm.png"),
+			textures_path("grape_nm.png"),
+			textures_path("protein_powder_nm.png"),
+			textures_path("bright_bot_0.png"),
+			textures_path("bright_bot_1.png"),
+			textures_path("bright_bot_2.png"),
+			textures_path("bright_bot_3.png"),
+			textures_path("bright_top_0.png"),
+			textures_path("bright_top_1.png"),
+			textures_path("bright_top_2.png"),
+			textures_path("bright_top_3.png"),
+			textures_path("bleft_bot_0.png"),
+			textures_path("bleft_bot_1.png"),
+			textures_path("bleft_bot_2.png"),
+			textures_path("bleft_bot_3.png"),
+			textures_path("bleft_top_0.png"),
+			textures_path("bleft_top_1.png"),
+			textures_path("bleft_top_2.png"),
+			textures_path("bleft_top_3.png"),
+
+			textures_path("bright_bot_0_n.png"),
+			textures_path("bright_bot_1_n.png"),
+			textures_path("bright_bot_2_n.png"),
+			textures_path("bright_bot_3_n.png"),
+			textures_path("bright_top_0_n.png"),
+			textures_path("bright_top_1_n.png"),
+			textures_path("bright_top_2_n.png"),
+			textures_path("bright_top_3_n.png"),
+			textures_path("bleft_bot_0_n.png"),
+			textures_path("bleft_bot_1_n.png"),
+			textures_path("bleft_bot_2_n.png"),
+			textures_path("bleft_bot_3_n.png"),
+			textures_path("bleft_top_0_n.png"),
+			textures_path("bleft_top_1_n.png"),
+			textures_path("bleft_top_2_n.png"),
+			textures_path("bleft_top_3_n.png")
 
 	};
 
@@ -192,14 +244,16 @@ private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
 	void drawToScreen();
-	
+
+
 	// Helpers for drawTexturedMesh
 	void handle_textured_rendering(Entity entity, GLuint program, const RenderRequest& render_request);
 	void handle_normal_map_uniform(Entity entity, GLuint program);
 	void setUsesNormalMap(bool cond, const GLuint program);
 	void handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, GLuint program);
-	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const
-	                             RenderRequest& render_request);
+	void configure_base_uniforms(::Entity entity, const mat3& projection, Transform transform, const GLuint program, GLsizei& out_num_indices, const RenderRequest& render_request);
+	void handle_giant_uniform(const Entity entity, const GLuint program);
+	                             
 	void handle_health_bar_rendering(const RenderRequest& render_request, GLuint program);
 
 
