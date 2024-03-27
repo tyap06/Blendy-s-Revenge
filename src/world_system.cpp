@@ -80,6 +80,9 @@ const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTE
 const vec2 SCORE_COUNTER_SCALE = { 1.f,1.f };
 const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 
+// MUSIC
+const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
+
 // Create the bug world
 WorldSystem::WorldSystem()
 	: points(0)
@@ -92,10 +95,27 @@ WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
+	if (background_music_sped_up != nullptr)
+		Mix_FreeMusic(background_music_sped_up);
 	if (dead_sound != nullptr)
 		Mix_FreeChunk(dead_sound);
 	if (get_point != nullptr)
 		Mix_FreeChunk(get_point);
+
+	if (powerup_pickup_battery != nullptr)
+		Mix_FreeChunk(powerup_pickup_battery);
+	if (powerup_pickup_grape != nullptr)
+		Mix_FreeChunk(powerup_pickup_grape);
+	if (powerup_pickup_lemon != nullptr)
+		Mix_FreeChunk(powerup_pickup_lemon);
+	if (powerup_pickup_protein != nullptr)
+		Mix_FreeChunk(powerup_pickup_protein);
+	if (player_hurt != nullptr)
+		Mix_FreeChunk(player_hurt);
+	if (minion_hurt != nullptr)
+		Mix_FreeChunk(minion_hurt);
+	if (minion_dead != nullptr)
+		Mix_FreeChunk(minion_dead);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -103,6 +123,15 @@ WorldSystem::~WorldSystem() {
 
 	// Close the window
 	glfwDestroyWindow(window);
+}
+
+void WorldSystem::update_game_music()
+{
+	if (registry.score >= MUSIC_SPEEDUP_THRESHOLD && game_music_state == MusicState::Ordinary)
+	{
+		Mix_FadeInMusic(background_music_sped_up, -1, 1000);
+		game_music_state = MusicState::SpedUp;
+	}
 }
 
 // Debugging
@@ -167,11 +196,41 @@ GLFWwindow* WorldSystem::create_window() {
 	dead_sound = Mix_LoadWAV(audio_path("dead_effect.wav").c_str());
 	get_point = Mix_LoadWAV(audio_path("get_point.wav").c_str());
 
-	if (background_music == nullptr || dead_sound == nullptr || get_point == nullptr) {
+	background_music_sped_up = Mix_LoadMUS(audio_path("music_sped_up.wav").c_str());
+	powerup_pickup_battery = Mix_LoadWAV(audio_path("powerup_pickup_battery.wav").c_str());
+	powerup_pickup_grape = Mix_LoadWAV(audio_path("powerup_pickup_grape.wav").c_str());
+	powerup_pickup_lemon = Mix_LoadWAV(audio_path("powerup_pickup_lemon.wav").c_str());
+	powerup_pickup_protein = Mix_LoadWAV(audio_path("powerup_pickup_protein.wav").c_str());
+	player_hurt = Mix_LoadWAV(audio_path("hurt_sound.wav").c_str());
+	minion_hurt = Mix_LoadWAV(audio_path("button_press.wav").c_str());
+	Mix_VolumeChunk(minion_hurt, 48);
+	minion_dead = Mix_LoadWAV(audio_path("minion_dead_sound.wav").c_str());
+	//Mix_VolumeChunk(minion_dead, 64);
+
+	if (background_music == nullptr 
+		|| dead_sound == nullptr 
+		|| get_point == nullptr
+		|| background_music_sped_up == nullptr
+		|| powerup_pickup_battery == nullptr
+		|| powerup_pickup_grape == nullptr
+		|| powerup_pickup_lemon == nullptr
+		|| powerup_pickup_protein == nullptr
+		|| player_hurt == nullptr
+		|| minion_hurt == nullptr
+		|| minion_dead == nullptr
+		) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
 			audio_path("dead_effect.wav").c_str(),
-			audio_path("get_point.wav").c_str());
+			audio_path("get_point.wav").c_str()),
+			audio_path("music_sped_up.wav").c_str(),
+			audio_path("powerup_pickup_battery.wav").c_str(),
+			audio_path("powerup_pickup_grape.wav").c_str(),
+			audio_path("powerup_pickup_lemon.wav").c_str(),
+			audio_path("powerup_pickup_protein.wav").c_str(),
+			audio_path("hurt_sound.wav").c_str(),
+			audio_path("button_press.wav").c_str(),
+			audio_path("minion_dead_sound.wav").c_str();
 		return nullptr;
 	}
 
@@ -180,9 +239,6 @@ GLFWwindow* WorldSystem::create_window() {
 
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
-	// Playing background music indefinitely
-	Mix_PlayMusic(background_music, -1);
-	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
     restart_game();
@@ -474,13 +530,9 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	update_powerups(elapsed_ms_since_last_update);
 	update_bullets(elapsed_ms_since_last_update);
 	update_player_movement();
-	
-	
-	
+	update_game_music();
+
 	auto& motions_registry = registry.motions;
-
-
-
 
 	if (is_dead) {
 		Motion& player_motion = registry.motions.get(player_blendy);
@@ -530,6 +582,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
+	game_music_state = MusicState::Ordinary;
+
+	// Halt any playing music
+	Mix_HaltMusic();
+	// Playing background music
+	Mix_FadeInMusic(background_music, -1, 1000.f);
+
+	fprintf(stderr, "Loaded music\n");
+
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	printf("Restarting\n");
@@ -604,9 +665,12 @@ void WorldSystem::hit_player(const int& damage) {
 			motion.angle = { 0.0f };
 			registry.deathTimers.emplace(player_blendy);
 			Mix_PlayChannel(-1, dead_sound, 0);
+			Mix_FadeOutMusic(1500.f);
+			Mix_HaltMusic();
 		}
 		else {
 			player.health -= damage;
+			Mix_PlayChannel(-1, player_hurt, 0);
 			update_health_bar();
 		}
 	}
@@ -618,11 +682,15 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	auto& blendy = registry.players.get(player_blendy);
 	if (minion.health <= 0) {
 		registry.score += minion.score;
+		Mix_PlayChannel(-1, minion_dead, 0);
 		registry.remove_all_components_of(target);
+	} else {
+		Mix_PlayChannel(-1, minion_hurt, 0);
+		if (blendy.lemon_powerup_duration_ms > 0) {
+			minion.armor = 0;
+		}
 	}
-	else if (blendy.lemon_powerup_duration_ms > 0) {
-		minion.armor = 0;
-	}
+	
 }
 
 
@@ -656,20 +724,23 @@ void WorldSystem::handle_collisions() {
 				if (powerup.type == POWERUP_TYPE::BATTERY) {
 					blendy.health = 100;
 					update_health_bar();
+					Mix_PlayChannel(-1, powerup_pickup_battery, 0);
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
 					//blendy.protein_powerup = true;
 					blendy.protein_powerup_duration_ms = 300.f;
+					Mix_PlayChannel(-1, powerup_pickup_protein, 0);
 					registry.remove_all_components_of(entity_other);
-					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
 					blendy.grape_powerup_duration_ms = 300.f;
+					Mix_PlayChannel(-1, powerup_pickup_grape, 0);
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
 					blendy.lemon_powerup_duration_ms = 150.f;
+					Mix_PlayChannel(-1, powerup_pickup_lemon, 0);
 					registry.remove_all_components_of(entity_other);
 				}
 				
