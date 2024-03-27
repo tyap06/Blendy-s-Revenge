@@ -42,6 +42,13 @@ public:
 	
   
 private:
+	enum class MusicState
+	{
+		Ordinary,
+		SpedUp
+	};
+
+
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	bool keyWPressed = false;
@@ -55,6 +62,8 @@ private:
 	// restart level
 	void restart_game();
 	void console_debug_fps();
+
+	MusicState game_music_state;
 
 	// Update Fps
 	
@@ -93,8 +102,19 @@ private:
 
 	// music references
 	Mix_Music* background_music;
+	Mix_Music* background_music_sped_up;
 	Mix_Chunk* dead_sound;
 	Mix_Chunk* get_point;
+	Mix_Chunk* powerup_pickup_battery;
+	Mix_Chunk* powerup_pickup_grape;
+	Mix_Chunk* powerup_pickup_lemon;
+	Mix_Chunk* powerup_pickup_protein;
+	Mix_Chunk* player_hurt;
+	Mix_Chunk* minion_hurt;
+	Mix_Chunk* minion_dead;
+
+	bool is_music_sped_up = false;
+
 
 	// fps variables
 	unsigned int fps = 0;
@@ -127,6 +147,7 @@ private:
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
+	void update_game_music();
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 };
 
