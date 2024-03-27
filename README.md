@@ -20,5 +20,10 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 
 #### Music
 - regular game music but sped up
-
+### Animation
+#### Blendy
+- 8-directional movement animation
+- Persistent Blendy‘ s facing direction after stop moving
+#### Minions
+- 4-directional movement animation
 ## Creative Features Advanced (20%)
