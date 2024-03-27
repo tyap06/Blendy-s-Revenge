@@ -224,7 +224,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 	// Spawn battery powerup 
 	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 0) {
-		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 10) + uniform_dist(rng) * POWERUP_DELAY_MS;
+		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 20) + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		// Generate a random position, excluding the player's position
 		vec2 random_pos;
@@ -237,7 +237,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 	// Spawn grape powerup
 	if (registry.powerUps.components.size() <= MAX_GRAPE_POWERUPS && next_grape_powerup_spawn < 0.f && registry.score > 1500) {
-		next_grape_powerup_spawn = POWERUP_DELAY_MS * 10 + uniform_dist(rng) * POWERUP_DELAY_MS;
+		next_grape_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
 		do {
@@ -249,7 +249,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 	// Spawn lemon powerup
 	if (registry.powerUps.components.size() <= MAX_LEMON_POWERUPS && next_lemon_powerup_spawn < 0.f && registry.score > 600) {
-		next_lemon_powerup_spawn = POWERUP_DELAY_MS * 10 + uniform_dist(rng) * POWERUP_DELAY_MS;
+		next_lemon_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
 		do {
@@ -261,7 +261,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 	// Spawn protein powder powerup
 	if (registry.powerUps.components.size() <= MAX_PROTEIN_POWDER_POWERUPS && next_protein_powerup_spawn < 0.f && registry.score > 300) {
-		next_protein_powerup_spawn = POWERUP_DELAY_MS * 10 + uniform_dist(rng) * POWERUP_DELAY_MS;
+		next_protein_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
 		do {
