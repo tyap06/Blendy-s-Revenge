@@ -193,10 +193,10 @@ void WorldSystem::update_health_bar()
 {
 	while (registry.debugComponents.entities.size() > 0)
 		registry.remove_all_components_of(registry.debugComponents.entities.back());
-	auto& blendy = registry.players.get(player_blendy);
-	int blendy_health = blendy.health;
 
-	float current_width = HEALTH_BAR_BOUNDS.x * blendy_health / 100.0f;
+	auto& blendy = registry.players.get(player_blendy);
+	
+	float current_width = HEALTH_BAR_BOUNDS.x * static_cast<float>(blendy.health) / static_cast<float>(blendy.max_health);
 
 	float offset_to_center = (current_width - HEALTH_BAR_BOUNDS.x) / 2.0f;
 
