@@ -17,4 +17,6 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 - player hurt_sound
 - minion_hurt_sound
 - minion_dead
-- music but sped up
+
+### Music
+- regular game music but sped up
