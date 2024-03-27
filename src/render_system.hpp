@@ -133,8 +133,7 @@ class RenderSystem {
 			textures_path("orange_nm.png"),
 			textures_path("lemon_nm.png"),
 			textures_path("grape_nm.png"),
-			textures_path("protein_powder_nm.png")
-			
+			textures_path("protein_powder_nm.png"),
 			textures_path("bright_bot_0.png"),
 			textures_path("bright_bot_1.png"),
 			textures_path("bright_bot_2.png"),
