@@ -413,7 +413,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	vec2& blendy_pos = motion.position;
 	vec2 mouse_position = getCurrentMousePosition();
 	if (!is_dead) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
+		
 			if (bullet_timer <= 0.0f) {
 				vec2 bullet_direction = normalize(mouse_position - blendy_pos);
 				vec2 up_vector{ 0.0f, -1.0f };
@@ -458,7 +458,6 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
 			}
 			
-		}
 		
 	}
 	return;
