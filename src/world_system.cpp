@@ -27,7 +27,8 @@ const size_t MAX_BATTERY_POWERUPS = 2;
 const size_t MAX_PROTEIN_POWDER_POWERUPS = 2;
 const size_t MAX_GRAPE_POWERUPS = 2;
 const size_t MAX_LEMON_POWERUPS = 2;
-const size_t POWERUP_DELAY_MS = 200 * 4;
+const size_t POWERUP_DELAY_MS = 200 * 3;
+const float PLAYER_POWERUP_SPAWN_DISTANCE = 150.0f;
 
 // UI
 const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
@@ -53,7 +54,7 @@ const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
 const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
 const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
 const vec2 PROTEIN_POWDER_POWERUP_BOUNDS = { 70.f, 80.f };
-const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 80.f };
+const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 70.f };
 const vec2 GRAPE_POWERUP_BOUNDS = { 80.f, 70.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 100.0f };
@@ -211,30 +212,66 @@ void WorldSystem::update_health_bar()
 // make powerups spawn randomly on the map
 void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 {
+	// Decrement the cooldown for each type of powerup
 	next_battery_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_protein_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_grape_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_lemon_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 
+	// Get the position of the player
+	Motion& player_motion = registry.motions.get(player_blendy);
+	vec2 player_pos = player_motion.position;
+
+	// Spawn battery powerup 
 	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 0) {
 		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 10) + uniform_dist(rng) * POWERUP_DELAY_MS;
-		create_battery_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), BATTERY_POWERUP_BOUNDS);
-	}
-	if (registry.powerUps.components.size() <= MAX_GRAPE_POWERUPS && next_grape_powerup_spawn < 0.f && registry.score > 0) {
-		next_grape_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
-		create_grape_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150), GRAPE_POWERUP_BOUNDS);
-	}
-	if (registry.powerUps.components.size() <= MAX_LEMON_POWERUPS && next_lemon_powerup_spawn < 0.f && registry.score > 150) {
-		next_lemon_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
-		create_lemon_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), LEMON_POWERUP_BOUNDS);
+
+		// Generate a random position, excluding the player's position
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_battery_powerup(renderer, random_pos, BATTERY_POWERUP_BOUNDS);
 	}
 
-	if (registry.powerUps.components.size() <= MAX_PROTEIN_POWDER_POWERUPS && next_protein_powerup_spawn < 0.f && registry.score > 0) {
-		next_protein_powerup_spawn = POWERUP_DELAY_MS * 20  + uniform_dist(rng) * POWERUP_DELAY_MS;
-		create_protein_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f), PROTEIN_POWDER_POWERUP_BOUNDS);
+	// Spawn grape powerup
+	if (registry.powerUps.components.size() <= MAX_GRAPE_POWERUPS && next_grape_powerup_spawn < 0.f && registry.score > 1500) {
+		next_grape_powerup_spawn = POWERUP_DELAY_MS * 10 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_grape_powerup(renderer, random_pos, GRAPE_POWERUP_BOUNDS);
 	}
-	
+
+	// Spawn lemon powerup
+	if (registry.powerUps.components.size() <= MAX_LEMON_POWERUPS && next_lemon_powerup_spawn < 0.f && registry.score > 600) {
+		next_lemon_powerup_spawn = POWERUP_DELAY_MS * 10 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_lemon_powerup(renderer, random_pos, LEMON_POWERUP_BOUNDS);
+	}
+
+	// Spawn protein powder powerup
+	if (registry.powerUps.components.size() <= MAX_PROTEIN_POWDER_POWERUPS && next_protein_powerup_spawn < 0.f && registry.score > 300) {
+		next_protein_powerup_spawn = POWERUP_DELAY_MS * 10 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_protein_powerup(renderer, random_pos, PROTEIN_POWDER_POWERUP_BOUNDS);
+	}
 }
+
 
 vec2 generateRandomEdgePosition(float window_width_px, float window_height_px, std::uniform_real_distribution<float>& uniform_dist, std::mt19937& rng) {
 	// Randomly select an edge: 0 for bottom, 1 for left, 2 for right
@@ -660,16 +697,22 @@ void WorldSystem::handle_collisions() {
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
 					//blendy.protein_powerup = true;
-					blendy.protein_powerup_duration_ms = 300.f;
+					blendy.protein_powerup_duration_ms = 500.f;
+					blendy.grape_powerup_duration_ms = 0.f;
+					blendy.lemon_powerup_duration_ms = 0.f;
 					registry.remove_all_components_of(entity_other);
 					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
-					blendy.grape_powerup_duration_ms = 300.f;
+					blendy.grape_powerup_duration_ms = 500.f;
+					blendy.protein_powerup_duration_ms = 0.f;
+					blendy.lemon_powerup_duration_ms = 0.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
-					blendy.lemon_powerup_duration_ms = 150.f;
+					blendy.lemon_powerup_duration_ms = 500.f;
+					blendy.grape_powerup_duration_ms = 0.f;
+					blendy.protein_powerup_duration_ms = 0.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				
