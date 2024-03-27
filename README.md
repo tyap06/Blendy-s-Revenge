@@ -21,4 +21,4 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 #### Music
 - regular game music but sped up
 
-## Creative Features Advanced
+## Creative Features Advanced (20%)
