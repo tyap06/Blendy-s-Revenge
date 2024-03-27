@@ -388,6 +388,7 @@ void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program
 		handle_normal_map_uniform(entity, program);
 	}
 
+	handle_giant_uniform(entity, program);
 }
 
 void RenderSystem::handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, const GLuint program)
@@ -477,6 +478,27 @@ void RenderSystem::configure_base_uniforms(Entity entity, const mat3& projection
 	gl_has_errors();
 }
 
+void RenderSystem::handle_giant_uniform(const Entity entity, const GLuint program)
+{
+	GLuint isGiant_uloc = glGetUniformLocation(program, "isGiant");
+	assert(isGiant_uloc >= 0);
+
+	if (registry.giants.has(entity))
+	{
+		glUniform1i(isGiant_uloc, 1);
+	} else
+	{
+		glUniform1i(isGiant_uloc, 0);
+		return;
+	}
+
+	GLuint time_uloc = glGetUniformLocation(program, "time");
+	assert(time_uloc >= 0);
+
+	// Setting Time
+	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+}
+
 // TODO: A number of code smells in this function that need to be cleaned up
 void RenderSystem::drawTexturedMesh(Entity entity,
 									const mat3 &projection)
@@ -522,9 +544,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	}
 	else if (render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
 	{
-		//glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR]);
 		handle_health_bar_rendering(render_request, program);
-		
 	}
 	else
 	{
