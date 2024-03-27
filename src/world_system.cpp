@@ -250,10 +250,10 @@ void WorldSystem::update_health_bar()
 {
 	while (registry.debugComponents.entities.size() > 0)
 		registry.remove_all_components_of(registry.debugComponents.entities.back());
-	auto& blendy = registry.players.get(player_blendy);
-	int blendy_health = blendy.health;
 
-	float current_width = HEALTH_BAR_BOUNDS.x * blendy_health / 100.0f;
+	auto& blendy = registry.players.get(player_blendy);
+	
+	float current_width = HEALTH_BAR_BOUNDS.x * static_cast<float>(blendy.health) / static_cast<float>(blendy.max_health);
 
 	float offset_to_center = (current_width - HEALTH_BAR_BOUNDS.x) / 2.0f;
 
@@ -362,33 +362,36 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_minion(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f ) {
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score >= 150) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_dodger(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f ) {
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score >= 300) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_roamer(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f) {
-		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
-		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		create_tank(renderer, spawnPos, MINION_BOUNDS);
-	}
-	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f) {
-		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
-		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		create_sniper(renderer, spawnPos, MINION_BOUNDS);
-	}
-	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f) {
+
+	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f && registry.score >= 600) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_charger(renderer, spawnPos, MINION_BOUNDS);
 	}
 
-	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f) {
+	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f && registry.score >= 900) {
+		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_sniper(renderer, spawnPos, MINION_BOUNDS);
+	}
+	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f && registry.score >= 1100) {
+		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_tank(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+
+	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f && registry.score >= 1500) {
 		next_giant_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
@@ -506,7 +509,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	vec2& blendy_pos = motion.position;
 	vec2 mouse_position = getCurrentMousePosition();
 	if (!is_dead) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
+		
 			if (bullet_timer <= 0.0f) {
 				vec2 bullet_direction = normalize(mouse_position - blendy_pos);
 				vec2 up_vector{ 0.0f, -1.0f };
@@ -551,7 +554,6 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
 			}
 			
-		}
 		
 	}
 	return;
@@ -759,7 +761,7 @@ void WorldSystem::handle_collisions() {
 				PowerUp powerup = registry.powerUps.get(entity_other);
 				auto& blendy = registry.players.get(player_blendy);
 				if (powerup.type == POWERUP_TYPE::BATTERY) {
-					blendy.health = 100;
+					blendy.health = blendy.max_health;
 					update_health_bar();
 					Mix_PlayChannel(-1, powerup_pickup_battery, 0);
 					registry.remove_all_components_of(entity_other);

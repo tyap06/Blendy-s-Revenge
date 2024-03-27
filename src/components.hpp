@@ -65,7 +65,8 @@ enum class Direction {
 
 struct Player {
 	float max_speed = 200.f;
-	int health = 100;
+	int health = 200;
+	int max_health = 200;
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;

@@ -85,7 +85,7 @@ private:
 	float next_minion_spawn = 100;
 	Entity health_bar_frame;
 	Entity help_screen;
-	bool showHelpScreen;
+	bool showHelpScreen = true;
 	float next_powerup_spawn = 100;
 	float next_dodger_spawn = 100;
 	float next_roamer_spawn = 100;

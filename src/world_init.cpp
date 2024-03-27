@@ -99,22 +99,22 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.angle = angle;
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
-	motion.scale = vec2(40.f, 100.f);
+	motion.scale = vec2(100.0f, 100.0f);
 	motion.mesh_scale = vec2(10.f, 1000.f);
 	registry.bullets.emplace(entity);
-	registry.renderRequests.insert(
+	/*registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::CHICKEN,
-		 GEOMETRY_BUFFER_ID::BULLET});
+		 GEOMETRY_BUFFER_ID::BULLET});*/
 
-/*	registry.renderRequests.insert(
+	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE })*/;
+		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 
@@ -314,8 +314,8 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	auto& minion = registry.minions.emplace(entity);
 	minion.score = 200;
-	minion.health = score;
-	minion.max_health = score;
+	minion.health = score/2;
+	minion.max_health = score/2;
 	minion.speed = 50;
 	
 	registry.giants.emplace(entity);
@@ -558,10 +558,11 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::CHARGER;
-	minion.score = 100;
+	minion.score = 40;
 	motion.angle = 0.f;
-	minion.health = 250;
-	minion.max_health = 250;
+	minion.health = 40;
+	minion.max_health = 40;
+	minion.armor = 15;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -590,12 +591,12 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::TANK;
-	minion.score = 100;
+	minion.score = 80;
 	minion.armor = 20;
 	motion.angle = 0.f;
 	minion.health = 100;
+	minion.max_health = minion.health;
 	minion.speed = 50;
-	minion.max_health = 100;
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -623,11 +624,11 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::SNIPER;
-	minion.score = 25;
+	minion.score = 50;
 	motion.angle = 0.f;
 	motion.velocity = { 0, -80.f };
-	minion.health = 20;
-	minion.max_health = 100;
+	minion.health = 50;
+	minion.max_health = 50;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = { 0.2,0.8,0.8 };
@@ -646,38 +647,6 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	return entity;
 }
 
-Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& bounds)
-{
-	auto entity = Entity();
-
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
-	registry.mesh_collision.emplace(entity);
-	registry.meshPtrs.emplace(entity, &mesh);
-	auto& motion = registry.motions.emplace(entity);
-	auto& minion = registry.minions.emplace(entity);
-	minion.type = Enemy_TYPE::HEALER;
-	minion.score = 100;
-	minion.health = 100;
-	minion.max_health = 100;
-	minion.speed = 35.f;
-	motion.angle = 0.f;
-	motion.velocity = { 0, -80.f };
-	motion.position = position;
-	motion.scale = vec2({ -bounds.x, bounds.y });
-	vec3 color = { 0.8,0.2,0.8 };
-	registry.colors.insert(entity, color);
-
-	auto& tank = registry.healers.emplace(entity);
-
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::MINION,
-		  TEXTURE_ASSET_ID::MINION_NM,
-		  EFFECT_ASSET_ID::TEXTURED,
-		  GEOMETRY_BUFFER_ID::SPRITE });
-
-	return entity;
-}
 
 
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds)
@@ -691,7 +660,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::ROAMER;
-	minion.score = 25;
+	minion.score = 30;
 	minion.speed = 100;
 	motion.angle = 0.f;
 
