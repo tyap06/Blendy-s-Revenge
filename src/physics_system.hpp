@@ -9,21 +9,33 @@
 class PhysicsSystem
 {
 public:
-	void step(float elapsed_ms);
-    static std::map<Direction, Mesh> loaded_meshes;
+    void step(float elapsed_ms);
+    static std::map<Direction, Mesh> loaded_blendy_meshes;
+    static std::map<Direction, Mesh> loaded_minion_meshes;
 
-	PhysicsSystem()
-	{
-        for (const auto& entry : direction_mesh) {
+    PhysicsSystem()
+    {
+        for (const auto& entry : blendy_direction_mesh) {
             Direction dir = entry.first;
             std::string path = entry.second;
             Mesh mesh;
             if (Mesh::loadFromOBJFile(path, mesh.vertices, mesh.vertex_indices, mesh.original_size)) {
-                loaded_meshes[dir] = mesh;
+                loaded_blendy_meshes[dir] = mesh;
             }
             else {
                 // Handle loading failure
             }
         }
-	}
+        for (const auto& entry : minion_direction_mesh) {
+            Direction dir = entry.first;
+            std::string path = entry.second;
+            Mesh mesh;
+            if (Mesh::loadFromOBJFile(path, mesh.vertices, mesh.vertex_indices, mesh.original_size)) {
+                loaded_minion_meshes[dir] = mesh;
+            }
+            else {
+                // Handle loading failure
+            }
+        }
+    }
 };

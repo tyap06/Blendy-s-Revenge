@@ -100,7 +100,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.mesh_scale = vec2(10.f, 1000.f);
+	motion.mesh_scale = vec2(100.f, 100.f);
 	registry.bullets.emplace(entity);
 	/*registry.renderRequests.insert(
 		entity,
@@ -312,6 +312,7 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	motion.velocity = { 0, -100.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 	auto& minion = registry.minions.emplace(entity);
 	minion.score = 200;
 	minion.health = score/2;
@@ -471,7 +472,7 @@ Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.mesh_scale = vec2(10.f, 1000.f);
+	motion.mesh_scale = vec2(100.f, 100.f);
 	auto& bullet = registry.bullets.emplace(entity);
 
 	vec3 color = { 40,40,0 };
@@ -500,7 +501,7 @@ Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.mesh_scale = vec2(10.f, 1000.f);
+	motion.mesh_scale = vec2(100.f, 100.f);
 	auto& bullet = registry.bullets.emplace(entity);
 	
 	vec3 color = { 40,0,0 };
@@ -566,6 +567,7 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 	vec3 color = {0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);
 
@@ -600,6 +602,7 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 	vec3 color = { 0,0,0 };
 	registry.colors.insert(entity, color);
 
@@ -631,6 +634,7 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.max_health = 50;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
 	vec3 color = { 0.2,0.8,0.8 };
 	registry.colors.insert(entity, color);
 
@@ -709,7 +713,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.angle = angle;
 	motion.velocity = velocity; 
 	motion.scale = vec2(40.0f, 100.0f);
-	motion.mesh_scale = vec2(50.0f, 100.0f);
+	motion.mesh_scale = vec2(100.0f, 100.0f);
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
 	bullet.damage = damage;
