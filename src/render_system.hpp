@@ -123,6 +123,7 @@ class RenderSystem {
 			textures_path("m_down_0_n.png"),
 			textures_path("m_down_1_n.png"),
 			textures_path("m_down_2_n.png"),
+
 			textures_path("battery.png"),
 			textures_path("orange.png"),
 			textures_path("lemon.png"),
@@ -134,6 +135,40 @@ class RenderSystem {
 			textures_path("grape_nm.png"),
 			textures_path("protein_powder_nm.png")
 			
+			textures_path("bright_bot_0.png"),
+			textures_path("bright_bot_1.png"),
+			textures_path("bright_bot_2.png"),
+			textures_path("bright_bot_3.png"),
+			textures_path("bright_top_0.png"),
+			textures_path("bright_top_1.png"),
+			textures_path("bright_top_2.png"),
+			textures_path("bright_top_3.png"),
+			textures_path("bleft_bot_0.png"),
+			textures_path("bleft_bot_1.png"),
+			textures_path("bleft_bot_2.png"),
+			textures_path("bleft_bot_3.png"),
+			textures_path("bleft_top_0.png"),
+			textures_path("bleft_top_1.png"),
+			textures_path("bleft_top_2.png"),
+			textures_path("bleft_top_3.png"),
+
+			textures_path("bright_bot_0_n.png"),
+			textures_path("bright_bot_1_n.png"),
+			textures_path("bright_bot_2_n.png"),
+			textures_path("bright_bot_3_n.png"),
+			textures_path("bright_top_0_n.png"),
+			textures_path("bright_top_1_n.png"),
+			textures_path("bright_top_2_n.png"),
+			textures_path("bright_top_3_n.png"),
+			textures_path("bleft_bot_0_n.png"),
+			textures_path("bleft_bot_1_n.png"),
+			textures_path("bleft_bot_2_n.png"),
+			textures_path("bleft_bot_3_n.png"),
+			textures_path("bleft_top_0_n.png"),
+			textures_path("bleft_top_1_n.png"),
+			textures_path("bleft_top_2_n.png"),
+			textures_path("bleft_top_3_n.png")
+
 	};
 
 	std::array<GLuint, effect_count> effects;
