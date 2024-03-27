@@ -357,7 +357,7 @@ Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, cons
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BATTERY_POWERUP,
-			TEXTURE_ASSET_ID::BATTERY_POWERUP_NM,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -389,7 +389,7 @@ Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, cons
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::PROTEIN_POWERUP,
-			TEXTURE_ASSET_ID::PROTEIN_POWERUP_NM,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -421,7 +421,7 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::GRAPE_POWERUP,
-			TEXTURE_ASSET_ID::GRAPE_POWERUP_NM,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
@@ -452,7 +452,7 @@ Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const 
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::LEMON_POWERUP,
-			TEXTURE_ASSET_ID::LEMON_POWERUP_NM,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
