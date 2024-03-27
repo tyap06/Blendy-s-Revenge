@@ -18,8 +18,10 @@ enum class EntityType {
 enum class POWERUP_TYPE {
 
 	PAC_FRUIT = 0,
-	LASER = PAC_FRUIT + 1,
-	PROTIEN = LASER + 1,
+	BATTERY = PAC_FRUIT + 1,
+	PROTEIN = BATTERY + 1,
+	GRAPE = PROTEIN + 1,
+	LEMON = GRAPE + 1
 };
 
 enum class Sniper_State {
@@ -63,10 +65,14 @@ enum class Direction {
 
 struct Player {
 	float max_speed = 200.f;
-	int health = 10000;
+	int health = 100;
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
+	bool protein_powerup = false;
+	float protein_powerup_duration_ms = 0.f;
+	float grape_powerup_duration_ms = 0.f;
+	float lemon_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -401,8 +407,17 @@ enum class TEXTURE_ASSET_ID {
 	MDOWN_0_NM = MUP_2_NM + 1,
 	MDOWN_1_NM = MDOWN_0_NM + 1,
 	MDOWN_2_NM = MDOWN_1_NM + 1,
-	TEXTURE_COUNT = MDOWN_2_NM + 1,
-	
+	BATTERY_POWERUP = MDOWN_2_NM + 1,
+	PACFRUIT_POWERUP = BATTERY_POWERUP + 1,
+	LEMON_POWERUP = PACFRUIT_POWERUP + 1,
+	GRAPE_POWERUP = LEMON_POWERUP + 1,
+	PROTEIN_POWERUP = GRAPE_POWERUP + 1,
+	BATTERY_POWERUP_NM = PROTEIN_POWERUP+ 1,
+	PACFRUIT_POWERUP_NM = BATTERY_POWERUP_NM + 1,
+	LEMON_POWERUP_NM = PACFRUIT_POWERUP_NM + 1,
+	GRAPE_POWERUP_NM = LEMON_POWERUP_NM + 1,
+	PROTEIN_POWERUP_NM = GRAPE_POWERUP_NM + 1,
+	TEXTURE_COUNT = PROTEIN_POWERUP_NM + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
