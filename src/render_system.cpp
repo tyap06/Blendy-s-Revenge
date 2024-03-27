@@ -634,23 +634,31 @@ void RenderSystem::draw()
 
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity))
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity))
 			continue; 
 
+		if (registry.helpScreens.has(entity)) {
+			std::cout << "here" << std::endl;
+		}
 		drawTexturedMesh(entity, projection_2D);
 	}
 
 	// Phase 2: Draw only bullet entities
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity)))
+		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity)))
 			continue; // Skip non-bullet entities in this phase
+
+		if (registry.helpScreens.has(entity)) {
+			std::cout << "here" << std::endl;
+		}
 
 		drawTexturedMesh(entity, projection_2D);
 	}
 
 	debug_fps(projection_2D);
 	display_score();
+
 
 	// Rebinding dummy_vao here
 	glBindVertexArray(dummy_vao);

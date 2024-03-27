@@ -269,33 +269,36 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_minion(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f ) {
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score >= 150) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_dodger(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f ) {
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score >= 300) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_roamer(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f) {
-		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
-		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		create_tank(renderer, spawnPos, MINION_BOUNDS);
-	}
-	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f) {
-		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
-		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		create_sniper(renderer, spawnPos, MINION_BOUNDS);
-	}
-	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f) {
+
+	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f && registry.score >= 600) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_charger(renderer, spawnPos, MINION_BOUNDS);
 	}
 
-	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f) {
+	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f && registry.score >= 900) {
+		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_sniper(renderer, spawnPos, MINION_BOUNDS);
+	}
+	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f && registry.score >= 1100) {
+		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_tank(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+
+	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f && registry.score >= 1500) {
 		next_giant_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
