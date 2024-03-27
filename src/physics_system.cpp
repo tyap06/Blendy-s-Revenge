@@ -5,6 +5,8 @@
 #include <vector>
 //vec2 normalize(const vec2&);
 float duration = 0;
+std::map<Direction, Mesh> PhysicsSystem::loaded_meshes;
+
 bool isParallel(const std::vector<vec2>&, const vec2&);
 std::pair<float, float> projectOntoAxis(const std::vector<vec2>&, const vec2&);
 bool projectionsOverlap(const std::pair<float, float>&, const std::pair<float, float>&);
@@ -37,18 +39,76 @@ vec2 get_bounding_box(const Motion& motion)
 //	return false;
 //}
 
-bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion1, const Motion& motion2)
+//void applyBoidsRuleSeparation(Entity entity, Motion& motion) {
+//	float desiredSeparation = motion.scale.y; 
+//	vec2 steer = { 0.0f, 0.0f };
+//	int count = 0;
+//
+//	for (uint j = 0; j < registry.motions.size(); j++) {
+//		Motion& other_motion = registry.motions.components[j];
+//		Entity other_entity = registry.motions.entities[j];
+//
+//		// Don't compare to itself and ensure it's a minion
+//		if (entity == other_entity || !registry.minions.has(other_entity)) continue;
+//
+//		float d = sqrt(dot(motion.position - other_motion.position, motion.position - other_motion.position));
+//		// If the distance is greater than 0 and less than an arbitrary amount (0 indicates the same position)
+//		if ((d > 0) && (d < desiredSeparation)) {
+//			// Calculate vector pointing away from neighbor
+//			vec2 diff = motion.position - other_motion.position;
+//			diff = normalize(diff);
+//			diff = diff / d; // Weight by distance
+//			steer = steer + diff;
+//			count++; // Keep track of how many
+//		}
+//	}
+//
+//	// Average -- divide by how many
+//	if (count > 0) {
+//		steer = steer / float(count);
+//		// Implement Reynolds: Steering = Desired - Velocity
+//		steer = normalize(steer) * registry.minions.get(entity).speed - motion.velocity;
+//		// Adjust the velocity
+//		motion.velocity = motion.velocity + steer;
+//	}
+//}
+
+bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  Motion& motion2)
 {
-	// search for the index of motion
-	/*auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
-	int index_two = it_two - registry.motions.components.begin();
-	auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	int index_one = it_one - registry.motions.components.begin();*/
+
 	
-	//auto it_two = find(registry.motions.components.begin(), registry.motions.components.end(), motion2);
-	//Entity index_two = entity2;
-	//auto it_one = find(registry.motions.components.begin(), registry.motions.components.end(), motion1);
-	//Entity index_one = entity1;
+	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
+	//plase don't touch the code in the next if statement
+	if (registry.minions.has(entity1) && registry.minions.has(entity2)) {
+		vec2 center_dis = motion1.position - motion2.position;
+		// Calculate the distance between the two entities
+		float distance = sqrt(dot(center_dis, center_dis));
+		// Calculate the sum of the radii
+		float sum_radii = (motion1.scale.y / 2) + (motion2.scale.y / 2);
+
+		// Check if the distance between the centers is less than the sum of the radii (collision)
+		if (distance < sum_radii) {
+			// Calculate how much they are overlapping
+			float overlap = sum_radii - distance;
+
+			
+			if (distance != 0) {
+				vec2 direction = { center_dis.x / distance, center_dis.y / distance };
+
+				// Determine the separation speed. This could be a fixed value or based on the overlap
+				float overlap = sum_radii - distance;
+				float separationSpeed = std::min(overlap / 6,80.f); 
+
+				// Adjust the velocities to separate the minions
+				// Entity1 moves away in the direction, Entity2 in the opposite
+				motion1.velocity.x += direction.x * separationSpeed;
+				motion1.velocity.y += direction.y * separationSpeed;
+				motion2.velocity.x -= direction.x * separationSpeed;
+				motion2.velocity.y -= direction.y * separationSpeed;
+			}
+			
+		}
+	}
 
 	if (
 		(registry.minions.has(entity1) && registry.minions.has(entity2))
@@ -81,25 +141,49 @@ bool collides(const Entity& entity1, const Entity& entity2, const Motion& motion
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
-			box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
-			if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
-				Mesh* mesh_one = registry.meshPtrs.get(entity1);
-				Mesh* mesh_two = registry.meshPtrs.get(entity2);
-				return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
+		if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
+			Mesh* mesh_one = registry.meshPtrs.get(entity1);
+			Mesh* mesh_two = registry.meshPtrs.get(entity2);
+			if (registry.players.has(entity1)) {
+				auto& player = registry.players.get(entity1);
+				if (registry.players.has(entity1)) {
+					auto& player = registry.players.get(entity1);
+					if (player.up) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Up);
+					}
+					else if (player.down) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Down);
+					}
+					else if (player.left) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Left);
+					}
+					else if (player.right) {
+						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Right);
+					}
+				}
+
+				if (registry.players.has(entity2)) {
+					auto& player = registry.players.get(entity2);
+					if (player.up) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Up);
+					}
+					else if (player.down) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Down);
+					}
+					else if (player.left) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Left);
+					}
+					else if (player.right) {
+						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Right);
+					}
+				}
 			}
-			/*else {
-				return false;
-			}*/
-		//}
-
-		//else {
-
-			//return true;
-		//}
+			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		}
 	}
 	return false;
 }
-
 
 float lerp(float start, float end, float t) {
 
@@ -150,20 +234,118 @@ void PhysicsSystem::step(float elapsed_ms)
 			if (new_x - half_width > 0 && new_x + half_width < window_width_px && blendy.frame_stage != 0 && !registry.deathTimers.has(entity)) {
 				motion.position.x = new_x;
 			}
-
-			if (new_y - half_height > 100 && new_y + half_height < window_height_px) {
+			else {
+				if (new_x - half_width < 0 && new_x > motion.position.x) {
+					motion.position.x = new_x;
+				}else if (new_x + half_width > window_width_px && new_x < motion.position.x) {
+					motion.position.x = new_x;
+				}
+			}
+		
+			if (new_y - half_height > 10 && new_y + half_height < window_height_px) {
 				motion.position.y = new_y;
 			}
+			else {
+				if (new_y - half_height < 10 && new_y > motion.position.y) {
+					motion.position.y = new_y;
+				}
+				else if (new_y + half_height > window_height_px && new_y < motion.position.y) {
+					motion.position.y = new_y;
+				}
+			}
+
 		}
 
 		else if(registry.minions.has(entity)){
+			/*applyBoidsRuleSeparation(entity, motion);*/
+			float new_x = motion.velocity.x * step_seconds + motion.position.x;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
+			float half_width = bounding_box.x / 2.f;
+			float half_height = bounding_box.y / 2.f;
+
+			if (new_x - half_width <= 0) {
+				if (registry.roamers.has(entity) && motion.velocity.x < 0) {
+					motion.velocity.x *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.x > 0) {
+					motion.position.x = std::max(new_x, half_width);
+				}
+			}
+			else if (new_x + half_width >= window_width_px) {
+				if (registry.roamers.has(entity) && motion.velocity.x > 0) {
+					motion.velocity.x *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.x < 0) {
+					motion.position.x = std::min(new_x, window_width_px - half_width);
+				}
+			}
+			else {
+				motion.position.x = new_x;
+			}
+
+			// Check for Y-axis boundaries and adjust the position or velocity accordingly
+			if (new_y - half_height <= 70) {
+				if (registry.roamers.has(entity) && motion.velocity.y < 0) {
+					motion.velocity.y *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.y > 0) {
+					motion.position.y = std::max(new_y, 70 + half_height);
+				}
+			}
+			else if (new_y + half_height >= window_height_px) {
+				if (registry.roamers.has(entity) && motion.velocity.y > 0) {
+					motion.velocity.y *= -1;
+				}
+				else if (!registry.roamers.has(entity) || motion.velocity.y < 0) {
+					motion.position.y = std::min(new_y, window_height_px - half_height);
+				}
+			}
+			else {
+				motion.position.y = new_y;
+			}
+			Minion& minion = registry.minions.get(entity);
+			minion.up = false;
+			minion.down = false;
+			minion.left = false;
+			minion.right = false;
+			if (motion.velocity.x < 0 && abs(motion.velocity.y) <= abs(motion.velocity.x)) {
+				// going right
+				minion.right = true;
+			}
+			else if (motion.velocity.x > 0 && abs(motion.velocity.y) <= abs(motion.velocity.x)) {
+				// going left
+				minion.left = true;
+			}
+			else if (motion.velocity.y > 0 && abs(motion.velocity.x) <= abs(motion.velocity.y)) {
+				// going down
+				minion.down = true;
+			}
+			else if (motion.velocity.y < 0 && abs(motion.velocity.x) <= abs(motion.velocity.y)) {
+				// going up
+				minion.up = true;
+			}
+			minion.counter_ms -= elapsed_ms;
+			if (minion.counter_ms < 0.f) {
+				minion.counter_ms = 120;
+
+				minion.frame_stage += 1;
+				if (minion.frame_stage > 2) {
+					minion.frame_stage = 0;
+				}
+			}
+
+		}
+		// Power ups move around the map
+		/*
+		else if (registry.powerUps.has(entity)) {
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
 			if (new_x - half_width <= 0 || new_x + half_width >= window_width_px) {
-				if (registry.roamers.has(entity)) {
+				if (registry.powerUps.has(entity)) {
 					motion.velocity.x *= -1; // Invert X velocity upon boundary collision
 					new_x = motion.velocity.x * step_seconds + motion.position.x; // Recalculate new_x after velocity inversion
 				}
@@ -172,8 +354,8 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.position.x = new_x; // Update position if within bounds
 			}
 
-			if (new_y <= 180 || new_y + half_height-20 >= window_height_px) {
-				if (registry.roamers.has(entity)) {
+			if (new_y <= 180 || new_y + half_height - 20 >= window_height_px) {
+				if (registry.powerUps.has(entity)) {
 					motion.velocity.y *= -1; // Invert Y velocity upon boundary collision
 					new_y = motion.velocity.y * step_seconds + motion.position.y; // Recalculate new_y after velocity inversion
 				}
@@ -182,7 +364,10 @@ void PhysicsSystem::step(float elapsed_ms)
 				motion.position.y = new_y; // Update position if within bounds
 			}
 		}
+		*/
+
 		else {
+			//handle bullet movement
 			if (motion.position.x < 0.f || motion.position.x > window_width_px 
 				|| motion.position.y < 0 || motion.position.y > window_height_px) {
 
@@ -216,10 +401,7 @@ void PhysicsSystem::step(float elapsed_ms)
 			Entity entity_j = motion_container.entities[j];
 
 
-			//if (dontCheckForCollisions(entity_i, entity_j))
-			//{
-			//	continue;
-			//}
+			
 
 			if (!registry.mesh_collision.has(motion_container.entities[i]) && registry.mesh_collision.has(motion_container.entities[j])) {
 				continue;
@@ -268,11 +450,10 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 	Transform transform_two;
 	transform_one.translate(motion_one.position);
 	transform_one.rotate(motion_one.angle);
-	transform_one.scale(motion_one.scale);
-	
+	transform_one.scale(motion_one.mesh_scale);
 	transform_two.translate(motion_two.position);
 	transform_two.rotate(motion_two.angle);
-	transform_two.scale(motion_two.scale);
+	transform_two.scale(motion_two.mesh_scale);
 
 	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
 		axises.clear();

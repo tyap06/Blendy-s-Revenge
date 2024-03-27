@@ -9,7 +9,6 @@
 #include "tiny_ecs.hpp"
 
 // Fonts
-// fonts
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <map>
@@ -34,14 +33,15 @@ class RenderSystem {
 	 */
 	std::array<GLuint, texture_count> texture_gl_handles;
 	std::array<ivec2, texture_count> texture_dimensions;
-
 	// Make sure these paths remain in sync with the associated enumerators.
 	// Associated id with .obj path
 	const std::vector < std::pair<GEOMETRY_BUFFER_ID, std::string>> mesh_paths =
 	{
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BLENDY, mesh_path("Blendy-Reduced.obj")),
 		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::MINION, mesh_path("Minion-Reduced.obj")),
-		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BULLET, mesh_path("Bullet-Reduced.obj"))
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BULLET, mesh_path("Bullet-color.obj")),
+		  std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::MINION_BULLET, mesh_path("Minion_Bullet-color.obj"))
+
 
 		  // specify meshes of other assets here
 	};
@@ -91,6 +91,14 @@ class RenderSystem {
 			textures_path("fullHealthBar.png"),
 			textures_path("HelpScreen.png"),
 			textures_path("HealthBarFrame.png"),
+			textures_path("cutscene_1_1.png"),
+			textures_path("cutscene_1_2.png"),
+			textures_path("cutscene_1_3.png"),
+			textures_path("cutscene_1_4.png"),
+			textures_path("cutscene_2_1.png"),
+			textures_path("cutscene_2_2.png"),
+			textures_path("cutscene_3_1.png"),
+			textures_path("title_screen.png"),
 			textures_path("m_left_0.png"),
 			textures_path("m_left_1.png"),
 			textures_path("m_left_2.png"),
@@ -115,6 +123,18 @@ class RenderSystem {
 			textures_path("m_down_0_n.png"),
 			textures_path("m_down_1_n.png"),
 			textures_path("m_down_2_n.png"),
+
+			textures_path("battery.png"),
+			textures_path("orange.png"),
+			textures_path("lemon.png"),
+			textures_path("grape.png"),
+			textures_path("protein powder.png"),
+			textures_path("battery_nm.png"),
+			textures_path("orange_nm.png"),
+			textures_path("lemon_nm.png"),
+			textures_path("grape_nm.png"),
+			textures_path("protein_powder_nm.png")
+			
 			textures_path("bright_bot_0.png"),
 			textures_path("bright_bot_1.png"),
 			textures_path("bright_bot_2.png"),
@@ -148,7 +168,6 @@ class RenderSystem {
 			textures_path("bleft_top_1_n.png"),
 			textures_path("bleft_top_2_n.png"),
 			textures_path("bleft_top_3_n.png")
-
 
 	};
 

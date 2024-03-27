@@ -4,14 +4,15 @@
 #include "tiny_ecs.hpp"
 #include "render_system.hpp"
 
-
 // ENTITY TEXTURE CONSTANTS
 const float BLENDY_BB_WIDTH = 0.2f * 423.f;
 const float BLENDY_BB_HEIGHT = 0.2F * 800.f;
 const float MINION_BB_WIDTH = 0.2f * 346.f;
 const float MINION_BB_HEIGHT = 0.2f * 593.f;
-const float BACKGROUND_BB_WIDTH = 0.62f * 2131.f;
-const float BACKGROUND_BB_HEIGHT = 0.62f * 1563.f;
+// const float BACKGROUND_BB_WIDTH = 0.62f * 2131.f;
+// const float BACKGROUND_BB_HEIGHT = 0.62f * 1563.f;
+const float BACKGROUND_BB_WIDTH = 1900.f*0.9;
+const float BACKGROUND_BB_HEIGHT = 1080.f*0.9;
 const float DIRECTIONAL_LIGHT_BB_WIDTH = 0.1f * 512.f;
 const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
@@ -38,13 +39,30 @@ Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const ve
 // the score counter on the screen
 Entity create_score_counter(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& color);
 
+Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 // the minions
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
-Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
-Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int damage = 25, vec3 color = { 0,40,0 });
 
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bounds, int score);
+
+Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+
+Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
