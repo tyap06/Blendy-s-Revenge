@@ -1,6 +1,6 @@
 # Team-11---Blendy-s-Revenge-
 
-Milestone 3: Features Implemented
+# Milestone 3: Features Implemented
 
 # Creative Features Basic (10% + 10%)
 ## Simple rendering effects    basic    Fragment shaders, OpenGL uniforms. 
