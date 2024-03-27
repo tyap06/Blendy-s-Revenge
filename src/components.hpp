@@ -416,6 +416,7 @@ enum class TEXTURE_ASSET_ID {
 	MDOWN_0_NM = MUP_2_NM + 1,
 	MDOWN_1_NM = MDOWN_0_NM + 1,
 	MDOWN_2_NM = MDOWN_1_NM + 1,
+
 	BATTERY_POWERUP = MDOWN_2_NM + 1,
 	PACFRUIT_POWERUP = BATTERY_POWERUP + 1,
 	LEMON_POWERUP = PACFRUIT_POWERUP + 1,
@@ -426,7 +427,42 @@ enum class TEXTURE_ASSET_ID {
 	LEMON_POWERUP_NM = PACFRUIT_POWERUP_NM + 1,
 	GRAPE_POWERUP_NM = LEMON_POWERUP_NM + 1,
 	PROTEIN_POWERUP_NM = GRAPE_POWERUP_NM + 1,
-	TEXTURE_COUNT = PROTEIN_POWERUP_NM + 1
+
+	BRB_0 = PROTEIN_POWERUP_NM + 1,
+	BRB_1 = BRB_0 + 1,
+	BRB_2 = BRB_1 + 1,
+	BRB_3 = BRB_2 + 1,
+	BRT_0 = BRB_3 + 1,
+	BRT_1 = BRT_0 + 1,
+	BRT_2 = BRT_1 + 1,
+	BRT_3 = BRT_2 + 1,
+	BLB_0 = BRT_3 + 1,
+	BLB_1 = BLB_0 + 1,
+	BLB_2 = BLB_1 + 1,
+	BLB_3 = BLB_2 + 1,
+	BLT_0 = BLB_3 + 1,
+	BLT_1 = BLT_0 + 1,
+	BLT_2 = BLT_1 + 1,
+	BLT_3 = BLT_2 + 1,
+
+	BRB_0_N = BLT_3 + 1,
+	BRB_1_N = BRB_0_N + 1,
+	BRB_2_N = BRB_1_N + 1,
+	BRB_3_N = BRB_2_N + 1,
+	BRT_0_N = BRB_3_N + 1,
+	BRT_1_N = BRT_0_N + 1,
+	BRT_2_N = BRT_1_N + 1,
+	BRT_3_N = BRT_2_N + 1,
+	BLB_0_N = BRT_3_N + 1,
+	BLB_1_N = BLB_0_N + 1,
+	BLB_2_N = BLB_1_N + 1,
+	BLB_3_N = BLB_2_N + 1,
+	BLT_0_N = BLB_3_N + 1,
+	BLT_1_N = BLT_0_N + 1,
+	BLT_2_N = BLT_1_N + 1,
+	BLT_3_N = BLT_2_N + 1,
+
+	TEXTURE_COUNT = BLT_3_N + 1,
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
