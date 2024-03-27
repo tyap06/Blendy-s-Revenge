@@ -26,156 +26,6 @@ Entity createLine(vec2 position, vec2 scale)
 	registry.debugComponents.emplace(entity);
 	return entity;
 }
-Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
-{
-	auto entity = Entity();
-
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
-	registry.meshPtrs.emplace(entity, &mesh);
-
-	// Initialize the motion
-	auto& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = bounds;
-
-	// add to component
-	auto& cutScene = registry.cutScenes.emplace(entity);
-	cutScene.stage = stage;
-
-	if (stage == 1) {
-		// 1.1
-		/*cutScene.text[0] = "Meet Blendy!";
-		cutScene.text[1] = "He works at";
-		cutScene.text[2] = "a smoothie shop.";
-		cutScene.text_position[0].x = 40;
-		cutScene.text_position[0].y = window_height_px - 215;
-		cutScene.text_position[1].x = 1360;
-		cutScene.text_position[1].y = window_height_px - 250;
-		cutScene.text_position[2].x = 1300;
-		cutScene.text_position[2].y = window_height_px - 350;
-		cutScene.scale = 1.3f;*/
-		registry.renderRequests.insert(
-			entity,
-			{ TEXTURE_ASSET_ID::START_SCREEN,
-				TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-	}
-	else if (stage == 2) {
-		// 1.1
-		cutScene.text[0] = "Meet Blendy!";
-		cutScene.text[1] = "He works at";
-		cutScene.text[2] = "a smoothie shop.";
-		cutScene.text_position[0].x = 40;
-		cutScene.text_position[0].y = window_height_px - 215;
-		cutScene.text_position[1].x = 1360;
-		cutScene.text_position[1].y = window_height_px - 250;
-		cutScene.text_position[2].x = 1300;
-		cutScene.text_position[2].y = window_height_px - 350;
-		cutScene.scale = 1.3f;
-		registry.renderRequests.insert(
-			entity,
-			{ TEXTURE_ASSET_ID::CUTSCENE_1_1,
-				TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-	}
-	else if (stage == 3) {
-		// 1.2
-		cutScene.text[0] = "One day,";
-		cutScene.text[1] = "the manager brings";
-		cutScene.text[2] = "in a replacement...";
-		cutScene.scale = 1.3;
-		cutScene.text_position[0].x = 230;
-		cutScene.text_position[0].y = window_height_px - 80;
-		cutScene.text_position[1].x = 70;
-		cutScene.text_position[1].y = window_height_px - 180;
-		cutScene.text_position[2].x = 80;
-		cutScene.text_position[2].y = window_height_px - 280;
-		registry.renderRequests.insert(
-			entity,
-			{ TEXTURE_ASSET_ID::CUTSCENE_1_2,
-				TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-	}
-	else if (stage == 4) {
-		// 1.3
-		cutScene.text[0] = "...and throws";
-		cutScene.text[1] = "Blendy out.";
-		cutScene.scale = 1.4;
-		cutScene.text_position[0].x = 100;
-		cutScene.text_position[0].y = window_height_px - 200;
-		cutScene.text_position[1].x = 130;
-		cutScene.text_position[1].y = window_height_px - 300;
-		registry.renderRequests.insert(
-			entity,
-			{ TEXTURE_ASSET_ID::CUTSCENE_1_3,
-				TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-	}
-	else if (stage == 5) {
-		// 1.4
-		cutScene.text[0] = "Blendy vows to get revenge.";
-		cutScene.scale = 1.3;
-		cutScene.text_position[0].x = 800;
-		cutScene.text_position[0].y = window_height_px - 180;
-		registry.renderRequests.insert(
-			entity,
-			{ TEXTURE_ASSET_ID::CUTSCENE_1_4,
-				TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-	} 
-	else if (stage == 7) {
-		// 2.1
-		cutScene.text[0] = "Blendy's replacement";
-		cutScene.text[1] = "begins to grow in power.";
-		cutScene.scale = 1.5;
-		cutScene.text_position[0].x = 850;
-		cutScene.text_position[0].y = window_height_px - 600;
-		cutScene.text_position[1].x = 850;
-		cutScene.text_position[1].y = window_height_px - 700;
-		registry.renderRequests.insert(
-			entity,
-			{ TEXTURE_ASSET_ID::CUTSCENE_2_1,
-				TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-	}
-	else if (stage == 8)
-	{
-		// 2.2
-		// cutScene.text[0] = "He is determined to take blendy down a peg.";
-		// cutScene.text_position[0].x = 100;
-		// cutScene.text_position[0].y = window_height_px - 200;
-		registry.renderRequests.insert(
-			entity,
-			{ TEXTURE_ASSET_ID::CUTSCENE_2_2,
-				TEXTURE_ASSET_ID::TEXTURE_COUNT,
-			EFFECT_ASSET_ID::TEXTURED,
-			GEOMETRY_BUFFER_ID::SPRITE });
-	}
-	else if (stage == 10) {
-		// 3.1
-		cutScene.text[0] = "Blendy is happy.";
-		cutScene.scale = 1.4;
-		cutScene.text_position[0].x = 1000;
-		cutScene.text_position[0].y = window_height_px - 120;
-		registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::CUTSCENE_3_1,
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE });
-	}
-	
-	// create render request
-	return entity;
-}
 
 
 Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
@@ -267,6 +117,8 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 		 GEOMETRY_BUFFER_ID::SPRITE })*/;
 	return entity;
 }
+
+
 
 Entity create_background(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
@@ -465,7 +317,6 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	minion.health = score;
 	minion.max_health = score;
 	minion.speed = 50;
-
 	
 	registry.giants.emplace(entity);
 	registry.renderRequests.insert(
@@ -481,35 +332,186 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 
 
 
-
-Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.meshPtrs.emplace(entity, &mesh);
 	registry.mesh_collision.emplace(entity);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
-	registry.eatables.emplace(entity);
-	motion.angle = 0.f;
+	motion.angle = 25.f;
 	motion.velocity = { 0, 0};
 	motion.position = position;
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	motion.mesh_scale = motion.scale;
+
 	// Create and (empty) powerup component to be able to refer to all minions
-	registry.powerUps.emplace(entity);
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::BATTERY;
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::BLENDY,
-			TEXTURE_ASSET_ID::BLENDY_NM,
+		{ TEXTURE_ASSET_ID::BATTERY_POWERUP,
+			TEXTURE_ASSET_ID::BATTERY_POWERUP_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
 
+	return entity;
+}
+
+Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 25.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
+
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::PROTEIN;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::PROTEIN_POWERUP,
+			TEXTURE_ASSET_ID::PROTEIN_POWERUP_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
+
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::GRAPE;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::GRAPE_POWERUP,
+			TEXTURE_ASSET_ID::GRAPE_POWERUP_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 25.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	motion.mesh_scale = motion.scale;
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::LEMON;
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::LEMON_POWERUP,
+			TEXTURE_ASSET_ID::LEMON_POWERUP_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	registry.mesh_collision.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.scale = vec2(100.0f, 100.0f);
+	motion.mesh_scale = vec2(10.f, 1000.f);
+	auto& bullet = registry.bullets.emplace(entity);
+
+	vec3 color = { 40,40,0 };
+	registry.colors.insert(entity, color);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+	return entity;
+}
+
+
+
+Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	registry.mesh_collision.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.scale = vec2(100.0f, 100.0f);
+	motion.mesh_scale = vec2(10.f, 1000.f);
+	auto& bullet = registry.bullets.emplace(entity);
+	
+	vec3 color = { 40,0,0 };
+	registry.colors.insert(entity, color);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 

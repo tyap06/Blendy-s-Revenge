@@ -35,10 +35,6 @@ public:
 	// Check for collisions
 	void handle_collisions();
 
-	void handle_cutScenes();
-
-	void handle_help_screen();
-
 	// Should the game be over ?
 	bool is_over()const;
 
@@ -56,8 +52,6 @@ private:
 	float elapsed_ms = 0.0f;
 	float bullet_speed = 500.f;
 	float bullet_launch_interval = 0.4f;
-	int cutscene_stage = 0;
-	float cutscene_interval = 100.f;
 	// restart level
 	void restart_game();
 	void console_debug_fps();
@@ -76,7 +70,6 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_blendy;
-	Entity current_cutscene;
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
@@ -92,8 +85,11 @@ private:
 	float next_tank_spawn = 100;
 	float next_giant_spawn = 100;
 	float next_healer_spawn = 100;
+	float next_battery_powerup_spawn;
+	float next_protein_powerup_spawn;
+	float next_grape_powerup_spawn;
+	float next_lemon_powerup_spawn;
 	Entity health_bar_box;
-	bool cutscene_active;
 
 	// music references
 	Mix_Music* background_music;
@@ -131,6 +127,7 @@ private:
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 };
 
 

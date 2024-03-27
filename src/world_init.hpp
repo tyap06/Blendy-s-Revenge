@@ -18,8 +18,6 @@ const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
 Entity createLine(vec2 position, vec2 scale);
 
-Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage);
-
 Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds);
 
 Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds);
@@ -45,7 +43,7 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 // the minions
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
-Entity create_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
@@ -58,3 +56,13 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bounds, int score);
+
+Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+
+Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
