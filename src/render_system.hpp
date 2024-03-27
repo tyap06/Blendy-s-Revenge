@@ -227,6 +227,9 @@ private:
 	// Score Counter
 	void display_score();
 
+	// display cutscene text
+	void display_text();
+
 	// Window handle
 	GLFWwindow* window;
 

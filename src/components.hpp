@@ -63,6 +63,16 @@ enum class Direction {
 };
 // Player component
 
+// A component to represent cut scene
+struct CutScene
+{
+	int stage = 0;
+	// std::string text = "";
+	std::string text[3] = { "", "", "" };
+	vec2 text_position[3] = { {0, 0},  {0, 0} , {0, 0} };
+	float scale = 1;
+};
+
 struct Player {
 	float max_speed = 200.f;
 	int health = 100;
@@ -247,6 +257,7 @@ struct ScoreCounter
 {
 	unsigned int current_score = 0;
 	float scale = 1.f;
+	bool show = true;
 };
 
 // A struct to refer to debugging graphics in the ECS

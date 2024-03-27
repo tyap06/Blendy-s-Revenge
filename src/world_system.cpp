@@ -30,8 +30,9 @@ const size_t MAX_LEMON_POWERUPS = 2;
 const size_t POWERUP_DELAY_MS = 200 * 4;
 
 // UI
-const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
 const vec3 MAGENTA = { 0.78f, 0.39f, 0.62f };
+const vec3 DARK_PINK = { 0.91f, 0.32f, 0.53f };
+const vec3 BLENDY_COLOR = DARK_PINK;
 
 // DEFAULT START POSITIONS
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
@@ -75,10 +76,17 @@ const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
 
 // SCORE COUNTER
 const float SCORE_COUNTER_X = 30.f;
-const float SCORE_COUNTER_Y = window_height_px - 160.f;
+const float SCORE_COUNTER_Y = window_height_px - 110.f;
 const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTER_X, SCORE_COUNTER_Y };
-const vec2 SCORE_COUNTER_SCALE = { 1.f,1.f };
+const vec2 SCORE_COUNTER_SCALE = { 1.5f,1.5f };
 const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
+
+// CUTSCENE STUFF
+const int FIRST_CUT_SCENE_END = 6;
+const int SECOND_CUT_SCENE_END = 9;
+const int SECOND_CUT_SCORE = 20;
+const int THIRD_CUT_SCORE = 50;
+
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -479,9 +487,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	
 	auto& motions_registry = registry.motions;
 
-
-
-
 	if (is_dead) {
 		Motion& player_motion = registry.motions.get(player_blendy);
 		float sec_passed = elapsed_ms_since_last_update / 1000;
@@ -525,6 +530,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
+
+	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END) {
+		cutscene_active = true;
+		handle_cutScenes();
+	}
+
+	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END) {
+		cutscene_active = true;
+		handle_cutScenes();
+	}
+
 	return true;
 }
 
@@ -554,6 +570,8 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
+	cutscene_active == true;
+	handle_cutScenes();
 }
 
 void WorldSystem::console_debug_fps()
@@ -767,11 +785,46 @@ void WorldSystem::handlePlayerMovement(int key, int action) {
 	}
 }
 
+void WorldSystem::handle_cutScenes()
+{
+	cutscene_stage++;
+	registry.remove_all_components_of(current_cutscene);
+	auto& score_component = registry.scoreCounters.get(score_counter);
+
+	if (cutscene_stage == FIRST_CUT_SCENE_END || cutscene_stage == SECOND_CUT_SCENE_END) {
+		// if reached the end of the cut scenes, resume gameplay
+		cutscene_active = false;
+		registry.is_pause = false;
+		score_component.show = true;
+		if (cutscene_stage == FIRST_CUT_SCENE_END) handle_help_screen();
+		
+	}
+	else {
+		registry.is_pause = true;
+		current_cutscene = createCutScene(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS, cutscene_stage);
+		score_component.show = false;
+	}
+}
+
+void WorldSystem::handle_help_screen() {
+	if (showHelpScreen) {
+		registry.is_pause = true;
+		help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
+	}
+	else {
+		registry.is_pause = false;
+		registry.remove_all_components_of(help_screen);
+	}
+
+	showHelpScreen = !showHelpScreen;
+}
+
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	handlePlayerMovement(key, action);
 
 	auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;
+
 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I) {
 		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
 	}
@@ -788,18 +841,15 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
 	}
 
+
 	// Toggle the help screen visibility when "H" is pressed
 	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
-		if (showHelpScreen) {
-			registry.is_pause = true;
-			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
-		}
-		else {
-			registry.is_pause = false;
-			registry.remove_all_components_of(help_screen);
-		}
+		handle_help_screen();
+	}
 
-		showHelpScreen = !showHelpScreen;
+	// switch to next cutscene
+	if (action == GLFW_RELEASE && key == GLFW_KEY_C && cutscene_active) {
+		handle_cutScenes();
 	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
@@ -850,6 +900,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		printf("Current speed = %f\n", current_speed);
 	}
 	current_speed = fmax(0.f, current_speed);
+
 
 	if (action == GLFW_PRESS) {
 		if (key == GLFW_KEY_MINUS) {

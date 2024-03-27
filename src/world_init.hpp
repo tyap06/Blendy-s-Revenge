@@ -24,6 +24,8 @@ Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds);
 
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
+Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage);
+
 // the background
 Entity create_background(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
