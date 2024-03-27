@@ -99,22 +99,22 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.angle = angle;
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
-	motion.scale = vec2(40.f, 100.f);
+	motion.scale = vec2(100.0f, 100.0f);
 	motion.mesh_scale = vec2(10.f, 1000.f);
 	registry.bullets.emplace(entity);
-	registry.renderRequests.insert(
+	/*registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::CHICKEN,
-		 GEOMETRY_BUFFER_ID::BULLET});
+		 GEOMETRY_BUFFER_ID::BULLET});*/
 
-/*	registry.renderRequests.insert(
+	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE })*/;
+		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
 
