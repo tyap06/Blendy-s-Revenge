@@ -205,7 +205,7 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 	// Create a directional light
 	auto& directional_light = registry.lightSources.emplace(entity);
 	directional_light.light_color = { 1.0f,1.0f,1.0f };
-	directional_light.shininess = 6.f;
+	directional_light.shininess = 4.f;
 	directional_light.ambientIntensity = 0.00f;
 	directional_light.z_depth = 500.f;
 	directional_light.camera_position = camera_position;
