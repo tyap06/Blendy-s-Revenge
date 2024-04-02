@@ -101,7 +101,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.scale = vec2(100.0f, 100.0f);
 	registry.bullets.emplace(entity);
 
-	create_mesh(renderer, pos, velocity, { 0.45 * motion.scale.x, 0.9 * motion.scale .y}, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale .y}, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
@@ -457,7 +457,7 @@ Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 
 	vec3 color = { 40,40,0 };
 	registry.colors.insert(entity, color);
-	create_mesh(renderer, pos, velocity, { 0.45 * motion.scale.x, 0.9 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
 
 	registry.renderRequests.insert(
 		entity,
@@ -486,7 +486,7 @@ Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float
 	
 	vec3 color = { 40,0,0 };
 	registry.colors.insert(entity, color);
-	create_mesh(renderer, pos, velocity, { 0.45 * motion.scale.x, 0.9 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
 
 	registry.renderRequests.insert(
 		entity,
@@ -693,7 +693,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	bullet.friendly = false;
 	bullet.damage = damage;
 	registry.colors.insert(entity, color);
-	create_mesh(renderer, pos, velocity, { 0.45 * motion.scale.x, 0.9 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
 
 	registry.renderRequests.insert(
 		entity,
