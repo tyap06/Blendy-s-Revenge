@@ -478,10 +478,10 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 	Transform transform_two;
 	transform_one.translate(motion_one.position);
 	transform_one.rotate(motion_one.angle);
-	transform_one.scale(motion_one.mesh_scale);
+	transform_one.scale(motion_one.scale);
 	transform_two.translate(motion_two.position);
 	transform_two.rotate(motion_two.angle);
-	transform_two.scale(motion_two.mesh_scale);
+	transform_two.scale(motion_two.scale);
 
 	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
 		axises.clear();
@@ -489,7 +489,6 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 		shape.clear();
 		vec2 positions[3];
 		bool is_inside_Box = false;
-
 		if (i + 2 < mesh->vertex_indices.size()) {
 			for (int j = 0; j < 3; j++) {
 				const ColoredVertex& v = mesh->vertices[mesh->vertex_indices[i + j]];

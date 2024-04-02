@@ -21,7 +21,6 @@ Entity createLine(vec2 position, vec2 scale)
 	motion.velocity = { 0, 0 };
 	motion.position = position;
 	motion.scale = scale;
-	motion.mesh_scale = motion.scale;
 
 	registry.debugComponents.emplace(entity);
 	return entity;
@@ -42,7 +41,6 @@ Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = bounds;
-	motion.mesh_scale = motion.scale;
 
 	registry.helpScreens.emplace(entity);
 	// Create a render request for the help Screen
@@ -71,7 +69,6 @@ Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	motion.angle = 0.f;
 	motion.velocity = { 0.f, 0.f };
 	motion.scale = bounds;
-	motion.mesh_scale = motion.scale;
 
 	// add health bar to panel component
 	registry.panel.emplace(entity);
@@ -100,7 +97,6 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.velocity = velocity;
 	// Vicky M1: scale could change after render decided 
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.mesh_scale = vec2(100.f, 100.f);
 	registry.bullets.emplace(entity);
 	/*registry.renderRequests.insert(
 		entity,
@@ -138,7 +134,6 @@ Entity create_background(RenderSystem* renderer, const vec2& position, const vec
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 
 	// Create an (empty) background
 	registry.backgrounds.emplace(entity);
@@ -171,7 +166,6 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	// Create an (empty) Blendy component to be able to refer to Blendy
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
@@ -200,7 +194,6 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 
 	// Create a directional light
 	auto& directional_light = registry.lightSources.emplace(entity);
@@ -234,7 +227,6 @@ Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const ve
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 
 	// Create an Fps Counter component to be able to refer to Blendy
 	registry.fpsCounters.emplace(entity);
@@ -256,7 +248,6 @@ Entity create_score_counter(RenderSystem* renderer, const vec2& position, const 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 
 	// Create an score counter to display the game score
 	registry.scoreCounters.emplace(entity);
@@ -283,7 +274,6 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	// Create and (empty) Minion component to be able to refer to all minions
 	registry.minions.emplace(entity);
 	registry.renderRequests.insert(
@@ -312,7 +302,6 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	motion.velocity = { 0, -100.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	auto& minion = registry.minions.emplace(entity);
 	minion.score = 200;
 	minion.health = score/2;
@@ -350,7 +339,6 @@ Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, cons
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -382,7 +370,6 @@ Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, cons
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -414,7 +401,6 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -446,7 +432,6 @@ Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::LEMON;
@@ -472,7 +457,6 @@ Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.mesh_scale = vec2(100.f, 100.f);
 	auto& bullet = registry.bullets.emplace(entity);
 
 	vec3 color = { 40,40,0 };
@@ -501,7 +485,6 @@ Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float
 	motion.angle = angle;
 	motion.velocity = velocity;
 	motion.scale = vec2(100.0f, 100.0f);
-	motion.mesh_scale = vec2(100.f, 100.f);
 	auto& bullet = registry.bullets.emplace(entity);
 	
 	vec3 color = { 40,0,0 };
@@ -533,7 +516,6 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y});
-	motion.mesh_scale = motion.scale;
 	vec3 color = { 0.8,0.8,0.0 };
 	registry.colors.insert(entity, color);
 
@@ -567,7 +549,6 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	vec3 color = {0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);
 
@@ -602,7 +583,6 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	vec3 color = { 0,0,0 };
 	registry.colors.insert(entity, color);
 
@@ -634,7 +614,6 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.max_health = 50;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	vec3 color = { 0.2,0.8,0.8 };
 	registry.colors.insert(entity, color);
 
@@ -680,7 +659,6 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	motion.mesh_scale = motion.scale;
 	vec3 color = { 0,1,0 };
 	registry.colors.insert(entity, color);
 
@@ -717,6 +695,28 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
 	bullet.damage = damage;
+	registry.colors.insert(entity, color);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+	return entity;
+}
+
+
+Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int damage, vec3 color, Entity object_entity, GEOMETRY_BUFFER_ID geometry_id) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	Mesh& mesh = renderer->getMesh(geometry_id);
+	registry.Entity_to_Mesh_Entity.insert(object_entity, entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity; 
+	motion.scale = vec2(40.0f, 100.0f);
 	registry.colors.insert(entity, color);
 
 	registry.renderRequests.insert(
