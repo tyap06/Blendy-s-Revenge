@@ -205,7 +205,6 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 	float y_animate = 0.f;
 	EntityType type = EntityType::Generic;
-	vec2 mesh_scale = {0,0};
 
 	bool operator==(const Motion& other) const {
 		return position == other.position &&

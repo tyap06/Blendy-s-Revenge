@@ -143,9 +143,25 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
-		if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
-			Mesh* mesh_one = registry.meshPtrs.get(entity1);
-			Mesh* mesh_two = registry.meshPtrs.get(entity2);
+		//if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
+		if(registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2)){
+			Mesh* mesh_one;
+			Mesh* mesh_two;
+			if (registry.Entity_to_Bullet_Mesh_Entity.has(entity1)) {
+				Entity& mesh_one_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity1);
+				mesh_one = registry.meshPtrs.get(mesh_one_entity);
+			}
+			else {
+				mesh_one = registry.meshPtrs.get(entity1);
+			}
+			if (registry.Entity_to_Bullet_Mesh_Entity.has(entity2)) {
+				Entity& mesh_two_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity2);
+				mesh_two = registry.meshPtrs.get(mesh_two_entity);
+			}
+			else {
+				mesh_two = registry.meshPtrs.get(entity2);
+			}
+
 			if (registry.players.has(entity1)) {
 				auto& player = registry.players.get(entity1);
 				if (player.up) {
