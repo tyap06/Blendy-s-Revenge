@@ -5,7 +5,8 @@
 #include <vector>
 //vec2 normalize(const vec2&);
 float duration = 0;
-std::map<Direction, Mesh> PhysicsSystem::loaded_meshes;
+std::map<Direction, Mesh> PhysicsSystem::loaded_blendy_meshes;
+std::map<Direction, Mesh> PhysicsSystem::loaded_minion_meshes;
 
 bool isParallel(const std::vector<vec2>&, const vec2&);
 std::pair<float, float> projectOntoAxis(const std::vector<vec2>&, const vec2&);
@@ -73,10 +74,10 @@ vec2 get_bounding_box(const Motion& motion)
 //	}
 //}
 
-bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  Motion& motion2)
+bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Motion& motion2)
 {
 
-	
+
 	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
 	//plase don't touch the code in the next if statement
 	if (registry.minions.has(entity1) && registry.minions.has(entity2)) {
@@ -91,13 +92,13 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 			// Calculate how much they are overlapping
 			float overlap = sum_radii - distance;
 
-			
+
 			if (distance != 0) {
 				vec2 direction = { center_dis.x / distance, center_dis.y / distance };
 
 				// Determine the separation speed. This could be a fixed value or based on the overlap
 				float overlap = sum_radii - distance;
-				float separationSpeed = std::min(overlap / 6,80.f); 
+				float separationSpeed = overlap / 6;
 
 				// Adjust the velocities to separate the minions
 				// Entity1 moves away in the direction, Entity2 in the opposite
@@ -106,7 +107,7 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 				motion2.velocity.x -= direction.x * separationSpeed;
 				motion2.velocity.y -= direction.y * separationSpeed;
 			}
-			
+
 		}
 	}
 
@@ -142,41 +143,84 @@ bool collides(const Entity& entity1, const Entity& entity2,  Motion& motion1,  M
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
-		if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
-			Mesh* mesh_one = registry.meshPtrs.get(entity1);
-			Mesh* mesh_two = registry.meshPtrs.get(entity2);
+		//if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
+		if(registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2)){
+			Mesh* mesh_one;
+			Mesh* mesh_two;
+			if (registry.Entity_to_Bullet_Mesh_Entity.has(entity1)) {
+				Entity& mesh_one_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity1);
+				mesh_one = registry.meshPtrs.get(mesh_one_entity);
+			}
+			else {
+				mesh_one = registry.meshPtrs.get(entity1);
+			}
+			if (registry.Entity_to_Bullet_Mesh_Entity.has(entity2)) {
+				Entity& mesh_two_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity2);
+				mesh_two = registry.meshPtrs.get(mesh_two_entity);
+			}
+			else {
+				mesh_two = registry.meshPtrs.get(entity2);
+			}
+
 			if (registry.players.has(entity1)) {
 				auto& player = registry.players.get(entity1);
-				if (registry.players.has(entity1)) {
-					auto& player = registry.players.get(entity1);
-					if (player.up) {
-						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Up);
-					}
-					else if (player.down) {
-						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Down);
-					}
-					else if (player.left) {
-						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Left);
-					}
-					else if (player.right) {
-						mesh_one = &PhysicsSystem::loaded_meshes.at(Direction::Right);
-					}
+				if (player.up) {
+					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
 				}
+				else if (player.down) {
+					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Down);
+				}
+				else if (player.left) {
+					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Left);
+				}
+				else if (player.right) {
+					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
+				}
+			}
+			else if (registry.minions.has(entity1)) {
+				auto& minion = registry.minions.get(entity1);
+				if (minion.up) {
+					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+				}
+				else if (minion.down) {
+					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+				}
+				else if (minion.left) {
+					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+				}
+				else if (minion.right) {
+					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
+				}
+			}
 
-				if (registry.players.has(entity2)) {
-					auto& player = registry.players.get(entity2);
-					if (player.up) {
-						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Up);
-					}
-					else if (player.down) {
-						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Down);
-					}
-					else if (player.left) {
-						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Left);
-					}
-					else if (player.right) {
-						mesh_two = &PhysicsSystem::loaded_meshes.at(Direction::Right);
-					}
+			if (registry.players.has(entity2)) {
+				auto& player = registry.players.get(entity2);
+				if (player.up) {
+					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
+				}
+				else if (player.down) {
+					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Down);
+				}
+				else if (player.left) {
+					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Left);
+				}
+				else if (player.right) {
+					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
+				}
+			}
+			else if (registry.minions.has(entity2)) {
+				auto& minion = registry.minions.get(entity2);
+				if (minion.up) {
+					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+				}
+				else if (minion.down) {
+					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+				}
+				else if (minion.left) {
+					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+				}
+				else if (minion.right) {
+					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
 				}
 			}
 			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
@@ -450,17 +494,17 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 	Transform transform_two;
 	transform_one.translate(motion_one.position);
 	transform_one.rotate(motion_one.angle);
-	transform_one.scale(motion_one.mesh_scale);
+	transform_one.scale(motion_one.scale);
 	transform_two.translate(motion_two.position);
 	transform_two.rotate(motion_two.angle);
-	transform_two.scale(motion_two.mesh_scale);
+	transform_two.scale(motion_two.scale);
 
 	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
 		axises.clear();
 		edges.clear();
 		shape.clear();
 		vec2 positions[3];
-
+		bool is_inside_Box = false;
 		if (i + 2 < mesh->vertex_indices.size()) {
 			for (int j = 0; j < 3; j++) {
 				const ColoredVertex& v = mesh->vertices[mesh->vertex_indices[i + j]];
@@ -471,8 +515,11 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 			// only check polygons with indices that inside the overlap box 
 			for (vec2 point: positions) {
 				if (!isPointInBox(point, overlapBox)) {
-					continue;
+					is_inside_Box = true;
 				}
+			}
+			if (!is_inside_Box) {
+				return false;
 			}
 
 			vec2 v1 = positions[0];

@@ -90,11 +90,18 @@ struct Player {
 
 };
 
-static const std::map<Direction, std::string> direction_mesh = {
+static const std::map<Direction, std::string> blendy_direction_mesh = {
 	{Direction::Up, mesh_path("Blendy-up.obj")},
 	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
 	{Direction::Left, mesh_path("Blendy-left.obj")},
 	{Direction::Right, mesh_path("Blendy-right.obj")}
+};
+
+static const std::map<Direction, std::string> minion_direction_mesh = {
+	{Direction::Up, mesh_path("Minion-Reduced.obj")},
+	{Direction::Down, mesh_path("Minion-Reduced.obj")},
+	{Direction::Left, mesh_path("minion-left.obj")},
+	{Direction::Right, mesh_path("minion-right.obj")}
 };
 
 
@@ -198,7 +205,6 @@ struct Motion {
 	vec2 scale = { 10, 10 };
 	float y_animate = 0.f;
 	EntityType type = EntityType::Generic;
-	vec2 mesh_scale = {0,0};
 
 	bool operator==(const Motion& other) const {
 		return position == other.position &&

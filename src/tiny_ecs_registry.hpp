@@ -41,6 +41,7 @@ public:
 	ComponentContainer<Tank> tanks;
 	ComponentContainer<Sniper> snipers;
 	ComponentContainer<Protection> protections;
+	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
 
 	int score;
 	bool is_pause;
