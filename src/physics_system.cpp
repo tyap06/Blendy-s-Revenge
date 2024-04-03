@@ -3,6 +3,7 @@
 #include "world_init.hpp"
 #include <iostream>
 #include <vector>
+
 //vec2 normalize(const vec2&);
 float duration = 0;
 std::map<Direction, Mesh> PhysicsSystem::loaded_blendy_meshes;
@@ -15,6 +16,8 @@ bool checkMeshCollisionSAT(Mesh*, const Motion&, Mesh*, const Motion&, const box
 std::vector<vec2> getRectangleEdge(const Motion&, std::vector<vec2>&);
 box calculate_overlap_area(const vec2&, const vec2&, const vec2&, const vec2&);
 bool isPointInBox(const vec2&, const box&);
+//extern Grid grid;
+
 // Returns the local bounding coordinates scaled by the current size of the entity
 vec2 get_bounding_box(const Motion& motion)
 {
@@ -76,7 +79,9 @@ vec2 get_bounding_box(const Motion& motion)
 
 bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Motion& motion2)
 {
-
+	if (!(registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2))) {
+		return false;
+	}
 
 	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
 	//plase don't touch the code in the next if statement
@@ -120,7 +125,6 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		|| (registry.fpsCounters.has(entity1) || registry.fpsCounters.has(entity2))
 		|| (registry.lightSources.has(entity1) || registry.lightSources.has(entity2))
 		|| (registry.backgrounds.has(entity1) || registry.backgrounds.has(entity2))
-		//|| (registry.healthBars.has(entity1) || registry.healthBars.has(entity2)) // Uncomment when healthBar container added
 		|| (registry.helpScreens.has(entity1) || registry.helpScreens.has(entity2))
 		)
 	{
@@ -144,87 +148,86 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
 		//if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
-		if(registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2)){
-			Mesh* mesh_one;
-			Mesh* mesh_two;
-			if (registry.Entity_to_Bullet_Mesh_Entity.has(entity1)) {
-				Entity& mesh_one_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity1);
-				mesh_one = registry.meshPtrs.get(mesh_one_entity);
-			}
-			else {
-				mesh_one = registry.meshPtrs.get(entity1);
-			}
-			if (registry.Entity_to_Bullet_Mesh_Entity.has(entity2)) {
-				Entity& mesh_two_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity2);
-				mesh_two = registry.meshPtrs.get(mesh_two_entity);
-			}
-			else {
-				mesh_two = registry.meshPtrs.get(entity2);
-			}
 
-			if (registry.players.has(entity1)) {
-				auto& player = registry.players.get(entity1);
-				if (player.up) {
-					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
-				}
-				else if (player.down) {
-					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Down);
-				}
-				else if (player.left) {
-					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Left);
-				}
-				else if (player.right) {
-					mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
-				}
-			}
-			else if (registry.minions.has(entity1)) {
-				auto& minion = registry.minions.get(entity1);
-				if (minion.up) {
-					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
-				}
-				else if (minion.down) {
-					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-				}
-				else if (minion.left) {
-					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
-				}
-				else if (minion.right) {
-					mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
-				}
-			}
-
-			if (registry.players.has(entity2)) {
-				auto& player = registry.players.get(entity2);
-				if (player.up) {
-					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
-				}
-				else if (player.down) {
-					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Down);
-				}
-				else if (player.left) {
-					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Left);
-				}
-				else if (player.right) {
-					mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
-				}
-			}
-			else if (registry.minions.has(entity2)) {
-				auto& minion = registry.minions.get(entity2);
-				if (minion.up) {
-					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
-				}
-				else if (minion.down) {
-					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-				}
-				else if (minion.left) {
-					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
-				}
-				else if (minion.right) {
-					mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
-				}
-			}
-			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		Mesh* mesh_one;
+		Mesh* mesh_two;
+		if (registry.Entity_to_Bullet_Mesh_Entity.has(entity1)) {
+			Entity& mesh_one_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity1);
+			mesh_one = registry.meshPtrs.get(mesh_one_entity);
 		}
+		else {
+			mesh_one = registry.meshPtrs.get(entity1);
+		}
+		if (registry.Entity_to_Bullet_Mesh_Entity.has(entity2)) {
+			Entity& mesh_two_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity2);
+			mesh_two = registry.meshPtrs.get(mesh_two_entity);
+		}
+		else {
+			mesh_two = registry.meshPtrs.get(entity2);
+		}
+
+		if (registry.players.has(entity1)) {
+			auto& player = registry.players.get(entity1);
+			if (player.up) {
+				mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
+			}
+			else if (player.down) {
+				mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Down);
+			}
+			else if (player.left) {
+				mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Left);
+			}
+			else if (player.right) {
+				mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
+			}
+		}
+		else if (registry.minions.has(entity1)) {
+			auto& minion = registry.minions.get(entity1);
+			if (minion.up) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+			}
+			else if (minion.down) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
+			else if (minion.left) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+			}
+			else if (minion.right) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
+			}
+		}
+
+		if (registry.players.has(entity2)) {
+			auto& player = registry.players.get(entity2);
+			if (player.up) {
+				mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
+			}
+			else if (player.down) {
+				mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Down);
+			}
+			else if (player.left) {
+				mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Left);
+			}
+			else if (player.right) {
+				mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
+			}
+		}
+		else if (registry.minions.has(entity2)) {
+			auto& minion = registry.minions.get(entity2);
+			if (minion.up) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+			}
+			else if (minion.down) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
+			else if (minion.left) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+			}
+			else if (minion.right) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
+			}
+		}
+		return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 	}
 	return false;
 }
@@ -432,50 +435,63 @@ void PhysicsSystem::step(float elapsed_ms)
 	//render_Screen(alphaFactor);
 
 	// Check for collisions between all moving entities
-	ComponentContainer<Motion>& motion_container = registry.motions;
-	for (uint i = 0; i < motion_container.components.size(); i++)
+
+	//grid.clearAllCells();
+	//
+	//for (const Entity& entity : registry.mesh_collision.entities) {
+	//	if (registry.motions.has(entity)) {
+	//		Motion& motion = registry.motions.get(entity);
+	//		grid.addEntity(entity, motion);
+	//	}
+	//}
+
+	// Collision check with grid optimization
+	//for (const Entity& entity_i : registry.mesh_collision.entities) {
+	//	if (registry.motions.has(entity_i)) {
+	//		/*Motion& motion_i = registry.motions.get(entity_i);
+	//		Grid grid = *registry.grid;
+	//		grid.getNearbyEntities(entity_i, motion_i);*/
+	//		//auto nearbyEntities = grid.getNearbyEntities(entity_i, motion_i);
+	//		/*for (const Entity& entity_j : nearbyEntities) {
+	//			if (entity_i == entity_j) continue;
+	//			if (registry.motions.has(entity_j)) {
+	//				Motion& motion_j = registry.motions.get(entity_j);
+	//				if (collides(entity_i, entity_j, motion_i, motion_j))
+	//				{
+	//					registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+	//					registry.collisions.emplace_with_duplicates(entity_j, entity_i);
+	//				}
+	//			}
+	//		}*/
+	//	}
+	//}
+
+	ComponentContainer<Mesh_collision>& mesh_Collision_container = registry.mesh_collision;
+	for (uint i = 0; i < mesh_Collision_container.entities.size(); i++)
 	{
-		Motion& motion_i = motion_container.components[i];
-		Entity entity_i = motion_container.entities[i];
+		
+		Entity entity_i = mesh_Collision_container.entities[i];
+		if (registry.motions.has(entity_i)) {
+			Motion& motion_i = registry.motions.get(entity_i);
+			// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
+			for (uint j = i + 1; j < mesh_Collision_container.components.size(); j++)
+			{
+				Entity entity_j = mesh_Collision_container.entities[j];
+				if (registry.motions.has(entity_j)) {
+					Motion& motion_j = registry.motions.get(entity_j);
+					if (collides(entity_i, entity_j, motion_i, motion_j))
+					{
+						// Create a collisions event
+						// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
+						registry.collisions.emplace_with_duplicates(entity_i, entity_j);
+						registry.collisions.emplace_with_duplicates(entity_j, entity_i);
 
-		// note starting j at i+1 to compare all (i,j) pairs only once (and to not compare with itself)
-		for (uint j = i + 1; j < motion_container.components.size(); j++)
-		{
-			Motion& motion_j = motion_container.components[j];
-			Entity entity_j = motion_container.entities[j];
+					}
+				}
 
-
-			
-
-			if (!registry.mesh_collision.has(motion_container.entities[i]) && registry.mesh_collision.has(motion_container.entities[j])) {
-				continue;
-			}
-
-			if (collides(entity_i, entity_j, motion_i, motion_j))
-			{	
-				// Create a collisions event
-				// We are abusing the ECS system a bit in that we potentially insert muliple collisions for the same entity
-				
-				registry.collisions.emplace_with_duplicates(entity_i, entity_j);
-				registry.collisions.emplace_with_duplicates(entity_j, entity_i);
-
-
-				//if (registry.bullets.has(entity_i) && registry.minions.has(entity_j)) {
-				//	/*std::cout << "minion bullet collision" << std::endl;*/
-				//	if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-				//		/*std::cout << "collision added" << std::endl;*/
-				//	}
-
-				//}
-				//else if (registry.bullets.has(entity_j) && registry.minions.has(entity_i)) {
-				//	/*std::cout << "minion bullet collision" << std::endl;*/
-				//	if (registry.collisions.has(entity_i) && registry.collisions.get(entity_i).other == entity_j) {
-				//		/*std::cout << "collision added" << std::endl;*/
-				//	}
-				//}
-				
 			}
 		}
+		
 	}
 }
 
