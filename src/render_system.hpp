@@ -263,6 +263,8 @@ private:
 	// Score Counter
 	void display_score();
 
+	void display_text();
+
 	// Window handle
 	GLFWwindow* window;
 

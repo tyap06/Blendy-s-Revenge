@@ -725,3 +725,181 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 	}
 	return entity;
 }
+
+Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
+{
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = bounds;
+
+	// add to component
+	auto& cutScene = registry.cutScenes.emplace(entity);
+	cutScene.stage = stage;
+
+	if (stage == 1) {
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::START_SCREEN,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (stage == 2) {
+		// 1.1
+		cutScene.text[0] = "Meet Blendy!";
+		cutScene.text[1] = "He works at";
+		cutScene.text[2] = "a smoothie shop.";
+		cutScene.text[3] = "Press 'C' to skip";
+		cutScene.text_position[0].x = 50;
+		cutScene.text_position[0].y = window_height_px - 230;
+		cutScene.text_position[1].x = 1210;
+		cutScene.text_position[1].y = window_height_px - 250;
+		cutScene.text_position[2].x = 1150;
+		cutScene.text_position[2].y = window_height_px - 320;
+		cutScene.text_position[3].x = 1250;
+		cutScene.text_position[3].y = window_height_px - 50;
+		cutScene.text_color[0] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[1] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[2] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[3] = vec3(0.6f, 0.247f, 0.435f);
+		// 0.443, 0.612, 0.639
+		cutScene.text_scale[0] = 1.1;
+		cutScene.text_scale[1] = 1.1;
+		cutScene.text_scale[2] = 1.1;
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::CUTSCENE_1_1,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (stage == 3) {
+		// 1.2
+		cutScene.text[0] = "One day,";
+		cutScene.text[1] = "the manager brings";
+		cutScene.text[2] = "in a replacement...";
+		cutScene.text[3] = "Press 'C' to skip";
+		cutScene.text_position[0].x = 240;
+		cutScene.text_position[0].y = window_height_px - 90;
+		cutScene.text_position[1].x = 80;
+		cutScene.text_position[1].y = window_height_px - 160;
+		cutScene.text_position[2].x = 90;
+		cutScene.text_position[2].y = window_height_px - 230;
+		cutScene.text_position[3].x = 1250;
+		cutScene.text_position[3].y = window_height_px - 50;
+		cutScene.text_color[0] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[1] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[2] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[3] = vec3(0.6f, 0.247f, 0.435f);
+		cutScene.text_scale[0] = 1.2;
+		cutScene.text_scale[1] = 1.2;
+		cutScene.text_scale[2] = 1.2;
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::CUTSCENE_1_2,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (stage == 4) {
+		// 1.3
+		cutScene.text[0] = "...and throws";
+		cutScene.text[1] = "Blendy out.";
+		cutScene.text[3] = "Press 'C' to skip";
+		cutScene.text_position[0].x = 100;
+		cutScene.text_position[0].y = window_height_px - 210;
+		cutScene.text_position[1].x = 130;
+		cutScene.text_position[1].y = window_height_px - 280;
+		cutScene.text_position[3].x = 1250;
+		cutScene.text_position[3].y = window_height_px - 50;
+		cutScene.text_scale[0] = 1.2;
+		cutScene.text_scale[1] = 1.2;
+		cutScene.text_color[0] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[1] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[3] = vec3(0.6f, 0.247f, 0.435f);
+		cutScene.text_scale[0] = 1.2;
+		cutScene.text_scale[1] = 1.2;
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::CUTSCENE_1_3,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (stage == 5) {
+		// 1.4
+		cutScene.text[0] = "Blendy vows to get revenge.";
+		cutScene.text[3] = "Press 'C' to skip";
+		cutScene.text_position[0].x = 750;
+		cutScene.text_position[0].y = window_height_px - 180;
+		cutScene.text_position[3].x = 1250;
+		cutScene.text_position[3].y = window_height_px - 50;
+		cutScene.text_color[0] = vec3(0.16f, 0.302f, 0.322f);
+		cutScene.text_color[3] = vec3(0.6f, 0.247f, 0.435f);
+		cutScene.text_scale[0] = 1.15;
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::CUTSCENE_1_4,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (stage == 7) {
+		// 2.1
+		cutScene.text[0] = "Blendy's replacement";
+		cutScene.text[1] = "begins to grow in power.";
+		cutScene.text[3] = "Press 'C' to skip";
+		cutScene.scale = 1.5;
+		cutScene.text_position[0].x = 850;
+		cutScene.text_position[0].y = window_height_px - 600;
+		cutScene.text_position[1].x = 850;
+		cutScene.text_position[1].y = window_height_px - 700;
+		cutScene.text_position[3].x = 1250;
+		cutScene.text_position[3].y = window_height_px - 50;
+		cutScene.text_color[3] = vec3(1.f, 0.95f, 0.776f);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::CUTSCENE_2_1,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (stage == 8)
+	{
+		// 2.2
+		cutScene.text[3] = "Press 'C' to skip";
+		cutScene.text_position[3].x = 1250;
+		cutScene.text_position[3].y = window_height_px - 50;
+		cutScene.text_color[3] = vec3(1.f, 0.95f, 0.776f);
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::CUTSCENE_2_2,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+	else if (stage == 10) {
+		// 3.1
+		cutScene.text[0] = "Blendy is happy.";
+		cutScene.scale = 1.4;
+		cutScene.text_position[0].x = 1000;
+		cutScene.text_position[0].y = window_height_px - 120;
+		registry.renderRequests.insert(
+			entity,
+			{ TEXTURE_ASSET_ID::CUTSCENE_3_1,
+				TEXTURE_ASSET_ID::TEXTURE_COUNT,
+			EFFECT_ASSET_ID::TEXTURED,
+			GEOMETRY_BUFFER_ID::SPRITE });
+	}
+
+	// create render request
+	return entity;
+}

@@ -35,6 +35,7 @@ public:
 	ComponentContainer<EnemyBullet> enemyBullets;
 	ComponentContainer<Mesh_collision> mesh_collision;
 	ComponentContainer<Panel> panel;
+	ComponentContainer<CutScene> cutScenes;
 	ComponentContainer<Charger> chargers;
 	ComponentContainer<Giant> giants;
 	ComponentContainer<Healer> healers;
@@ -72,6 +73,7 @@ public:
 		registry_list.push_back(&roamers);
 		registry_list.push_back(&helpScreens);
 		registry_list.push_back(&panel);
+		registry_list.push_back(&cutScenes);
 		registry_list.push_back(&chargers);
 		registry_list.push_back(&healers);
 		registry_list.push_back(&giants);

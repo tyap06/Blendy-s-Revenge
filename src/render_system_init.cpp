@@ -284,9 +284,27 @@ void RenderSystem::display_score()
 		auto& color_component = registry.colors.get(entity);
 
 		auto& motion = registry.motions.get(entity);
-
-		renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+		if (score_component.show) {
+			renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+		}
 	}
+}
+
+void RenderSystem::display_text()
+{
+	for (Entity entity : registry.cutScenes.entities)
+	{
+		auto& cutscene = registry.cutScenes.get(entity);
+		for (int i = 0; i < 4; i++) {
+			if (cutscene.text_position[i].x != 0) {
+				std::string cutscene_text(cutscene.text[i]);
+				// std::cout << cutscene_text << std::endl;
+				renderText(cutscene_text, cutscene.text_position[i].x, cutscene.text_position[i].y, cutscene.text_scale[i], cutscene.text_color[i], glm::mat4(1.f));
+			}
+		}
+		// 		renderText("Press 'C' to  skip", 1520, window_height_px - 50, 0.8, vec3(0.4f, 0.f, 0.3f), glm::mat4(1.f));
+	}
+
 }
 
 // Initialize the screen texture from a standard sprite

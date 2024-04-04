@@ -242,6 +242,18 @@ struct HelpScreen
 	
 };
 
+// A component to represent cut scene
+struct CutScene
+{
+	int stage = 0;
+	// std::string text = "";
+	std::string text[4] = { "", "", "" , ""};
+	vec2 text_position[4] = { {0, 0},  {0, 0} , {0, 0} , {0,0} };
+	vec3 text_color[4] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} };
+	float text_scale[4] = { 1.f, 1.f, 1.f, 1.f };
+	float scale = 1;
+};
+
 // If an entity represents an FPS counter
 struct FpsCounter
 {
@@ -254,6 +266,7 @@ struct ScoreCounter
 {
 	unsigned int current_score = 0;
 	float scale = 1.f;
+	bool show = true;
 };
 
 // A struct to refer to debugging graphics in the ECS
