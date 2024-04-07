@@ -48,8 +48,8 @@ int main()
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
 		if (!registry.is_pause) {
-			world.handle_collisions();
 			physics.step(elapsed_ms);
+			world.handle_collisions();
 			ai.step(elapsed_ms);
 			world.step(elapsed_ms);
 		}

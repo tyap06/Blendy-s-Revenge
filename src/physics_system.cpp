@@ -188,6 +188,9 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 			else if (minion.right) {
 				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
 			}
+			else {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
 		}
 
 		if (registry.players.has(entity2)) {
@@ -219,8 +222,12 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 			else if (minion.right) {
 				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
 			}
+			else {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
 		}
 		if (mesh_one != NULL && mesh_two != NULL) {
+			std::cout << "No Mesh found!!!!" << std::endl;
 			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 		}
 	}
@@ -305,7 +312,8 @@ void PhysicsSystem::step(float elapsed_ms)
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-
+			
+			
 			if (new_x - half_width <= 0) {
 				if (registry.roamers.has(entity) && motion.velocity.x < 0) {
 					motion.velocity.x *= -1;
@@ -346,7 +354,19 @@ void PhysicsSystem::step(float elapsed_ms)
 			else {
 				motion.position.y = new_y;
 			}
+			
+
+			/*Entity& mesh_entity = registry.Entity_Mesh_Entity.get(entity);
+			Motion& mesh_motion = motion;*/
+			//if (registry.motions.has(mesh_entity)) {
+			//	mesh_motion = registry.motions.get(mesh_entity);
+			//	mesh_motion = motion;
+			//	//mesh_motion.position = motion.position;
+			//}
+
 			Minion& minion = registry.minions.get(entity);
+			
+
 			minion.up = false;
 			minion.down = false;
 			minion.left = false;
@@ -409,12 +429,15 @@ void PhysicsSystem::step(float elapsed_ms)
 		*/
 
 		else {
-			//handle bullet movement
-			if (motion.position.x < 0.f || motion.position.x > window_width_px 
-				|| motion.position.y < 0 || motion.position.y > window_height_px) {
+			if (!registry.Mesh_entity.has(entity)){
+				//handle bullet movement
+				if (motion.position.x < 0.f || motion.position.x > window_width_px
+					|| motion.position.y < 0 || motion.position.y > window_height_px) {
 
-				registry.remove_all_components_of(motion_registry.entities[i]);
-				continue;
+					registry.remove_all_components_of(motion_registry.entities[i]);
+					continue;
+				}
+				
 			}
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
@@ -464,7 +487,6 @@ void PhysicsSystem::step(float elapsed_ms)
 	ComponentContainer<Mesh_collision>& mesh_Collision_container = registry.mesh_collision;
 	for (uint i = 0; i < mesh_Collision_container.entities.size(); i++)
 	{
-		
 		Entity entity_i = mesh_Collision_container.entities[i];
 		if (registry.motions.has(entity_i)) {
 			Motion& motion_i = registry.motions.get(entity_i);

@@ -42,6 +42,7 @@ public:
 	ComponentContainer<Sniper> snipers;
 	ComponentContainer<Protection> protections;
 	ComponentContainer<Entity> Entity_Mesh_Entity;
+	ComponentContainer<Mesh_entity> Mesh_entity;
 
 	int score;
 	bool is_pause;
@@ -78,6 +79,8 @@ public:
 		registry_list.push_back(&tanks);
 		registry_list.push_back(&snipers);
 		registry_list.push_back(&protections);
+		registry_list.push_back(&Mesh_entity);
+
 	}
 
 	void clear_all_components() {
