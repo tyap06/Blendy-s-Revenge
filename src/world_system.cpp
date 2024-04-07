@@ -51,7 +51,7 @@ const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 175.f, 32.f };
 const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
-const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
+const vec2 HELP_SCREEN_BOUNDS = { 1250.f * 1.1, 800.f *1.1 };
 const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
 const vec2 PROTEIN_POWDER_POWERUP_BOUNDS = { 70.f, 80.f };
 const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 70.f };
@@ -84,8 +84,8 @@ const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 // CUTSCENE STUFF
 const int FIRST_CUT_SCENE_END = 6;
 const int SECOND_CUT_SCENE_END = 9;
-const int SECOND_CUT_SCORE = 20;
-const int THIRD_CUT_SCORE = 50;
+const int SECOND_CUT_SCORE = 700;
+const int THIRD_CUT_SCORE = 1500;
 
 // MUSIC
 const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
@@ -850,13 +850,17 @@ void WorldSystem::handle_cutScenes()
 }
 
 void WorldSystem::handle_help_screen() {
+	auto& score_component = registry.scoreCounters.get(score_counter);
+
 	if (showHelpScreen) {
 		registry.is_pause = true;
 		help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
+		score_component.show = false;
 	}
 	else {
 		registry.is_pause = false;
 		registry.remove_all_components_of(help_screen);
+		score_component.show = true;
 	}
 
 	showHelpScreen = !showHelpScreen;

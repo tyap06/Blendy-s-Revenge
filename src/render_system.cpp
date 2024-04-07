@@ -654,7 +654,7 @@ void RenderSystem::draw()
 
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity))
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity))
 			continue; 
 
 		drawTexturedMesh(entity, projection_2D);
@@ -663,11 +663,12 @@ void RenderSystem::draw()
 	// Phase 2: Draw only bullet entities
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity)))
+		if (registry.is_pause||!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity)))
 			continue; // Skip non-bullet entities in this phase
 
 		drawTexturedMesh(entity, projection_2D);
 	}
+
 
 	debug_fps(projection_2D);
 	display_score();
