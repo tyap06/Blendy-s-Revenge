@@ -29,6 +29,7 @@ const size_t MAX_PROTEIN_POWDER_POWERUPS = 2;
 const size_t MAX_GRAPE_POWERUPS = 2;
 const size_t MAX_LEMON_POWERUPS = 2;
 const size_t POWERUP_DELAY_MS = 200 * 3;
+const int boss_spawn_score = 5000;
 const float PLAYER_POWERUP_SPAWN_DISTANCE = 150.0f;
 
 // UI
@@ -280,7 +281,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	vec2 player_pos = player_motion.position;
 
 	// Spawn battery powerup 
-	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 0) {
+	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score == 0) {
 		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 20) + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		// Generate a random position, excluding the player's position
@@ -359,7 +360,16 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
+	if (registry.boss_spawned == false) {
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_boss(renderer, spawnPos, MINION_BOUNDS);
+		registry.boss_spawned = true;
+	}
+
+	
+	
+
+	/*if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_minion(renderer, spawnPos, MINION_BOUNDS);
@@ -405,7 +415,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_giant(renderer, spawnPos, bound, registry.score);
-	}
+	}*/
 
 }
 
@@ -657,6 +667,7 @@ void WorldSystem::restart_game() {
 	is_dead = false;
 	registry.is_dead = false;
 	registry.score = 0;
+	registry.boss_spawned = false;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	update_health_bar();

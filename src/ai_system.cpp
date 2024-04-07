@@ -111,7 +111,8 @@ void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up
 
 void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, float elapsed_ms) {
 	if (!boss.is_shooting) return;
-	boss.shoot_interval_ms += elapsed_ms;
+	boss.time_since_last_shot_ms += elapsed_ms;
+	std::cout << boss.time_since_last_shot_ms << std::endl;
 	if (boss.time_since_last_shot_ms < boss.shoot_interval_ms / 4) return;
 	vec2 bullet_direction = normalize(player_pos - motion.position);
 	vec2 up_vector{ 0.0f, -1.0f };
@@ -130,7 +131,7 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 	case Bullet_State::Default: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms) {
 			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff, 25, {1,0.5,0});
-			boss.time_since_last_shot_ms = static_cast<float>(distr(gen));
+			boss.time_since_last_shot_ms = 0;
 		}
 		return;
 	}
@@ -191,7 +192,9 @@ void AISystem::updateBoss(Entity bossEntity, vec2 chase_direction,
 		boss.rest_timer -= elapsed_ms;
 		if (!registry.players.has(closestPowerUp)) {
 			auto& power = registry.motions.get(closestPowerUp);
-			target_direction = calculateInterceptPosition(power.position, motion.position, 1);
+			vec2 goalPos = calculateInterceptPosition(power.position, motion.position, 1);
+			target_direction = normalize(goalPos - motion.position);
+			
 		}
 		else if (distanceToPlayer < 400.f) {
 			vec2 awayDirection = -chase_direction;
@@ -213,16 +216,20 @@ void AISystem::updateBoss(Entity bossEntity, vec2 chase_direction,
 			boss.state = BossState::Charging;
 			if (!registry.players.has(closestPowerUp)) {
 				auto& power = registry.motions.get(closestPowerUp);
-				target_direction = calculateInterceptPosition(power.position, motion.position, 1);
+				vec2 goalPos = calculateInterceptPosition(power.position, motion.position, 1);
+				target_direction = normalize(goalPos - motion.position);
 			}
 			boss.charge_direction = target_direction;
 		}
+		break;
 	}
 	case BossState::Charging: {
+		boss.is_shooting = false;
 		motion.velocity = boss.charge_direction * boss_charge_speed * enemy.speed;
 		boss.rest_timer += elapsed_ms * 2;
 		if (boss.rest_timer >= charger_rest_time) {
 			boss.rest_timer = boss_rest_time;
+			boss.state = BossState::Default;
 		}
 		break;
 	}
@@ -233,8 +240,10 @@ void AISystem::updateBoss(Entity bossEntity, vec2 chase_direction,
 			boss.state = BossState::Default;
 		}
 		motion.velocity = { 0, 0 };
+		break;
 	}
 	}
+
 	boss_shoot(boss, motion, player_pos, elapsed_ms);
 }
 

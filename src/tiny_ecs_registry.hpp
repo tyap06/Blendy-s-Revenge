@@ -48,6 +48,7 @@ public:
 	int score = 0;
 	bool is_pause = false;
 	bool is_dead = false;
+	bool boss_spawned = false;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!

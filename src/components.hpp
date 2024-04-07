@@ -79,7 +79,7 @@ struct Boss {
 	BossState state = BossState::Default;
 	Bullet_State bstate = Bullet_State::Default;
 	float aim_timer = 0;
-	float shoot_interval_ms = 1000.0f;
+	float shoot_interval_ms = 25.0f;
 	float time_since_last_shot_ms = 0.0f;
 	bool is_shooting = true;
 	float powerup_duration_ms = 0.f;
