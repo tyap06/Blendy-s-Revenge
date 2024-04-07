@@ -559,6 +559,7 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 			otherShape.clear();
 			edges.clear();
 			axises_copy = axises;
+			bool is_inside_Box = false;
 			if (index + 2 < otherMesh->vertex_indices.size()) {
 				for (int j = 0; j < 3; j++) {
 					if (otherMesh->vertex_indices[index + j] < mesh->vertices.size()) {
@@ -570,11 +571,15 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					
 				}
 				// only check polygons with indices that inside the overlap box 
-				for (vec2 point : positions_2) {
+				for (vec2 point : positions) {
 					if (!isPointInBox(point, overlapBox)) {
-						continue;
+						is_inside_Box = true;
 					}
 				}
+			}
+
+			if (!is_inside_Box) {
+				return false;
 			}
 
 			vec2 v1 = positions_2[0];

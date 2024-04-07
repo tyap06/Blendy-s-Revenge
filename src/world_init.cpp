@@ -271,7 +271,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	create_mesh(renderer, position, motion.velocity, {500, 500}, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, true);
+	create_mesh(renderer, {500, 350}, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, true);
 
 	// Create and (empty) Minion component to be able to refer to all minions
 	registry.minions.emplace(entity);
