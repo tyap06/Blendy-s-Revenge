@@ -26,4 +26,12 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 - Persistent Blendy‘ s facing direction after stop moving
 #### Minions
 - 4-directional movement animation
+### New minions ai
+- new enemy charger(in light red color)
+- new enemy sniper(in blue color) 
+- new enemy tank (in black color)
+- new enemy giant (in rainbow color)
 ## Creative Features Advanced (20%)
+### cooperative ai 
+
+Tank attempts to shield the Sniper from the player based on sniper and player position when possible. One sniper can be most protected by one tank.
