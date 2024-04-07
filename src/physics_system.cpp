@@ -117,27 +117,22 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 	}
 
 	if (
-		(registry.minions.has(entity1) && registry.minions.has(entity2))
-		|| (registry.bullets.has(entity1) && registry.bullets.has(entity2))
-		|| (registry.enemyBullets.has(entity1) && registry.minions.has(entity2))
-		|| (registry.enemyBullets.has(entity2) && registry.minions.has(entity1))
-		|| (registry.scoreCounters.has(entity1) || registry.scoreCounters.has(entity2))
-		|| (registry.fpsCounters.has(entity1) || registry.fpsCounters.has(entity2))
-		|| (registry.lightSources.has(entity1) || registry.lightSources.has(entity2))
-		|| (registry.backgrounds.has(entity1) || registry.backgrounds.has(entity2))
-		|| (registry.helpScreens.has(entity1) || registry.helpScreens.has(entity2))
+		(registry.minions.has(entity1) && registry.bullets.has(entity2))
+		|| (registry.minions.has(entity2) && registry.bullets.has(entity1))
+		|| (registry.players.has(entity1) && registry.enemyBullets.has(entity2))
+		|| (registry.players.has(entity2) && registry.enemyBullets.has(entity1))
+		|| (registry.players.has(entity2) && registry.minions.has(entity1))
+		|| (registry.players.has(entity1) && registry.minions.has(entity2))
+		|| (registry.players.has(entity1) && registry.powerUps.has(entity2))
+		|| (registry.players.has(entity2) && registry.powerUps.has(entity1))
 		)
-	{
-		return false;
-	}
-
-	if ((registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2)))
 	{
 		// pass
 	}
 	else {
 		return false;
 	}
+
 	const vec2 halfBB_one = get_bounding_box(motion1) / 2.f;
 	const vec2 halfBB_two = get_bounding_box(motion2) / 2.f;
 	vec2 center_dis = motion1.position - motion2.position;
@@ -149,21 +144,19 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
 		//if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
 
-		Mesh* mesh_one;
-		Mesh* mesh_two;
-		if (registry.Entity_to_Bullet_Mesh_Entity.has(entity1)) {
-			Entity& mesh_one_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity1);
-			mesh_one = registry.meshPtrs.get(mesh_one_entity);
+		Mesh* mesh_one = NULL;
+		Mesh* mesh_two = NULL;
+		if (registry.Entity_Mesh_Entity.has(entity1)) {
+			Entity& mesh_one_entity = registry.Entity_Mesh_Entity.get(entity1);
+			if (registry.meshPtrs.has(mesh_one_entity)) {
+				mesh_one = registry.meshPtrs.get(mesh_one_entity);
+			}
 		}
-		else {
-			mesh_one = registry.meshPtrs.get(entity1);
-		}
-		if (registry.Entity_to_Bullet_Mesh_Entity.has(entity2)) {
-			Entity& mesh_two_entity = registry.Entity_to_Bullet_Mesh_Entity.get(entity2);
-			mesh_two = registry.meshPtrs.get(mesh_two_entity);
-		}
-		else {
-			mesh_two = registry.meshPtrs.get(entity2);
+		if (registry.Entity_Mesh_Entity.has(entity2)) {
+			Entity& mesh_two_entity = registry.Entity_Mesh_Entity.get(entity2);
+			if (registry.meshPtrs.has(mesh_two_entity)) {
+				mesh_two = registry.meshPtrs.get(mesh_two_entity);
+			}
 		}
 
 		if (registry.players.has(entity1)) {
@@ -227,7 +220,9 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
 			}
 		}
-		return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		if (mesh_one != NULL && mesh_two != NULL) {
+			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		}
 	}
 	return false;
 }
