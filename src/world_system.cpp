@@ -811,6 +811,41 @@ void WorldSystem::handle_collisions() {
 				
 			}
 		}
+		else if (registry.cleaners.has(entity)) {
+			if (registry.powerUps.has(entity_other)) {
+				if (registry.boss.has(entity)) {
+					PowerUp& powerup = registry.powerUps.get(entity_other);
+					Boss& boss = registry.boss.get(entity);
+					Minion& m = registry.minions.get(entity);
+					switch (powerup.type) {
+					case POWERUP_TYPE::BATTERY:
+						m.health += 200;
+						if (m.health > m.max_health) m.health = m.max_health;
+						break;
+					/*case POWERUP_TYPE::Nuts:
+						m.health += 800;
+						if (m.health > m.max_health) m.health = m.max_health;
+						break;*/
+					case POWERUP_TYPE::LEMON:
+					/*case POWERUP_TYPE::Cherry:*/
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.powerup_duration_ms = 30;
+						break;
+					case POWERUP_TYPE::GRAPE:
+					case POWERUP_TYPE::	PROTEIN:
+					/*case POWERUP_TYPE::Cactus:*/
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.state = BossState::Shooting;
+						boss.powerup_duration_ms = 30;
+						break;
+					default:
+						break;
+					}
+				}
+				registry.remove_all_components_of(entity_other);
+				
+			}
+		}
 		else if (registry.bullets.has(entity)) {
 			auto& bullet = registry.bullets.get(entity);
 			if (registry.minions.has(entity_other) && bullet.friendly) {

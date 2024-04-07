@@ -235,8 +235,8 @@ void AISystem::updateBoss(Entity bossEntity, vec2 chase_direction,
 	}
 	case BossState::Shooting: {
 		boss.is_shooting = true;
-		boss.rest_timer -= elapsed_ms;
-		if (Bullet_State::Catus == boss.bstate || Bullet_State::Grape == boss.bstate || Bullet_State::Protein == boss.bstate) {
+		boss.powerup_duration_ms -= elapsed_ms;
+		if (boss.powerup_duration_ms < 0) {
 			boss.state = BossState::Default;
 		}
 		motion.velocity = { 0, 0 };
