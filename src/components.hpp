@@ -49,12 +49,45 @@ enum class Enemy_TYPE {
 	BOSS = CLEANER + 1,
 };
 
+
 enum class Charger_State {
 	Approaching = 0,
 	Aiming = Approaching + 1,
 	Charging = Aiming +1,
 	Resting = Charging + 1,
 };
+
+enum class Bullet_State {
+	Default,
+	Protein,
+	Grape,
+	Catus,
+	Lemon,
+	Cherry,
+};
+
+
+enum class BossState {
+	Default,
+	Aiming,
+	Charging,
+	PowerUpSeeking,
+	Shooting,
+};
+
+struct Boss {
+	BossState state = BossState::Default;
+	Bullet_State bstate = Bullet_State::Default;
+	float aim_timer = 0;
+	float shoot_interval_ms = 1000.0f;
+	float time_since_last_shot_ms = 0.0f;
+	bool is_shooting = true;
+	float powerup_duration_ms = 0.f;
+	vec2 charge_direction;
+	float rest_timer = 30;
+	int isAngry = 0;
+};
+
 
 enum class Direction {
 	Up,
@@ -116,10 +149,6 @@ struct Roamer {
 };
 
 struct Cleaner {
-
-};
-
-struct Boss {
 
 };
 

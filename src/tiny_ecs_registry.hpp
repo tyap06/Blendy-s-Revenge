@@ -45,9 +45,9 @@ public:
 	ComponentContainer<Boss> boss;
 	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
 
-	int score;
-	bool is_pause;
-	bool is_dead;
+	int score = 0;
+	bool is_pause = false;
+	bool is_dead = false;
 
 	// constructor that adds all containers for looping over them
 	// IMPORTANT: Don't forget to add any newly added containers!
