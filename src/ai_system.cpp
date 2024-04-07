@@ -49,7 +49,13 @@ Entity AISystem::findClosestSniper(vec2 tank_pos) {
 void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
 	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
 	auto& tank = registry.tanks.get(tankEntity);
-
+	Entity& mesh_entity = registry.Entity_Mesh_Entity.get(tankEntity);
+	Motion& mesh_motion = motion;
+	bool has_mesh_motion = false;
+	if (registry.motions.has(mesh_entity)) {
+		mesh_motion = registry.motions.get(mesh_entity);
+		has_mesh_motion = true;
+	}
 	float distanceToPlayer = calculateDistance(motion.position, player_pos);
 
 	switch (tank.state) {
@@ -65,6 +71,9 @@ void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
 			}	
 		}
 		motion.velocity = chase_direction * enemy.speed;
+		if (has_mesh_motion) {
+			mesh_motion.velocity = motion.velocity;
+		}
 		break;
 	}
 	case Tank_state::protecting: {
@@ -73,6 +82,9 @@ void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
 			registry.protections.remove(tankEntity);
 			tank.state = Tank_state::defualt;
 			motion.velocity = chase_direction * enemy.speed;
+			if (has_mesh_motion) {
+				mesh_motion.velocity = motion.velocity;
+			}
 			break;
 		}
 		else {
@@ -80,6 +92,9 @@ void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
 			vec2 protectivePos = calculateInterceptPosition(sniperMotion.position, player_pos, 0.7f);
 			vec2 directionToProtectivePos = normalize(protectivePos - motion.position);
 			motion.velocity = directionToProtectivePos * enemy.speed;
+			if (has_mesh_motion) {
+				mesh_motion.velocity = motion.velocity;
+			}
 		}
 		break;
 	}
@@ -96,6 +111,14 @@ void AISystem::updateSniper(Entity sniperEntity, vec2 chase_direction,
 	float aimDistance = 700.0f; 
 	float avoidDistance = 500.0f; 
 
+	Entity& mesh_entity = registry.Entity_Mesh_Entity.get(sniperEntity);
+	Motion& mesh_motion = motion;
+	bool has_mesh_motion = false;
+	if (registry.motions.has(mesh_entity)) {
+		mesh_motion = registry.motions.get(mesh_entity);
+		has_mesh_motion = true;
+	}
+
 	if (registry.protections.has(sniperEntity)) {
 		auto& protect = registry.protections.get(sniperEntity);
 		if (!registry.protections.has(protect.link)) {
@@ -108,6 +131,9 @@ void AISystem::updateSniper(Entity sniperEntity, vec2 chase_direction,
 		if (distanceToPlayer < avoidDistance) {
 			vec2 flee_direction = normalize(motion.position - player_pos);
 			motion.velocity = -chase_direction * enemy.speed;
+			if (has_mesh_motion) {
+				mesh_motion.velocity = motion.velocity;
+			}
 		}
 		else if (distanceToPlayer >= avoidDistance && distanceToPlayer <= aimDistance) {
 			sniper.state = Sniper_State::Aiming;
@@ -115,10 +141,15 @@ void AISystem::updateSniper(Entity sniperEntity, vec2 chase_direction,
 		}
 		else {
 			motion.velocity = chase_direction * enemy.speed;
-		}
+if (has_mesh_motion) {
+				mesh_motion.velocity = motion.velocity;
+			}		}
 		break;
 	case Sniper_State::Aiming: {
 		motion.velocity = { 0, 0 };
+		if (has_mesh_motion) {
+			mesh_motion.velocity = motion.velocity;
+		}
 		sniper.aim_timer -= elapsed_ms;
 		float color_offset = ((50 - sniper.aim_timer) / 50) /4;
 		vec3 color = { 0.2 - color_offset ,0.8 - color_offset,0.8 + color_offset };
@@ -158,6 +189,13 @@ void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction,
 	auto& charger = registry.chargers.get(chargerEntity);
 
 	float distanceToPlayer = calculateDistance(motion.position, player_pos);
+	Entity& mesh_entity = registry.Entity_Mesh_Entity.get(chargerEntity);
+	Motion& mesh_motion = motion;
+	bool has_mesh_motion = false;
+	if (registry.motions.has(mesh_entity)) {
+		mesh_motion = registry.motions.get(mesh_entity);
+		has_mesh_motion = true;
+	}
 
 	switch (charger.state) {
 	case Charger_State::Approaching:
@@ -167,11 +205,17 @@ void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction,
 		}
 		else {
 			motion.velocity = chase_direction * enemy.speed;
+			if (has_mesh_motion) {
+				mesh_motion.velocity = motion.velocity;
+			}
 		}
 		break;
 	case Charger_State::Aiming:
 	{
 		motion.velocity = { 0, 0 };
+		if (has_mesh_motion) {
+			mesh_motion.velocity = motion.velocity;
+		}
 		charger.aim_timer -= elapsed_ms;
 		float color_r = ((50 - charger.aim_timer) / 50) + 0.5;
 		vec3 color = { color_r,0.2,0.2 };
@@ -186,6 +230,7 @@ void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction,
 		break;
 	case Charger_State::Charging:
 		motion.velocity = charger.charge_direction * charger_charge_speed * enemy.speed;
+		mesh_motion.velocity = motion.velocity;
 		charger.rest_timer += elapsed_ms * 2;
 		if (charger.rest_timer >= charger_rest_time) {
 			charger.rest_timer = 80;
@@ -195,6 +240,9 @@ void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction,
 	case Charger_State::Resting:
 	{
 		motion.velocity = chase_direction * enemy.speed * ((80 - charger.rest_timer) / 80);
+		if (has_mesh_motion) {
+			mesh_motion.velocity = motion.velocity;
+		}
 		float color_r = (charger.rest_timer / 160) + 0.5;
 		vec3 color = { color_r,0.2,0.2 };
 		registry.colors.remove(chargerEntity);

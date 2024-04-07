@@ -564,7 +564,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		registry.remove_all_components_of(e);
 	}
 
-	update_minion_animation(elapsed_ms_since_last_update);
+	//update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
 	update_powerups(elapsed_ms_since_last_update);

@@ -66,3 +66,8 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+
+Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
+
+Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
+
