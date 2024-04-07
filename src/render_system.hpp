@@ -166,7 +166,10 @@ class RenderSystem {
 			textures_path("bleft_top_0_n.png"),
 			textures_path("bleft_top_1_n.png"),
 			textures_path("bleft_top_2_n.png"),
-			textures_path("bleft_top_3_n.png")
+			textures_path("bleft_top_3_n.png"),
+			textures_path("cherry.png"),
+			textures_path("nut.png"),
+			textures_path("cactus.png")
 
 	};
 

@@ -98,7 +98,13 @@ private:
 	float next_protein_powerup_spawn;
 	float next_grape_powerup_spawn;
 	float next_lemon_powerup_spawn;
+	float next_cherry_powerup_spawn;
+	float next_shield_powerup_spawn;
+	float next_cactus_powerup_spawn;
 	Entity health_bar_box;
+	Entity shield_1;
+	Entity shield_2;
+	Entity shield_3;
 
 	// music references
 	Mix_Music* background_music;

@@ -42,6 +42,7 @@ public:
 	ComponentContainer<Sniper> snipers;
 	ComponentContainer<Protection> protections;
 	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
+	ComponentContainer<Shield>shields;
 
 	int score;
 	bool is_pause;
@@ -78,6 +79,7 @@ public:
 		registry_list.push_back(&tanks);
 		registry_list.push_back(&snipers);
 		registry_list.push_back(&protections);
+		registry_list.push_back(&shields);
 	}
 
 	void clear_all_components() {

@@ -86,6 +86,33 @@ Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	return entity;
 }
 
+Entity create_shield_health(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::SPRITE);
+	registry.meshPtrs.emplace(entity, &mesh);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+	motion.scale = bounds;
+	
+	registry.shields.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SHIELD_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
 	auto entity = Entity();
@@ -441,6 +468,101 @@ Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const 
 	return entity;
 }
 
+Entity create_cherry_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::CHERRY;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CHERRY_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_shield_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::SHIELD;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::SHIELD_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+Entity create_cactus_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.mesh_collision.emplace(entity);
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0, 0 };
+	motion.position = position;
+
+	// Setting initial values, scale is negative to make it face the opposite way
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	// Create and (empty) powerup component to be able to refer to all minions
+	auto& powerup = registry.powerUps.emplace(entity);
+	powerup.type = POWERUP_TYPE::CACTUS;
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CACTUS_POWERUP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
+
+
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
 	auto entity = Entity();
 	// Store a reference to the potentially re-used mesh object, like createChicken
@@ -485,6 +607,33 @@ Entity create_fast_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float
 	auto& bullet = registry.bullets.emplace(entity);
 	
 	vec3 color = { 40,0,0 };
+	registry.colors.insert(entity, color);
+	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+	return entity;
+}
+
+Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	//registry.meshPtrs.emplace(entity, &mesh);
+
+	registry.mesh_collision.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.scale = vec2(60.f, 100.0f);
+	auto& bullet = registry.bullets.emplace(entity);
+
+	vec3 color = { 0, 1, 0 };
 	registry.colors.insert(entity, color);
 	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
 
