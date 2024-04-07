@@ -9,7 +9,7 @@ public:
 	SimpleEmitter();
 	~SimpleEmitter();
 
-	void update(const float dt);
+	void update(const float& dt);
 	void draw();
 	void init();
 

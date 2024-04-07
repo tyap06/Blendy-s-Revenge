@@ -12,7 +12,8 @@ out float lifetime;
 void main()
 {
    vec3 position_viewspace = position.xyz;
-   position_viewspace.xy += particleSize * (vertex_position.xy - vec2(0.5));
-   gl_Position = vec4(position_viewspace, 1.0);
+   position_viewspace.xy += particleSize * (vertex_position.xy - vec2(0.5)); 
+   // [0, 1] to [position_viewspace - particleSize * 0.5, position_viewspace + particleSize * 0.5]
    lifetime = position.w;
+   gl_Position = vec4(M_p * position_viewspace, 1.0);
 };

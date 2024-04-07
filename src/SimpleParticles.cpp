@@ -18,7 +18,7 @@ SimpleEmitter::~SimpleEmitter()
 
 
 
-void SimpleEmitter::update(const float dt)
+void SimpleEmitter::update(const float& dt)
 {
 	for (uint i = 0; i < this->particles.size(); ++i)
 	{
@@ -84,26 +84,31 @@ void SimpleEmitter::draw()
 void SimpleEmitter::set_particle_attributes(uint i)
 {
 	// give every particle a random position
-	rng.seed(uniform_dist(rng) * 1000);
-	const float random_position_x = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
-	rng.seed(uniform_dist(rng) * 2000);
-	const float random_position_y = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
-	rng.seed(uniform_dist(rng) * 3000);
-	const float random_position_z = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
-	//const float random_position_z = 1.f;
-	rng.seed(uniform_dist(rng) * 4000);
-	const float random_lifetime = uniform_dist(rng) * 1000.f + 1000.f; // [1,2]
+	//rng.seed(uniform_dist(rng) * 1000);
+	//const float random_position_x = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
+	//rng.seed(uniform_dist(rng) * 2000);
+	//const float random_position_y = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
+	//rng.seed(uniform_dist(rng) * 3000);
+	//const float random_position_z = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
+	////const float random_position_z = 1.f;
+	//rng.seed(uniform_dist(rng) * 4000);
+	//const float random_lifetime = uniform_dist(rng) * 1000.f + 1000.f; // [1,2]
 
 
-	constexpr float centre_offset = 60.f;
+	
 	//const float random_position_x = window_width_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [width/2-30,width/2+30];
 	//const float random_position_y = window_height_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [height/2-30,height/2+30];
 	//const float random_position_x = 0.f;
 	//const float random_position_y = 0.f;
 	//constexpr float random_position_z = 10.0;
 	//const float random_lifetime = uniform_dist(rng) + 1.f; // [1,2]
+	const float random_lifetime = uniform_dist(rng) + 1.f; // [1,2]
 
-	this->particles[i].position = vec3(random_position_x, random_position_y, random_position_z);
+	//this->particles[i].position = vec3(random_position_x, random_position_y, random_position_z);
+	constexpr float centre_offset = 60.f;
+	const float random_position_x = window_width_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [width/2-30,width/2+30];
+	const float random_position_y = window_height_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [height/2-30,height/2+30];
+	this->particles[i].position = vec3(random_position_x, random_position_y, 1.0);
 	this->particles[i].lifetime = random_lifetime;
 }
 
