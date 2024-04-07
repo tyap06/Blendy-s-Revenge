@@ -673,6 +673,50 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 	return entity;
 }
 
+Entity create_cleaner(RenderSystem* renderer, const vec2& position, const vec2& bounds)
+{
+	auto entity = Entity();
+
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.mesh_collision.emplace(entity);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	minion.type = Enemy_TYPE::CLEANER;
+	minion.score = 50;
+	minion.health = 110;
+	minion.speed = 70;
+	motion.angle = 0.f;
+
+	std::random_device rd;
+	std::mt19937 eng(rd());
+	std::uniform_real_distribution<> distr(40, 80);
+	std::uniform_int_distribution<> signDistr(0, 1);
+
+	float velocityX = distr(eng) * (signDistr(eng) * 2 - 1);
+	float velocityY = distr(eng) * (signDistr(eng) * 2 - 1);
+
+	motion.velocity = { velocityX, velocityY };
+
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	vec3 color = { 0,1,0 };
+	registry.colors.insert(entity, color);
+
+	registry.roamers.emplace(entity);
+	registry.cleaners.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MINION,
+		  TEXTURE_ASSET_ID::MINION_NM,
+		  EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 
 
 

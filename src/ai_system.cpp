@@ -46,6 +46,41 @@ Entity AISystem::findClosestSniper(vec2 tank_pos) {
 	return closestSniper;
 }
 
+Entity AISystem::findClosestPowerUp(vec2 cleanerPos) {
+	float minDistance = std::numeric_limits<float>::max();
+	Entity closestPowerUp = registry.players.entities[0];
+
+	for (auto powerUpEntity : registry.powerUps.entities) { 
+		auto& powerUpMotion = registry.motions.get(powerUpEntity);
+		float distance = calculateDistance(cleanerPos, powerUpMotion.position);
+
+		if (distance < minDistance) {
+			minDistance = distance;
+			closestPowerUp = powerUpEntity;
+		}
+	}
+
+	return closestPowerUp; 
+}
+
+void AISystem::updateCleaner(Entity cleanerEntity, vec2 chase_direction,
+	Minion& enemy, Motion& motion, float elapsed_ms) {
+	Entity closestPowerUp = findClosestPowerUp(motion.position);
+
+	if (!registry.players.has(closestPowerUp)) {
+		auto& powerUpMotion = registry.motions.get(closestPowerUp);
+		vec2 directionToPowerUp = normalize(powerUpMotion.position - motion.position);
+
+		if (calculateDistance(motion.position, powerUpMotion.position) < 600.0f) { 
+			motion.velocity = directionToPowerUp * enemy.speed;
+		}
+	}
+	else {
+		vec2 direction = normalize(motion.velocity);
+		motion.velocity = direction * enemy.speed;
+	}
+}
+
 void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
 	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
 	auto& tank = registry.tanks.get(tankEntity);
@@ -303,6 +338,9 @@ void AISystem::step(float elapsed_ms)
 		}
 		else if (enemy.type == Enemy_TYPE::TANK) {
 			updateTank(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
+		} 
+		else if (enemy.type == Enemy_TYPE::CLEANER) {
+			updateCleaner(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms);
 		}
 	}
 

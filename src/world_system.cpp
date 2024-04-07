@@ -21,6 +21,7 @@ const size_t MAX_TANK = 2;
 const size_t MAX_SNIPER = 2;
 const size_t MAX_HEALER = 1;
 const size_t MAX_GIANT = 1;
+const size_t MAX_CLEANER = 1;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 const size_t MAX_BATTERY_POWERUPS = 2;
@@ -352,6 +353,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_cleaner_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_sniper_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
@@ -389,6 +391,12 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_tank(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+	if (registry.cleaners.components.size() < MAX_CLEANER && next_cleaner_spawn < 0.f && registry.score >= 1) {
+		next_cleaner_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_cleaner(renderer, spawnPos, MINION_BOUNDS);
 	}
 
 

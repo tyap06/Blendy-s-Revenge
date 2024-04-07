@@ -41,6 +41,8 @@ public:
 	ComponentContainer<Tank> tanks;
 	ComponentContainer<Sniper> snipers;
 	ComponentContainer<Protection> protections;
+	ComponentContainer<Cleaner> cleaners;
+	ComponentContainer<Boss> boss;
 	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
 
 	int score;
@@ -77,6 +79,8 @@ public:
 		registry_list.push_back(&giants);
 		registry_list.push_back(&tanks);
 		registry_list.push_back(&snipers);
+		registry_list.push_back(&cleaners);
+		registry_list.push_back(&boss);
 		registry_list.push_back(&protections);
 	}
 

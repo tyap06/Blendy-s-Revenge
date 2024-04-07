@@ -45,7 +45,8 @@ enum class Enemy_TYPE {
 	GIANT = HEALER + 1,
 	SNIPER = GIANT + 1,
 	TANK = SNIPER +1,
-	Manager = TANK +1,
+	CLEANER = TANK +1,
+	BOSS = CLEANER + 1,
 };
 
 enum class Charger_State {
@@ -90,6 +91,8 @@ struct Player {
 
 };
 
+
+
 static const std::map<Direction, std::string> blendy_direction_mesh = {
 	{Direction::Up, mesh_path("Blendy-up.obj")},
 	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
@@ -107,7 +110,16 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 
 
 
+
 struct Roamer {
+
+};
+
+struct Cleaner {
+
+};
+
+struct Boss {
 
 };
 
