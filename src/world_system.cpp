@@ -76,7 +76,7 @@ const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
 
 // SCORE COUNTER
 const float SCORE_COUNTER_X = 30.f;
-const float SCORE_COUNTER_Y = window_height_px - 160.f;
+const float SCORE_COUNTER_Y = window_height_px - 107.f;
 const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTER_X, SCORE_COUNTER_Y };
 const vec2 SCORE_COUNTER_SCALE = { 1.f,1.f };
 const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
@@ -648,7 +648,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
-	registry.score = 800;
+	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	update_health_bar();
