@@ -80,9 +80,6 @@ vec2 get_bounding_box(const Motion& motion)
 bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Motion& motion2)
 {
 	if (!(registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2))) {
-		if (! registry.motions.has(entity1) || !registry.motions.has(entity2)) {
-			std::cout << "no motion" << std::endl;
-		}
 		return false;
 	}
 
@@ -143,7 +140,6 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 	// check bounding box overlap first 
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
-		std::cout << "Hit! AABB" << std::endl;
 
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
@@ -200,7 +196,6 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		//}
 
 		if (registry.players.has(entity2)) {
-			std::cout << "Two not player " << std::endl;
 
 			auto& player = registry.players.get(entity2);
 			if (player.up) {
@@ -576,7 +571,6 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 			edges.push_back(v2 - v1);
 			edges.push_back(v3 - v2);
 			edges.push_back(v1 - v3);
-
 			for (const auto& edge : edges) {
 				if (axises.size() == 0) {
 					axises.push_back(normalize(edge));
@@ -586,7 +580,6 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 				}
 			}
 		}
-		
 		// iterate the second mesh and check the polygons
 		for (size_t index = 0; index < otherMesh->vertex_indices.size(); index += 3) {
 			vec2 positions_2[3];
@@ -634,7 +627,6 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 					axises_copy.push_back(normalize(edge));
 				}
 			}
-
 			bool haveCollision = true;
 			for (const vec2 axis : axises_copy) {
 				// check projection on axises
@@ -646,7 +638,6 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 			}
 
 			if (haveCollision) {
-				std::cout << "Hit! SAT" << std::endl;
 				return haveCollision;
 			}
 		}

@@ -699,7 +699,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.position = pos;
 	motion.angle = angle;
 	motion.velocity = velocity; 
-	motion.scale = vec2(40.0f, 100.0f);
+	motion.scale = vec2(100.0f, 100.0f);
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
 	bullet.damage = damage;
