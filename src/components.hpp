@@ -89,7 +89,6 @@ struct Boss {
 	vec2 charge_direction;
 	float rest_timer = 30;
 	int isAngry = 0;
-
 	int going_up = -1;
 };
 

@@ -262,7 +262,6 @@ void PhysicsSystem::step(float elapsed_ms)
 		float step_seconds = elapsed_ms / 1000.f;
 
 		if (registry.players.has(entity)) {
-			// Vicky M1: idle animation
 			// blendy animation
 			Player& blendy = registry.players.get(entity);
 			if (!registry.is_dead) {
@@ -286,6 +285,7 @@ void PhysicsSystem::step(float elapsed_ms)
 
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
+			
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
@@ -317,11 +317,10 @@ void PhysicsSystem::step(float elapsed_ms)
 		else if(registry.minions.has(entity)){
 			/*applyBoidsRuleSeparation(entity, motion);*/
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
-			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			
 			
 			if (new_x - half_width <= 0) {
 				if (registry.roamers.has(entity) && motion.velocity.x < 0) {
