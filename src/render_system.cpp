@@ -76,11 +76,13 @@ void RenderSystem::handle_particle_rendering(const RenderRequest& render_request
 		GLint particleSize_loc = glGetUniformLocation(program, "particleSize");
 		GLint startColor_loc = glGetUniformLocation(program, "startColor");
 		GLint endColor_loc = glGetUniformLocation(program, "endColor");
+		GLint lifetime_loc = glGetUniformLocation(program, "lifetime");
 		//assert(M_v_loc > -1);
-		//assert(M_p_loc > -1);
+		assert(M_p_loc > -1);
 		assert(particleSize_loc > -1);
 		assert(startColor_loc > -1);
-		//assert(endColor_loc > -1);
+		assert(endColor_loc > -1);
+		assert(lifetime_loc > -1);
 		gl_has_errors();
 
 		// Setting uniform values to the currently bound program
@@ -88,9 +90,6 @@ void RenderSystem::handle_particle_rendering(const RenderRequest& render_request
 		gl_has_errors();
 
 		glUniformMatrix3fv(M_p_loc, 1, GL_FALSE, (float*)&projection);
-		gl_has_errors();
-
-		glUniform1f(particleSize_loc, 5);
 		gl_has_errors();
 
 		auto& particle_emitter_entity = particle_emitter_registry.entities[i];
@@ -105,9 +104,10 @@ void RenderSystem::handle_particle_rendering(const RenderRequest& render_request
 
 		auto& emitter_timer_registry = registry.emitterTimers;
 		auto& emitter_timer = emitter_timer_registry.get(particle_emitter_entity);
+		
+		gl_has_errors();
 
-		GLint lifetime_loc = glGetUniformLocation(program, "lifetime");
-		assert(lifetime_loc > -1);
+		glUniform1f(particleSize_loc, particle_emitter_component.particle_size);
 		gl_has_errors();
 
 		glUniform1f(lifetime_loc, emitter_instance.get_base_lifetime());
