@@ -17,14 +17,22 @@ enum class EntityType {
 
 enum class POWERUP_TYPE {
 
-	PAC_FRUIT = 0,
-	BATTERY = PAC_FRUIT + 1,
+	BATTERY = 0,
 	PROTEIN = BATTERY + 1,
 	GRAPE = PROTEIN + 1,
 	LEMON = GRAPE + 1,
 	CHERRY = LEMON + 1,
-	SHIELD = CHERRY + 1,
-	CACTUS = SHIELD + 1
+	CACTUS = CHERRY + 1,
+	SHIELD = CACTUS + 1,
+};
+
+enum class Bullet_State {
+	Default = 0,
+	Protein = Default+ 1,
+	Grape = Protein +1,
+	Lemon = Grape + 1,
+	Cherry = Lemon + 1,
+	Cactus = Cherry +1,
 };
 
 enum class Sniper_State {
@@ -58,15 +66,6 @@ enum class Charger_State {
 	Aiming = Approaching + 1,
 	Charging = Aiming +1,
 	Resting = Charging + 1,
-};
-
-enum class Bullet_State {
-	Default,
-	Protein,
-	Grape,
-	Catus,
-	Lemon,
-	Cherry,
 };
 
 
