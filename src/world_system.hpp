@@ -38,6 +38,9 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
+	// Callback For minimize the Window
+	void window_minimized_callback();
+	void window_unminimized_callback();
 
 	
   

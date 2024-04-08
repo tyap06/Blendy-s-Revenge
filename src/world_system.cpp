@@ -668,7 +668,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
-	registry.score = 1000;
+	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	cursor = create_cursor(renderer, {window_width_px/2,window_height_px/2});
@@ -678,7 +678,14 @@ void WorldSystem::restart_game() {
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
 	help_tooltip = createHelpToolTip(renderer, HELP_TOOLTIP_POSITION, {80,35});
 }
-
+void WorldSystem::window_minimized_callback() {
+	Mix_PauseMusic();
+	registry.is_pause = true;
+}
+void WorldSystem::window_unminimized_callback() {
+	Mix_ResumeMusic();
+	registry.is_pause = false;
+}
 void WorldSystem::console_debug_fps()
 {
 	if (debugging.show_game_fps)

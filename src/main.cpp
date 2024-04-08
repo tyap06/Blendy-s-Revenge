@@ -40,10 +40,10 @@ int main()
 	auto t = Clock::now();
 	while (!world.is_over()) {
 		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
-			registry.is_pause = true;
+			world.window_minimized_callback();
 		}
 		else {
-			registry.is_pause = false;
+			world.window_unminimized_callback();
 		}
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
