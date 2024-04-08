@@ -97,6 +97,7 @@ private:
 
 	// Particle System
 	Entity test_particle_emitter;
+	Entity test_particle_emitter_2;
 
 	// C++ random number generator
 	std::default_random_engine rng;

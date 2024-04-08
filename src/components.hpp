@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <vector>
+#include "SimpleParticles.hpp"
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 
@@ -169,6 +170,12 @@ struct DeathTimer
 	float counter_ms = 2000;
 };
 
+// A timer that will be associated to a particle emitter
+struct EmitterTimer
+{
+	float counter_ms = 2000;
+};
+
 // Single Vertex Buffer element for non-textured meshes (coloured.vs.glsl & chicken.vs.glsl)
 struct ColoredVertex
 {
@@ -204,7 +211,9 @@ struct Background
 // A component to represent entities that are particle emitters
 struct ParticleEmitter
 {
-
+	SimpleEmitter emitter_instance;
+	vec3 particle_start_color;
+	vec3 particle_end_color;
 };
 
 

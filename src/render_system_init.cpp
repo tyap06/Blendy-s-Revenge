@@ -65,7 +65,7 @@ bool RenderSystem::init(GLFWwindow* window_arg)
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
-	initializeParticleSystem();
+	//initializeParticleSystem();
 	initializeFonts();
 
 	return true;
@@ -238,10 +238,10 @@ void RenderSystem::initializeGlGeometryBuffers()
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
 }
 
-void RenderSystem::initializeParticleSystem()
-{
-	emitter.init();
-}
+//void RenderSystem::initializeParticleSystem()
+//{
+//	emitter.init();
+//}
 
 RenderSystem::~RenderSystem()
 {

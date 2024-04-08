@@ -16,8 +16,6 @@ SimpleEmitter::~SimpleEmitter()
 	gl_has_errors();
 }
 
-
-
 void SimpleEmitter::update(const float& dt)
 {
 	for (uint i = 0; i < this->particles.size(); ++i)
@@ -25,14 +23,13 @@ void SimpleEmitter::update(const float& dt)
 		// subtract from the particles lifetime
 		this->particles[i].lifetime -= dt;
 
-		// if the lifetime is below 0 respawn the particle
-		if (this->particles[i].lifetime <= 0.0f)
-		{
-			set_particle_attributes(i);
-		}
+		auto& current_angle = this->particles[i].angle;
+		float velocity_magnitude = this->particles[i].velocity_magnitude; // The magnitude of the velocity vector of the particles
+		float x_velocity = velocity_magnitude * cos(glm::radians(current_angle));
+		float y_velocity = velocity_magnitude * sin(glm::radians(current_angle));
 
-		// move the particle down depending on the delta time
-		this->particles[i].position += vec3(0.0f, dt * 0.1f, 0.0f);
+		// move the particle outwards depending on the delta time
+		this->particles[i].position += dt * vec3(x_velocity, y_velocity, 0.0f);
 
 		// update the position buffer
 		this->positions[i * 4 + 0] = this->particles[i].position[0];
@@ -81,44 +78,61 @@ void SimpleEmitter::draw()
 	gl_has_errors();
 }
 
-void SimpleEmitter::set_particle_attributes(uint i)
+void SimpleEmitter::seed_random_number_generator()
 {
-	// give every particle a random position
-	//rng.seed(uniform_dist(rng) * 1000);
-	//const float random_position_x = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
-	//rng.seed(uniform_dist(rng) * 2000);
-	//const float random_position_y = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
-	//rng.seed(uniform_dist(rng) * 3000);
-	//const float random_position_z = uniform_dist(rng) * 2.f - 1.f; // [-1,1]
-	////const float random_position_z = 1.f;
-	//rng.seed(uniform_dist(rng) * 4000);
-	//const float random_lifetime = uniform_dist(rng) * 1000.f + 1000.f; // [1,2]
-
-
-	
-	//const float random_position_x = window_width_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [width/2-30,width/2+30];
-	//const float random_position_y = window_height_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [height/2-30,height/2+30];
-	//const float random_position_x = 0.f;
-	//const float random_position_y = 0.f;
-	//constexpr float random_position_z = 10.0;
-	//const float random_lifetime = uniform_dist(rng) + 1.f; // [1,2]
-	const float random_lifetime = uniform_dist(rng) + 1.f; // [1,2]
-
-	//this->particles[i].position = vec3(random_position_x, random_position_y, random_position_z);
-	constexpr float centre_offset = 60.f;
-	const float random_position_x = window_width_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [width/2-30,width/2+30];
-	const float random_position_y = window_height_px / 2 + (uniform_dist(rng) - 0.5f) * centre_offset; // [height/2-30,height/2+30];
-	this->particles[i].position = vec3(random_position_x, random_position_y, 1.0);
-	this->particles[i].lifetime = random_lifetime;
+	auto time_since_beginning = glfwGetTime();
+	auto new_seed = time_since_beginning * 10000000;
+	rng.seed(new_seed);
 }
 
-void SimpleEmitter::init()
+void SimpleEmitter::set_emitter_uniforms()
 {
+	// Add any emitter uniforms that you want to configure here later
+}
+
+void SimpleEmitter::set_particle_attributes(
+	unsigned int i,
+	const vec2& emitter_position = vec2{ window_width_px / 2, window_height_px / 2 },
+	const float& base_lifetime = (float) 10.f,
+	const float centre_offset = 30.f,
+	const float& velocity_magnitude = 0.05f,
+	const vec3& start_color = vec3{1.0,0.0,0.0},
+	const vec3& end_color = vec3{ 1.0,1.0,1.0 }
+	)
+{
+	seed_random_number_generator();
+
+	//constexpr float base_lifetime = 10.f;
+	//const vec2 emitter_position = vec2{ window_width_px / 2, window_height_px / 2 };
+	//constexpr float centre_offset = 30.f; // per emitter value
+
+	const float lifetime = base_lifetime;
+	const float random_angle = uniform_dist(rng) * 360.f;
+	const float random_position_x = emitter_position.x + (uniform_dist(rng) - 0.5f) * centre_offset; // [width/2-30,width/2+30];
+	const float random_position_y = emitter_position.y + (uniform_dist(rng) - 0.5f) * centre_offset; // [height/2-30,height/2+30];
+
+	this->particles[i].position = vec3(random_position_x, random_position_y, 1.0);
+	this->particles[i].lifetime = lifetime;
+	this->particles[i].angle = random_angle;
+	this->particles[i].start_color = start_color;
+	this->particles[i].end_color = end_color;
+	this->particles[i].velocity_magnitude = velocity_magnitude;
+}
+
+void SimpleEmitter::init(
+	const vec2& emitter_position,
+	const float& base_lifetime,
+	const float& centre_offset,
+	const float& outward_velocity_magnitude
+)
+{
+	const unsigned int NUMBER_OF_PARTICLES = 100;
 	// create 100 particles
-	this->particles.resize(100);
+	this->particles.resize(NUMBER_OF_PARTICLES);
 	for (uint i = 0; i < this->particles.size(); ++i)
 	{
-		set_particle_attributes(i);
+		set_particle_attributes(i, emitter_position, base_lifetime, centre_offset, outward_velocity_magnitude);
+		set_emitter_uniforms();
 	}
 
 	// create a vertex and position buffer

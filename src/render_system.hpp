@@ -148,7 +148,7 @@ public:
 
 	void initializeGlGeometryBuffers();
 
-	void initializeParticleSystem();
+	//void initializeParticleSystem();
 
 	// Initialize the screen texture used as intermediate render target
 	// The draw loop first renders to this texture, then it is used for the wind
@@ -174,7 +174,7 @@ public:
 	void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
 	// Particle System
-	void update_particle_emitter(const float& elapsed_ms);
+	void update_particle_emitters(const float& elapsed_ms);
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);

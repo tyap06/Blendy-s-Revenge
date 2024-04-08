@@ -26,7 +26,7 @@ Entity createLine(vec2 position, vec2 scale)
 	return entity;
 }
 
-Entity create_particle_emitter(const vec2& position, const vec2& scale, const float& particle_lifetime)
+Entity create_particle_emitter(const vec2& position, const vec2& scale, const float& particle_lifetime, const float& centre_offset, const vec3& start_color, const vec3& end_color, const float& outward_velocity_magnitude)
 {
 	Entity entity = Entity();
 
@@ -42,10 +42,16 @@ Entity create_particle_emitter(const vec2& position, const vec2& scale, const fl
 	Motion& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
 	motion.velocity = { 0, 0 };
-	motion.position = vec3{0.0,0.0,0.0};
+	motion.position = position;
 	motion.scale = scale;
 
-	registry.particle_emitters.emplace(entity);
+	ParticleEmitter& particle_emitter = registry.particleEmitters.emplace(entity);
+	particle_emitter.emitter_instance.init(position, particle_lifetime, centre_offset, outward_velocity_magnitude);
+	particle_emitter.particle_start_color = start_color;
+	particle_emitter.particle_end_color = end_color;
+
+	EmitterTimer& emitter_timer = registry.emitterTimers.emplace(entity);
+	emitter_timer.counter_ms = particle_lifetime;
 
 	return entity;
 }
