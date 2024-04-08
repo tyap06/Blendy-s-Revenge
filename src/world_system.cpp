@@ -51,7 +51,7 @@ const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 175.f, 32.f };
 const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
-const vec2 HELP_SCREEN_BOUNDS = { 1250.f * 1.1, 800.f *1.1 };
+const vec2 HELP_SCREEN_BOUNDS = {BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT};
 const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
 const vec2 PROTEIN_POWDER_POWERUP_BOUNDS = { 70.f, 80.f };
 const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 70.f };
@@ -84,15 +84,16 @@ const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 // CUTSCENE STUFF
 const int FIRST_CUT_SCENE_END = 6;
 const int SECOND_CUT_SCENE_END = 9;
-const int SECOND_CUT_SCORE = 700;
-const int THIRD_CUT_SCORE = 1500;
+const int SECOND_CUT_SCORE = 10;
+const int THIRD_CUT_SCORE = 20;
 
 // MUSIC
 const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
 
 // Create the bug world
 WorldSystem::WorldSystem()
-	: points(0)
+	: points(0),
+	has_restarted(false)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -624,12 +625,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 
-	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END) {
+	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END && !has_restarted) {
 		cutscene_active = true;
 		handle_cutScenes();
 	}
 
-	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END) {
+	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END && !has_restarted) {
 		cutscene_active = true;
 		handle_cutScenes();
 	}
@@ -672,8 +673,12 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
-	cutscene_active == true;
-	handle_cutScenes();
+	registry.is_pause = false;
+	// score_component.show = true;
+	if (!has_restarted) {
+		cutscene_active == true;
+		handle_cutScenes();
+	}
 }
 
 void WorldSystem::console_debug_fps()
@@ -961,7 +966,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 
 	// switch to next cutscene
-	if (action == GLFW_RELEASE && key == GLFW_KEY_C && cutscene_active) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_C && cutscene_active && cutscene_stage < 10 ) {
 		handle_cutScenes();
 	}
 
@@ -987,6 +992,7 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
+		has_restarted = true;
         restart_game();
 	}
 

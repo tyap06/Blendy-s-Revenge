@@ -45,7 +45,12 @@ Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	motion.scale = bounds;
 
 	registry.helpScreens.emplace(entity);
-	// Create a render request for the help Screen
+	// Create a render request for the 
+	// 
+	// 
+	// 
+	// 
+	//  Screen
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::HELP_SCREEN,
