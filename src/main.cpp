@@ -39,12 +39,6 @@ int main()
 	// variable timestep loop
 	auto t = Clock::now();
 	while (!world.is_over()) {
-		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
-			world.window_minimized_callback();
-		}
-		else {
-			world.window_unminimized_callback();
-		}
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 
@@ -53,15 +47,12 @@ int main()
 		float elapsed_ms =
 			(float)(std::chrono::duration_cast<std::chrono::microseconds>(now - t)).count() / 1000;
 		t = now;
-
-		if (!registry.is_pause && !registry.is_minimized) {
-			world.handle_collisions();
+		if (!registry.is_pause) {
 			physics.step(elapsed_ms);
 			world.handle_collisions();
 			ai.step(elapsed_ms);
 			world.step(elapsed_ms);
 		}
-		world.render_cursor();
 
 		renderer.draw();
 	}
