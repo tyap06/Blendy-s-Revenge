@@ -43,6 +43,8 @@ public:
 	ComponentContainer<Sniper> snipers;
 	ComponentContainer<Protection> protections;
 	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
+	ComponentContainer<ParticleEmitter> particleEmitters;
+	ComponentContainer<EmitterTimer> emitterTimers;
 
 	int score;
 	bool is_pause;
@@ -80,6 +82,8 @@ public:
 		registry_list.push_back(&tanks);
 		registry_list.push_back(&snipers);
 		registry_list.push_back(&protections);
+		registry_list.push_back(&particleEmitters);
+		registry_list.push_back(&emitterTimers);
 	}
 
 	void clear_all_components() {
