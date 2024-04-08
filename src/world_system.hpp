@@ -42,6 +42,13 @@ public:
 	
   
 private:
+	enum class MusicState
+	{
+		Ordinary,
+		SpedUp
+	};
+
+
 	// Input callback functions
 	void on_key(int key, int, int action, int mod);
 	bool keyWPressed = false;
@@ -50,11 +57,13 @@ private:
 	bool keyDPressed = false;
 	float bullet_timer = 0.0f;
 	float elapsed_ms = 0.0f;
-	float bullet_speed = 500.f;
-	float bullet_launch_interval = 0.4f;
+	float bullet_speed = 600.f;
+	float bullet_launch_interval = 0.39f;
 	// restart level
 	void restart_game();
 	void console_debug_fps();
+
+	MusicState game_music_state;
 
 	// Update Fps
 	
@@ -73,19 +82,39 @@ private:
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
-	float next_minion_spawn;
+	float next_minion_spawn = 100;
 	Entity health_bar_frame;
 	Entity help_screen;
-	bool showHelpScreen;
-	float next_dodger_spawn;
-	float next_roamer_spawn;
-	float next_powerup_spawn;
+	bool showHelpScreen = true;
+	float next_powerup_spawn = 100;
+	float next_dodger_spawn = 100;
+	float next_roamer_spawn = 100;
+	float next_charger_spawn = 100;
+	float next_sniper_spawn = 100;
+	float next_tank_spawn = 100;
+	float next_giant_spawn = 100;
+	float next_healer_spawn = 100;
+	float next_battery_powerup_spawn;
+	float next_protein_powerup_spawn;
+	float next_grape_powerup_spawn;
+	float next_lemon_powerup_spawn;
 	Entity health_bar_box;
 
 	// music references
 	Mix_Music* background_music;
+	Mix_Music* background_music_sped_up;
 	Mix_Chunk* dead_sound;
 	Mix_Chunk* get_point;
+	Mix_Chunk* powerup_pickup_battery;
+	Mix_Chunk* powerup_pickup_grape;
+	Mix_Chunk* powerup_pickup_lemon;
+	Mix_Chunk* powerup_pickup_protein;
+	Mix_Chunk* player_hurt;
+	Mix_Chunk* minion_hurt;
+	Mix_Chunk* minion_dead;
+
+	bool is_music_sped_up = false;
+
 
 	// fps variables
 	unsigned int fps = 0;
@@ -107,11 +136,14 @@ private:
 	void hit_enemy(const Entity& target, const int& damage);
 
 	// Private Helpers For Initialization
-	void update_minions(float elapsed_ms_since_last_update);
+	void update_blendy_animation(float elapsed_ms_since_last_update);
+	void update_minion_animation(float elapsed_ms_since_last_update);
+	void spawn_minions(float elapsed_ms_since_last_update);
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
 	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
+	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion);
 	float get_y_animate(int stage, int going_up);
 	void update_fps(float elapsed_ms_since_last_update);
 	void update_score();
@@ -119,6 +151,8 @@ private:
 	void update_bullets(float elapsed_ms_since_last_update);
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
+	void update_game_music();
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 };
 
 

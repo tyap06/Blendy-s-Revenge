@@ -137,7 +137,7 @@ void RenderSystem::initializeGlMeshes()
 			meshes[(int)geom_index].vertices,
 			meshes[(int)geom_index].vertex_indices,
 			meshes[(int)geom_index].original_size);
-
+	
 		bindVBOandIBO(geom_index,
 			meshes[(int)geom_index].vertices, 
 			meshes[(int)geom_index].vertex_indices);

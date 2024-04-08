@@ -119,3 +119,4 @@ bool Mesh::loadFromOBJFile(std::string obj_path, std::vector<ColoredVertex>& out
 
 	return true;
 }
+

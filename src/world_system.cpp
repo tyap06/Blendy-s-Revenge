@@ -12,13 +12,23 @@
 
 
 // Game configuration
-const size_t MAX_MINIONS = 80;
-const size_t MAX_DODGERS = 5;
-const size_t MAX_ROAMER = 5;
+const size_t MAX_TOTAL_MINIONS = 30;
+const size_t MAX_MINIONS = 10;
+const size_t MAX_DODGERS = 3;
+const size_t MAX_ROAMER = 2;
+const size_t MAX_CHARGER = 3;
+const size_t MAX_TANK = 2;
+const size_t MAX_SNIPER = 2;
+const size_t MAX_HEALER = 1;
+const size_t MAX_GIANT = 1;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
-const size_t MAX_POWERUPS = 25;
+const size_t MAX_BATTERY_POWERUPS = 2;
+const size_t MAX_PROTEIN_POWDER_POWERUPS = 2;
+const size_t MAX_GRAPE_POWERUPS = 2;
+const size_t MAX_LEMON_POWERUPS = 2;
 const size_t POWERUP_DELAY_MS = 200 * 3;
+const float PLAYER_POWERUP_SPAWN_DISTANCE = 150.0f;
 
 // UI
 const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
@@ -43,6 +53,10 @@ const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 175.f, 32.f };
 const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
 const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
+const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
+const vec2 PROTEIN_POWDER_POWERUP_BOUNDS = { 70.f, 80.f };
+const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 70.f };
+const vec2 GRAPE_POWERUP_BOUNDS = { 80.f, 70.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
@@ -50,6 +64,7 @@ const vec2 dead_scale = { 0, 0 };
 
 // ANIMATION VALUES
 const size_t BLENDY_FRAME_DELAY = 20 * 3;
+const size_t MINION_FRAME_DELAY = 20 * 6;
 
 // EYE POSITION (For Lighting Purposes)
 const float CAMERA_Z_DEPTH = 1500.f;
@@ -62,10 +77,13 @@ const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
 
 // SCORE COUNTER
 const float SCORE_COUNTER_X = 30.f;
-const float SCORE_COUNTER_Y = window_height_px - 160.f;
+const float SCORE_COUNTER_Y = window_height_px - 107.f;
 const vec2 SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { SCORE_COUNTER_X, SCORE_COUNTER_Y };
 const vec2 SCORE_COUNTER_SCALE = { 1.f,1.f };
 const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
+
+// MUSIC
+const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -79,10 +97,27 @@ WorldSystem::~WorldSystem() {
 	// Destroy music components
 	if (background_music != nullptr)
 		Mix_FreeMusic(background_music);
+	if (background_music_sped_up != nullptr)
+		Mix_FreeMusic(background_music_sped_up);
 	if (dead_sound != nullptr)
 		Mix_FreeChunk(dead_sound);
 	if (get_point != nullptr)
 		Mix_FreeChunk(get_point);
+
+	if (powerup_pickup_battery != nullptr)
+		Mix_FreeChunk(powerup_pickup_battery);
+	if (powerup_pickup_grape != nullptr)
+		Mix_FreeChunk(powerup_pickup_grape);
+	if (powerup_pickup_lemon != nullptr)
+		Mix_FreeChunk(powerup_pickup_lemon);
+	if (powerup_pickup_protein != nullptr)
+		Mix_FreeChunk(powerup_pickup_protein);
+	if (player_hurt != nullptr)
+		Mix_FreeChunk(player_hurt);
+	if (minion_hurt != nullptr)
+		Mix_FreeChunk(minion_hurt);
+	if (minion_dead != nullptr)
+		Mix_FreeChunk(minion_dead);
 	Mix_CloseAudio();
 
 	// Destroy all created components
@@ -90,6 +125,15 @@ WorldSystem::~WorldSystem() {
 
 	// Close the window
 	glfwDestroyWindow(window);
+}
+
+void WorldSystem::update_game_music()
+{
+	if (registry.score >= MUSIC_SPEEDUP_THRESHOLD && game_music_state == MusicState::Ordinary)
+	{
+		Mix_FadeInMusic(background_music_sped_up, -1, 1000);
+		game_music_state = MusicState::SpedUp;
+	}
 }
 
 // Debugging
@@ -154,11 +198,41 @@ GLFWwindow* WorldSystem::create_window() {
 	dead_sound = Mix_LoadWAV(audio_path("dead_effect.wav").c_str());
 	get_point = Mix_LoadWAV(audio_path("get_point.wav").c_str());
 
-	if (background_music == nullptr || dead_sound == nullptr || get_point == nullptr) {
+	background_music_sped_up = Mix_LoadMUS(audio_path("music_sped_up.wav").c_str());
+	powerup_pickup_battery = Mix_LoadWAV(audio_path("powerup_pickup_battery.wav").c_str());
+	powerup_pickup_grape = Mix_LoadWAV(audio_path("powerup_pickup_grape.wav").c_str());
+	powerup_pickup_lemon = Mix_LoadWAV(audio_path("powerup_pickup_lemon.wav").c_str());
+	powerup_pickup_protein = Mix_LoadWAV(audio_path("powerup_pickup_protein.wav").c_str());
+	player_hurt = Mix_LoadWAV(audio_path("hurt_sound.wav").c_str());
+	minion_hurt = Mix_LoadWAV(audio_path("button_press.wav").c_str());
+	Mix_VolumeChunk(minion_hurt, 48);
+	minion_dead = Mix_LoadWAV(audio_path("minion_dead_sound.wav").c_str());
+	//Mix_VolumeChunk(minion_dead, 64);
+
+	if (background_music == nullptr 
+		|| dead_sound == nullptr 
+		|| get_point == nullptr
+		|| background_music_sped_up == nullptr
+		|| powerup_pickup_battery == nullptr
+		|| powerup_pickup_grape == nullptr
+		|| powerup_pickup_lemon == nullptr
+		|| powerup_pickup_protein == nullptr
+		|| player_hurt == nullptr
+		|| minion_hurt == nullptr
+		|| minion_dead == nullptr
+		) {
 		fprintf(stderr, "Failed to load sounds\n %s\n %s\n %s\n make sure the data directory is present",
 			audio_path("music.wav").c_str(),
 			audio_path("dead_effect.wav").c_str(),
-			audio_path("get_point.wav").c_str());
+			audio_path("get_point.wav").c_str()),
+			audio_path("music_sped_up.wav").c_str(),
+			audio_path("powerup_pickup_battery.wav").c_str(),
+			audio_path("powerup_pickup_grape.wav").c_str(),
+			audio_path("powerup_pickup_lemon.wav").c_str(),
+			audio_path("powerup_pickup_protein.wav").c_str(),
+			audio_path("hurt_sound.wav").c_str(),
+			audio_path("button_press.wav").c_str(),
+			audio_path("minion_dead_sound.wav").c_str();
 		return nullptr;
 	}
 
@@ -167,9 +241,6 @@ GLFWwindow* WorldSystem::create_window() {
 
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
-	// Playing background music indefinitely
-	Mix_PlayMusic(background_music, -1);
-	fprintf(stderr, "Loaded music\n");
 
 	// Set all states to default
     restart_game();
@@ -180,10 +251,10 @@ void WorldSystem::update_health_bar()
 {
 	while (registry.debugComponents.entities.size() > 0)
 		registry.remove_all_components_of(registry.debugComponents.entities.back());
-	auto& blendy = registry.players.get(player_blendy);
-	int blendy_health = blendy.health;
 
-	float current_width = HEALTH_BAR_BOUNDS.x * blendy_health / 100.0f;
+	auto& blendy = registry.players.get(player_blendy);
+	
+	float current_width = HEALTH_BAR_BOUNDS.x * static_cast<float>(blendy.health) / static_cast<float>(blendy.max_health);
 
 	float offset_to_center = (current_width - HEALTH_BAR_BOUNDS.x) / 2.0f;
 
@@ -198,122 +269,140 @@ void WorldSystem::update_health_bar()
 // make powerups spawn randomly on the map
 void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 {
-	next_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	// Decrement the cooldown for each type of powerup
+	next_battery_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_protein_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_grape_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_lemon_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.powerUps.components.size() <= MAX_POWERUPS && next_powerup_spawn < 0.f) {
-		next_powerup_spawn = (POWERUP_DELAY_MS / 2) + uniform_dist(rng) * (POWERUP_DELAY_MS / 2);
+	// Get the position of the player
+	Motion& player_motion = registry.motions.get(player_blendy);
+	vec2 player_pos = player_motion.position;
 
-		create_powerup(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), 50.f + uniform_dist(rng) * (window_width_px - 100.f)), MINION_BOUNDS);
+	// Spawn battery powerup 
+	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 0) {
+		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 20) + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		// Generate a random position, excluding the player's position
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_battery_powerup(renderer, random_pos, BATTERY_POWERUP_BOUNDS);
+	}
+
+	// Spawn grape powerup
+	if (registry.powerUps.components.size() <= MAX_GRAPE_POWERUPS && next_grape_powerup_spawn < 0.f && registry.score > 1500) {
+		next_grape_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_grape_powerup(renderer, random_pos, GRAPE_POWERUP_BOUNDS);
+	}
+
+	// Spawn lemon powerup
+	if (registry.powerUps.components.size() <= MAX_LEMON_POWERUPS && next_lemon_powerup_spawn < 0.f && registry.score > 600) {
+		next_lemon_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_lemon_powerup(renderer, random_pos, LEMON_POWERUP_BOUNDS);
+	}
+
+	// Spawn protein powder powerup
+	if (registry.powerUps.components.size() <= MAX_PROTEIN_POWDER_POWERUPS && next_protein_powerup_spawn < 0.f && registry.score > 300) {
+		next_protein_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_protein_powerup(renderer, random_pos, PROTEIN_POWDER_POWERUP_BOUNDS);
 	}
 }
 
 
-void WorldSystem::update_minions(float elapsed_ms_since_last_update)
+vec2 generateRandomEdgePosition(float window_width_px, float window_height_px, std::uniform_real_distribution<float>& uniform_dist, std::mt19937& rng) {
+	// Randomly select an edge: 0 for bottom, 1 for left, 2 for right
+	int edge = std::uniform_int_distribution<int>(0, 2)(rng);
+
+	switch (edge) {
+	case 0: // Bottom edge (spawn just below visible area)
+		return vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px+200);
+	case 1: // Left edge (spawn just to the left of visible area)
+		return vec2(-200.f, 40.f + uniform_dist(rng) * (window_height_px - 80.f));
+	case 2: // Right edge (spawn just to the right of visible area)
+		return vec2(window_width_px+200, 40.f + uniform_dist(rng) * (window_height_px - 80.f));
+	default:
+		return vec2(); // This should never happen
+	}
+}
+
+
+void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_sniper_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
-		create_minion(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_minion(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score > 100) {
-		next_dodger_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
-		create_dodger(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score >= 150) {
+		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_dodger(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score > 250) {
-		next_roamer_spawn = MINION_DELAY_MS * 3 + uniform_dist(rng) * (MINION_DELAY_MS);
-		create_roamer(renderer, vec2(50.f + uniform_dist(rng) * (window_width_px - 100.f), window_height_px - 40), MINION_BOUNDS);
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score >= 300) {
+		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_roamer(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f && registry.score >= 600) {
+		next_charger_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_charger(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f && registry.score >= 900) {
+		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_sniper(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f && registry.score >= 1100) {
+		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_tank(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+
+	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f && registry.score >= 1500) {
+		next_giant_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_giant(renderer, spawnPos, bound, registry.score);
 	}
 
 }
 
-// Update our game world
-vec2 WorldSystem::getCurrentMousePosition() {
-	double xpos, ypos;
-	glfwGetCursorPos(window, &xpos, &ypos); 
-	return vec2{ (float)xpos, (float)ypos }; 
-}
-void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
-
-	Motion& motion = registry.motions.get(player_blendy);
-	vec2& blendy_pos = motion.position;
-	vec2 mouse_position = getCurrentMousePosition();
-	if (!is_dead) {
-		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS || glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_REPEAT) {
-			if (bullet_timer <= 0.0f) {
-				vec2 bullet_direction = normalize(mouse_position - blendy_pos);
-				vec2 up_vector{ 0.0f, -1.0f };
-				float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
-				float up_angle = std::atan2(up_vector.y, up_vector.x);
-				float angle_diff = bullet_angle - up_angle;
-				if (angle_diff < -M_PI) {
-					angle_diff += 2 * M_PI;
-				}
-				else if (angle_diff > M_PI) {
-					angle_diff -= 2 * M_PI;
-				}
-				createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
-				bullet_timer = bullet_launch_interval;
-			}
-			if (bullet_timer > 0.0f) {
-				bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
-			}
-			
-		}
-		
-	}
-	return;
-}
-bool WorldSystem::step(float elapsed_ms_since_last_update) {
-	for (Entity e : registry.panel.entities) {
-		registry.remove_all_components_of(e);
-	}
-	update_fps(elapsed_ms_since_last_update);
-	update_score();
-	update_bullets(elapsed_ms_since_last_update);
-	update_player_movement();
-	
-	auto& motions_registry = registry.motions;
-
-
-	auto& bullet_registry = registry.bullets;
-	// Handling removing bullets
-	for (int i = (int)bullet_registry.entities.size() - 1; i >= 0; --i) {
-		Entity& bullet_entity = bullet_registry.entities[i];
-		Motion& motion = motions_registry.get(bullet_entity);
-
-		if (motion.position.x + abs(motion.scale.x) < 0.f
-			|| motion.position.x - abs(motion.scale.x) > window_width_px
-			|| motion.position.y + abs(motion.scale.y) < 0.f
-			|| motion.position.y - abs(motion.scale.x) > window_height_px
-			) 
-		{
-
-			registry.remove_all_components_of(bullet_entity);
-		}
-	}
-
-
-
-	
-
-	if (is_dead) {
-		Motion& player_motion = registry.motions.get(player_blendy);
-		float sec_passed = elapsed_ms_since_last_update / 1000;
-		player_motion.velocity = player_motion.velocity*(1 - sec_passed) + dead_velocity * sec_passed;
-		player_motion.angle = player_motion.angle * (1 - sec_passed) + dead_angle * sec_passed;
-		player_motion.scale= player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
-	}
-
-	update_minions(elapsed_ms_since_last_update);
-	//update_powerups(elapsed_ms_since_last_update);
-
-	
-
-	// BLENDY ANIMATION
+void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 	Player& blendy = registry.players.get(player_blendy);
 	Motion& blendy_motion = registry.motions.get(player_blendy);
 
@@ -339,12 +428,17 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (blendy_motion.velocity.x == 0 && blendy_motion.velocity.y == 0) {
 		// just keep the current image
 		registry.renderRequests.remove(player_blendy);
-		registry.renderRequests.insert(
-			player_blendy,
-			{ TEXTURE_ASSET_ID::BLENDY,
-				TEXTURE_ASSET_ID::BLENDY_NM,
-			 EFFECT_ASSET_ID::TEXTURED,
-			 GEOMETRY_BUFFER_ID::SPRITE });
+		if (!blendy.up && !blendy.down && !blendy.right && !blendy.left) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLENDY,
+					TEXTURE_ASSET_ID::BLENDY_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else {
+			get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
+		}
 		blendy.going_up = 1;
 		blendy_motion.y_animate = 0.f;
 	}
@@ -354,6 +448,149 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
 		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up);
 	}
+}
+
+void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
+	
+	for (int j = 0; j < registry.minions.entities.size(); j++) {
+		Minion& minion = registry.minions.get(registry.minions.entities[j]);
+		Motion& minion_motion = registry.motions.get(registry.minions.entities[j]);
+		// get what the render request status should be
+		// if minion is not moving, render original image
+		if (minion_motion.velocity.x == 0 && minion_motion.velocity.y == 0) {
+			// just keep the current image
+			registry.renderRequests.remove(registry.minions.entities[j]);
+			registry.renderRequests.insert(
+				registry.minions.entities[j],
+				{ TEXTURE_ASSET_ID::MINION,
+					TEXTURE_ASSET_ID::MINION_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else {
+			// minion is moving - calculate appropriate frame to put in render request
+			registry.renderRequests.remove(registry.minions.entities[j]);
+			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage, registry.minions.entities[j]);
+		}
+	}
+}
+
+
+void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity,float up_angle, float angle_diff) {
+	const int num_bullets = 12; 
+	const float angle_increment = 2 * M_PI / num_bullets; // Angle increment for each bullet
+
+
+	for (int i = 0; i < num_bullets; ++i) {
+		// Calculate the angle for the current bullet
+		float angle = i * angle_increment;
+
+		// Calculate the velocity based on the angle
+		vec2 velocity = { cos(angle) * bullet_speed, sin(angle) * bullet_speed };
+
+		// calculate final angle for bullet
+		float final_angle = up_angle + angle_diff + angle;
+
+		// Create the bullet with the calculated angle and velocity
+		createBullet(renderer, pos, velocity, final_angle);
+	}
+}
+
+
+
+
+// Update our game world
+vec2 WorldSystem::getCurrentMousePosition() {
+	double xpos, ypos;
+	glfwGetCursorPos(window, &xpos, &ypos); 
+	return vec2{ (float)xpos, (float)ypos }; 
+}
+void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
+
+	Motion& motion = registry.motions.get(player_blendy);
+	vec2& blendy_pos = motion.position;
+	vec2 mouse_position = getCurrentMousePosition();
+	if (!is_dead) {
+		
+			if (bullet_timer <= 0.0f) {
+				vec2 bullet_direction = normalize(mouse_position - blendy_pos);
+				vec2 up_vector{ 0.0f, -1.0f };
+				float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+				float up_angle = std::atan2(up_vector.y, up_vector.x);
+				float angle_diff = bullet_angle - up_angle;
+				auto& blendy = registry.players.get(player_blendy);
+				if (angle_diff < -M_PI) {
+					angle_diff += 2 * M_PI;
+				}
+				else if (angle_diff > M_PI) {
+					angle_diff -= 2 * M_PI;
+				}
+				if (blendy.protein_powerup_duration_ms > 0.0f) {
+					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
+					float new_bullet_speed = bullet_speed * 2;
+					create_fast_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
+					bullet_timer = bullet_launch_interval / 2;
+					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+					//std::cout << "Blendy protein powerup duration: " << blendy.protein_powerup_duration_ms << std::endl;
+				}
+				else if (blendy.grape_powerup_duration_ms > 0.0f) {
+					//std::cout << "bullet direction: (" << bullet_direction.x << ", " << bullet_direction.y << ")" << std::endl;
+					//std::cout << "angle diff: " << angle_diff << std::endl;
+					angle_diff = -3.02989;
+					shootGrapeBullets(renderer, blendy_pos, bullet_direction * bullet_speed, up_angle, angle_diff);
+					bullet_timer = bullet_launch_interval;
+					blendy.grape_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				}
+				else if (blendy.lemon_powerup_duration_ms > 0.0f) {
+					create_lemon_bullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
+					bullet_timer = bullet_launch_interval * 2 / 3;
+					blendy.lemon_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				}
+				else {
+					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
+					createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
+					bullet_timer = bullet_launch_interval;
+				}
+			}
+			if (bullet_timer > 0.0f) {
+				bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
+			}
+			
+		
+	}
+	return;
+}
+bool WorldSystem::step(float elapsed_ms_since_last_update) {
+	for (Entity e : registry.panel.entities) {
+		registry.remove_all_components_of(e);
+	}
+
+	update_minion_animation(elapsed_ms_since_last_update);
+	update_fps(elapsed_ms_since_last_update);
+	update_score();
+	update_powerups(elapsed_ms_since_last_update);
+	update_bullets(elapsed_ms_since_last_update);
+	update_player_movement();
+	update_game_music();
+
+	auto& motions_registry = registry.motions;
+
+	if (is_dead) {
+		Motion& player_motion = registry.motions.get(player_blendy);
+		float sec_passed = elapsed_ms_since_last_update / 1000;
+		player_motion.velocity = player_motion.velocity*(1 - sec_passed) + dead_velocity * sec_passed;
+		player_motion.angle = player_motion.angle * (1 - sec_passed) + dead_angle * sec_passed;
+		player_motion.scale= player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
+	}
+
+	spawn_minions(elapsed_ms_since_last_update);
+	
+
+	// BLENDY ANIMATION
+	update_blendy_animation(elapsed_ms_since_last_update);
+
+
+
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
@@ -404,6 +641,15 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
+	game_music_state = MusicState::Ordinary;
+
+	// Halt any playing music
+	Mix_HaltMusic();
+	// Playing background music
+	Mix_FadeInMusic(background_music, -1, 1000.f);
+
+	fprintf(stderr, "Loaded music\n");
+
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 	printf("Restarting\n");
@@ -480,9 +726,12 @@ void WorldSystem::hit_player(const int& damage) {
 			motion.angle = { 0.0f };
 			registry.deathTimers.emplace(player_blendy);
 			Mix_PlayChannel(-1, dead_sound, 0);
+			Mix_FadeOutMusic(1500.f);
+			Mix_HaltMusic();
 		}
 		else {
 			player.health -= damage;
+			Mix_PlayChannel(-1, player_hurt, 0);
 			update_health_bar();
 		}
 	}
@@ -490,11 +739,19 @@ void WorldSystem::hit_player(const int& damage) {
 
 void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	Minion& minion = registry.minions.get(target);
-	minion.health -= damage;
+	minion.health -= std::max((damage-minion.armor),1.f);
+	auto& blendy = registry.players.get(player_blendy);
 	if (minion.health <= 0) {
 		registry.score += minion.score;
+		Mix_PlayChannel(-1, minion_dead, 0);
 		registry.remove_all_components_of(target);
+	} else {
+		Mix_PlayChannel(-1, minion_hurt, 0);
+		if (blendy.lemon_powerup_duration_ms > 0) {
+			minion.armor = 0;
+		}
 	}
+	
 }
 
 
@@ -520,6 +777,40 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 					hit_player(damage);
 				}
+			}
+			// Check blendy - collisions with power ups
+			else if (registry.powerUps.has(entity_other)) {
+				PowerUp powerup = registry.powerUps.get(entity_other);
+				auto& blendy = registry.players.get(player_blendy);
+				if (powerup.type == POWERUP_TYPE::BATTERY) {
+					blendy.health = blendy.max_health;
+					update_health_bar();
+					Mix_PlayChannel(-1, powerup_pickup_battery, 0);
+					registry.remove_all_components_of(entity_other);
+				}
+				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
+					//blendy.protein_powerup = true;
+					blendy.protein_powerup_duration_ms = 300.f;
+					Mix_PlayChannel(-1, powerup_pickup_protein, 0);
+					blendy.grape_powerup_duration_ms = 0.f;
+					blendy.lemon_powerup_duration_ms = 0.f;
+					registry.remove_all_components_of(entity_other);
+				}
+				else if (powerup.type == POWERUP_TYPE::GRAPE) {
+					blendy.grape_powerup_duration_ms = 500.f;
+					blendy.protein_powerup_duration_ms = 0.f;
+					blendy.lemon_powerup_duration_ms = 0.f;
+					Mix_PlayChannel(-1, powerup_pickup_grape, 0);
+					registry.remove_all_components_of(entity_other);
+				}
+				else if (powerup.type == POWERUP_TYPE::LEMON) {
+					blendy.lemon_powerup_duration_ms = 300.f;
+					blendy.grape_powerup_duration_ms = 0.f;
+					blendy.protein_powerup_duration_ms = 0.f;
+					Mix_PlayChannel(-1, powerup_pickup_lemon, 0);
+					registry.remove_all_components_of(entity_other);
+				}
+				
 			}
 		}
 		else if (registry.bullets.has(entity)) {
@@ -565,35 +856,34 @@ void WorldSystem::update_player_movement() {
 		float length = sqrt(direction.x * direction.x + direction.y * direction.y);
 		direction.x /= length;
 		direction.y /= length;
-	}
-
-	// BLENDY ANIMATION
-	blendy.up = false;
-	blendy.down = false;
-	blendy.left = false;
-	blendy.right = false;
-	if (direction.y == 0  && direction.x > 0) {
-		// going right
-		blendy.right = true;
-	} 
-	else if (direction.y == 0  && direction.x < 0) {
-		// going left
-		blendy.left = true;
-	}
-	else if (direction.y > 0  && direction.x == 0) {
-		// going down
-		blendy.down = true;
-	}
-	else if (direction.y < 0  && direction.x == 0) {
-		// going up
-		blendy.up = true;
+		// BLENDY ANIMATION
+		blendy.up = false;
+		blendy.down = false;
+		blendy.left = false;
+		blendy.right = false;
+		if (direction.x > 0) {
+			// going right
+			blendy.right = true;
+		}
+		else if (direction.x < 0) {
+			// going left
+			blendy.left = true;
+		}
+		if (direction.y > 0) {
+			// going down
+			blendy.down = true;
+		}
+		else if (direction.y < 0) {
+			// going up
+			blendy.up = true;
+		}
 	}
 	else {
-		// other direction - setting blendy as down for now bc I don't have the diagonal images done
-		blendy.down = true;
+		blendy.frame_stage = 4;
 	}
-
 	move_player(direction);
+
+	
 }
 
 
@@ -641,6 +931,16 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		}
 
 		showHelpScreen = !showHelpScreen;
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
+		if (showHelpScreen) {
+			registry.is_pause = true;
+		}
+		else {
+			registry.is_pause = false;
+		}
+
 	}
 
 	// check window boundary
@@ -728,7 +1028,145 @@ float WorldSystem::get_y_animate(int stage, int going_up) {
 
 void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool left, int stage) {
 	// BLENDY ANIMATION
-	if (up) {
+	if (up && right) {
+		// going up
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_0,
+					TEXTURE_ASSET_ID::BRT_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_1,
+					TEXTURE_ASSET_ID::BRT_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_2,
+					TEXTURE_ASSET_ID::BRT_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRT_3,
+					TEXTURE_ASSET_ID::BRT_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (down && right) {
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_0,
+					TEXTURE_ASSET_ID::BRB_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_1,
+					TEXTURE_ASSET_ID::BRB_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_2,
+					TEXTURE_ASSET_ID::BRB_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BRB_3,
+					TEXTURE_ASSET_ID::BRB_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (up && left) {
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_0,
+					TEXTURE_ASSET_ID::BLT_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_1,
+					TEXTURE_ASSET_ID::BLT_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_2,
+					TEXTURE_ASSET_ID::BLT_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLT_3,
+					TEXTURE_ASSET_ID::BLT_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (down && left) {
+		// going up
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_0,
+					TEXTURE_ASSET_ID::BLB_0_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_1,
+					TEXTURE_ASSET_ID::BLB_1_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_2,
+					TEXTURE_ASSET_ID::BLB_2_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 3 || stage == 4) {
+			registry.renderRequests.insert(
+				player_blendy,
+				{ TEXTURE_ASSET_ID::BLB_3,
+					TEXTURE_ASSET_ID::BLB_3_N,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (up) {
 		// going up
 		if (stage == 0) {
 			registry.renderRequests.insert(
@@ -736,7 +1174,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_0,
 					TEXTURE_ASSET_ID::UFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -744,7 +1182,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_1,
 					TEXTURE_ASSET_ID::UFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
@@ -752,7 +1190,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_2,
 					TEXTURE_ASSET_ID::UFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
@@ -760,7 +1198,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::UFRAME_3,
 					TEXTURE_ASSET_ID::UFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 	}
 	else if (down) {
@@ -771,7 +1209,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::DFRAME_0,
 					TEXTURE_ASSET_ID::DFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -779,15 +1217,15 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::DFRAME_1,
 					TEXTURE_ASSET_ID::DFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::DFRAME_2,
 					TEXTURE_ASSET_ID::DFRAME_2_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+					EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
@@ -795,7 +1233,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::DFRAME_3,
 					TEXTURE_ASSET_ID::DFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 	}
 	else if (right) {
@@ -806,7 +1244,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_0,
 					TEXTURE_ASSET_ID::RFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -814,7 +1252,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_1,
 					TEXTURE_ASSET_ID::RFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
@@ -822,7 +1260,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_2,
 					TEXTURE_ASSET_ID::RFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
@@ -830,7 +1268,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::RFRAME_3,
 					TEXTURE_ASSET_ID::RFRAME_3_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 	}
 	else if (left) {
@@ -841,7 +1279,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::LFRAME_0,
 					TEXTURE_ASSET_ID::LFRAME_0_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 1) {
 			registry.renderRequests.insert(
@@ -849,7 +1287,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::LFRAME_1,
 					TEXTURE_ASSET_ID::LFRAME_1_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 2) {
 			registry.renderRequests.insert(
@@ -857,13 +1295,124 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 				{ TEXTURE_ASSET_ID::LFRAME_2,
 					TEXTURE_ASSET_ID::LFRAME_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				GEOMETRY_BUFFER_ID::SPRITE });
 		}
 		else if (stage == 3 || stage == 4) {
 			registry.renderRequests.insert(
 				player_blendy,
 				{ TEXTURE_ASSET_ID::LFRAME_3,
 					TEXTURE_ASSET_ID::LFRAME_3_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+}
+
+void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion) {
+	if (up) {
+		// going up
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MUP_0,
+					TEXTURE_ASSET_ID::MUP_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MUP_1,
+					TEXTURE_ASSET_ID::MUP_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MUP_2,
+					TEXTURE_ASSET_ID::MUP_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (down) {
+		// going down
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MDOWN_0,
+				 TEXTURE_ASSET_ID::MDOWN_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MDOWN_1,
+					TEXTURE_ASSET_ID::MDOWN_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MDOWN_2,
+					TEXTURE_ASSET_ID::MDOWN_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (right) {
+		// going right
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MRIGHT_0,
+					TEXTURE_ASSET_ID::MRIGHT_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MRIGHT_1,
+					TEXTURE_ASSET_ID::MRIGHT_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MRIGHT_2,
+					TEXTURE_ASSET_ID::MRIGHT_2_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+	}
+	else if (left) {
+		// going left
+		if (stage == 0) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MLEFT_0,
+					TEXTURE_ASSET_ID::MLEFT_0_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 1) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MLEFT_1,
+					TEXTURE_ASSET_ID::MLEFT_1_NM,
+				 EFFECT_ASSET_ID::TEXTURED,
+				 GEOMETRY_BUFFER_ID::SPRITE });
+		}
+		else if (stage == 2) {
+			registry.renderRequests.insert(
+				minion,
+				{ TEXTURE_ASSET_ID::MLEFT_2,
+					TEXTURE_ASSET_ID::MLEFT_2_NM,
 				 EFFECT_ASSET_ID::TEXTURED,
 				 GEOMETRY_BUFFER_ID::SPRITE });
 		}

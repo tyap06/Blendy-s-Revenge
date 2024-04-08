@@ -4,7 +4,10 @@
 #include "SimpleParticles.hpp"
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
+#include <map>
 
+struct Mesh;
+enum class GEOMETRY_BUFFER_ID;
 enum class EntityType {
 	Generic,
 	Player,
@@ -16,40 +19,127 @@ enum class EntityType {
 enum class POWERUP_TYPE {
 
 	PAC_FRUIT = 0,
-	LASER = PAC_FRUIT + 1,
-	PROTIEN = LASER + 1,
+	BATTERY = PAC_FRUIT + 1,
+	PROTEIN = BATTERY + 1,
+	GRAPE = PROTEIN + 1,
+	LEMON = GRAPE + 1
 };
 
+enum class Sniper_State {
+	Avoiding,
+	Aiming,
+	Shooting,
+	Reloading
+};
 
+enum class Tank_state {
+	defualt,
+	protecting,
+};
 
 enum class Enemy_TYPE {
 	BASIC = 0,
 	SHOOTER = BASIC + 1,
 	ROAMER = SHOOTER + 1,
+	CHARGER = ROAMER + 1,
+	HEALER = CHARGER + 1,
+	GIANT = HEALER + 1,
+	SNIPER = GIANT + 1,
+	TANK = SNIPER +1,
+	Manager = TANK +1,
 };
 
+enum class Charger_State {
+	Approaching = 0,
+	Aiming = Approaching + 1,
+	Charging = Aiming +1,
+	Resting = Charging + 1,
+};
+
+enum class Direction {
+	Up,
+	Down,
+	Left,
+	Right
+};
 // Player component
-struct Player
-{
-	float max_speed = 200.f;
-	int health = 100;
+
+struct Player {
+	float max_speed = 260.f;
+	int health = 200;
+	int max_health = 200;
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
+	bool protein_powerup = false;
+	float protein_powerup_duration_ms = 0.f;
+	float grape_powerup_duration_ms = 0.f;
+	float lemon_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
-	bool up;
-	bool down;
-	bool left;
-	bool right;
+	bool up = false;
+	bool down = false;
+	bool left = false;
+	bool right = false;
 	int going_up = -1;
 	float invisible_counter = 0.0f;
-	float max_invisible_duraion = 100.f;
+	float max_invisible_duration = 100.f;
+	std::map<Direction, Mesh> meshes;
+
+	//static const std::map<Direction, std::string> direction_mesh;
+
+
 };
+
+static const std::map<Direction, std::string> blendy_direction_mesh = {
+	{Direction::Up, mesh_path("Blendy-up.obj")},
+	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
+	{Direction::Left, mesh_path("Blendy-left.obj")},
+	{Direction::Right, mesh_path("Blendy-right.obj")}
+};
+
+static const std::map<Direction, std::string> minion_direction_mesh = {
+	{Direction::Up, mesh_path("Minion-Reduced.obj")},
+	{Direction::Down, mesh_path("Minion-Reduced.obj")},
+	{Direction::Left, mesh_path("minion-left.obj")},
+	{Direction::Right, mesh_path("minion-right.obj")}
+};
+
+
+
 
 struct Roamer {
 
 };
+
+struct Charger {
+	Charger_State state = Charger_State::Approaching;
+	float aim_timer = 0;
+	vec2 charge_direction;
+	float rest_timer = 0;
+};
+
+struct Healer {
+
+};
+
+struct Giant {
+
+};
+
+struct Tank {
+	Tank_state state = Tank_state::defualt;
+};
+
+struct Protection {
+	Entity link;
+};
+
+struct Sniper {
+	Sniper_State state = Sniper_State::Avoiding;
+	float aim_timer = 100.f;
+};
+
 
 struct Panel {
 
@@ -75,10 +165,17 @@ struct PowerUp
 struct Minion
 {
 	int health = 50;
+	int max_health = 50;
 	int damage = 50;
 	float speed = 100.f;
 	float armor = 0;
 	int score = 10;
+	float counter_ms = 50.f;
+	int frame_stage = 0;
+	bool up;
+	bool down;
+	bool left;
+	bool right;
 	Enemy_TYPE type = Enemy_TYPE::BASIC;
 };
 
@@ -93,6 +190,8 @@ struct Bullet
 	int penetration = 1;
 	int damage = 25;
 };
+
+
 
 struct Eatable
 {
@@ -307,7 +406,85 @@ enum class TEXTURE_ASSET_ID {
 	FULL_HEALTH_BAR = BULLET_NM + 1,
 	HELP_SCREEN = FULL_HEALTH_BAR + 1,
 	HEALTH_BAR_FRAME = HELP_SCREEN + 1,
-	TEXTURE_COUNT = HEALTH_BAR_FRAME + 1
+	CUTSCENE_1_1 = HEALTH_BAR_FRAME + 1,
+	CUTSCENE_1_2 = CUTSCENE_1_1 + 1,
+	CUTSCENE_1_3 = CUTSCENE_1_2 + 1,
+	CUTSCENE_1_4 = CUTSCENE_1_3 + 1,
+	CUTSCENE_2_1 = CUTSCENE_1_4 + 1,
+	CUTSCENE_2_2 = CUTSCENE_2_1 + 1,
+	CUTSCENE_3_1 = CUTSCENE_2_2 + 1,
+	START_SCREEN = CUTSCENE_3_1 + 1,
+	MLEFT_0 = START_SCREEN + 1,
+	MLEFT_1 = MLEFT_0 + 1,
+	MLEFT_2 = MLEFT_1 + 1,
+	MRIGHT_0 = MLEFT_2 + 1,
+	MRIGHT_1 = MRIGHT_0 + 1,
+	MRIGHT_2 = MRIGHT_1 + 1,
+	MUP_0 = MRIGHT_2 + 1,
+	MUP_1 = MUP_0 + 1,
+	MUP_2 = MUP_1 + 1,
+	MDOWN_0 = MUP_2 + 1,
+	MDOWN_1 = MDOWN_0 + 1,
+	MDOWN_2 = MDOWN_1 + 1,
+	MLEFT_0_NM = MDOWN_2 + 1,
+	MLEFT_1_NM = MLEFT_0_NM + 1,
+	MLEFT_2_NM = MLEFT_1_NM + 1,
+	MRIGHT_0_NM = MLEFT_2_NM + 1,
+	MRIGHT_1_NM = MRIGHT_0_NM + 1,
+	MRIGHT_2_NM = MRIGHT_1_NM + 1,
+	MUP_0_NM = MRIGHT_2_NM + 1,
+	MUP_1_NM = MUP_0_NM + 1,
+	MUP_2_NM = MUP_1_NM + 1,
+	MDOWN_0_NM = MUP_2_NM + 1,
+	MDOWN_1_NM = MDOWN_0_NM + 1,
+	MDOWN_2_NM = MDOWN_1_NM + 1,
+
+	BATTERY_POWERUP = MDOWN_2_NM + 1,
+	PACFRUIT_POWERUP = BATTERY_POWERUP + 1,
+	LEMON_POWERUP = PACFRUIT_POWERUP + 1,
+	GRAPE_POWERUP = LEMON_POWERUP + 1,
+	PROTEIN_POWERUP = GRAPE_POWERUP + 1,
+	BATTERY_POWERUP_NM = PROTEIN_POWERUP+ 1,
+	PACFRUIT_POWERUP_NM = BATTERY_POWERUP_NM + 1,
+	LEMON_POWERUP_NM = PACFRUIT_POWERUP_NM + 1,
+	GRAPE_POWERUP_NM = LEMON_POWERUP_NM + 1,
+	PROTEIN_POWERUP_NM = GRAPE_POWERUP_NM + 1,
+
+	BRB_0 = PROTEIN_POWERUP_NM + 1,
+	BRB_1 = BRB_0 + 1,
+	BRB_2 = BRB_1 + 1,
+	BRB_3 = BRB_2 + 1,
+	BRT_0 = BRB_3 + 1,
+	BRT_1 = BRT_0 + 1,
+	BRT_2 = BRT_1 + 1,
+	BRT_3 = BRT_2 + 1,
+	BLB_0 = BRT_3 + 1,
+	BLB_1 = BLB_0 + 1,
+	BLB_2 = BLB_1 + 1,
+	BLB_3 = BLB_2 + 1,
+	BLT_0 = BLB_3 + 1,
+	BLT_1 = BLT_0 + 1,
+	BLT_2 = BLT_1 + 1,
+	BLT_3 = BLT_2 + 1,
+
+	BRB_0_N = BLT_3 + 1,
+	BRB_1_N = BRB_0_N + 1,
+	BRB_2_N = BRB_1_N + 1,
+	BRB_3_N = BRB_2_N + 1,
+	BRT_0_N = BRB_3_N + 1,
+	BRT_1_N = BRT_0_N + 1,
+	BRT_2_N = BRT_1_N + 1,
+	BRT_3_N = BRT_2_N + 1,
+	BLB_0_N = BRT_3_N + 1,
+	BLB_1_N = BLB_0_N + 1,
+	BLB_2_N = BLB_1_N + 1,
+	BLB_3_N = BLB_2_N + 1,
+	BLT_0_N = BLB_3_N + 1,
+	BLT_1_N = BLT_0_N + 1,
+	BLT_2_N = BLT_1_N + 1,
+	BLT_3_N = BLT_2_N + 1,
+
+	TEXTURE_COUNT = BLT_3_N + 1,
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -332,9 +509,15 @@ enum class GEOMETRY_BUFFER_ID {
 	SCREEN_TRIANGLE = DEBUG_LINE + 1,
 	GEOMETRY_COUNT = SCREEN_TRIANGLE + 1,
 	MINION = GEOMETRY_COUNT + 1,
-	BULLET = MINION + 1
+	BULLET = MINION + 1,
+	MINION_BULLET = BULLET + 1,
+
+	BLENDY_UP = MINION_BULLET + 1,
+	BLENDY_DOWN = BLENDY_UP + 1,
+	BLENDY_LEFT = BLENDY_DOWN + 1,
+	BLENDY_RIGHT = BLENDY_LEFT + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::BULLET + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BLENDY_RIGHT + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;

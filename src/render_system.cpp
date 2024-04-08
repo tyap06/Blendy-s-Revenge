@@ -440,6 +440,8 @@ void RenderSystem::handle_textured_rendering(Entity entity, const GLuint program
 	{
 		handle_normal_map_uniform(entity, program);
 	}
+
+	handle_giant_uniform(entity, program);
 }
 
 void RenderSystem::handle_chicken_or_egg_effect_rendering(const RenderRequest& render_request, const GLuint program)
@@ -529,6 +531,27 @@ void RenderSystem::configure_base_uniforms(Entity entity, const mat3& projection
 	gl_has_errors();
 }
 
+void RenderSystem::handle_giant_uniform(const Entity entity, const GLuint program)
+{
+	GLuint isGiant_uloc = glGetUniformLocation(program, "isGiant");
+	assert(isGiant_uloc >= 0);
+
+	if (registry.giants.has(entity))
+	{
+		glUniform1i(isGiant_uloc, 1);
+	} else
+	{
+		glUniform1i(isGiant_uloc, 0);
+		return;
+	}
+
+	GLuint time_uloc = glGetUniformLocation(program, "time");
+	assert(time_uloc >= 0);
+
+	// Setting Time
+	glUniform1f(time_uloc, (float)(glfwGetTime() * 10.0f));
+}
+
 // TODO: A number of code smells in this function that need to be cleaned up
 void RenderSystem::drawTexturedMesh(Entity entity,
 									const mat3 &projection)
@@ -544,6 +567,7 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 
 	assert(registry.renderRequests.has(entity));
 	const RenderRequest &render_request = registry.renderRequests.get(entity);
+
 
 	const GLuint used_effect_enum = (GLuint)render_request.used_effect;
 	assert(used_effect_enum != (GLuint)EFFECT_ASSET_ID::EFFECT_COUNT);
@@ -573,7 +597,6 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	}
 	else if (render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
 	{
-		//glUseProgram(effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR]);
 		handle_health_bar_rendering(render_request, program);
 	} else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLES)
 	{
@@ -681,17 +704,30 @@ void RenderSystem::draw()
 
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
+	 // Phase 1: Draw all entities except bullets
+
+	
+
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity))
-			continue;
-		// Note, its not very efficient to access elements indirectly via the entity
-		// albeit iterating through all Sprites in sequence. A good point to optimize
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity))
+			continue; 
+
+		drawTexturedMesh(entity, projection_2D);
+	}
+
+	// Phase 2: Draw only bullet entities
+	for (Entity entity : registry.renderRequests.entities)
+	{
+		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity)))
+			continue; // Skip non-bullet entities in this phase
+
 		drawTexturedMesh(entity, projection_2D);
 	}
 
 	debug_fps(projection_2D);
 	display_score();
+
 
 	// Rebinding dummy_vao here
 	glBindVertexArray(dummy_vao);
