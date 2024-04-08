@@ -11,10 +11,18 @@ const float charger_aggro_range = 450.0f;
 const float charger_aim_time = 50.0f;
 const float charger_rest_time = 80.0f;
 const float charger_charge_speed = 4.0f;
+const float boss_charge_speed = 2.0f;
+const float boss_shoot_rage = 500.f;
+const float pick_up_range = 600.f;
+const float boss_aim_time = 40.0f;
+const float boss_rest_time = 150.0f;
+const float grape_bullet_speed = 400.f;
 
 std::random_device rd; 
 std::mt19937 gen(rd());
+std::uniform_real_distribution<> angleDistr(-M_PI / 2, M_PI / 2);
 std::uniform_int_distribution<> distr(-2000, 100); 
+std::uniform_real_distribution<float> spread(-5.0f, 5.0f);
 
 float calculateDistance(const vec2& pos1, const vec2& pos2) {
 	vec2 diff = pos1 - pos2;
@@ -46,10 +54,221 @@ Entity AISystem::findClosestSniper(vec2 tank_pos) {
 	return closestSniper;
 }
 
+Entity AISystem::findClosestPowerUp(vec2 pos) {
+	float minDistance = std::numeric_limits<float>::max();
+	Entity closestPowerUp = registry.players.entities[0];
+
+	for (auto powerUpEntity : registry.powerUps.entities) {
+		auto& powerUpMotion = registry.motions.get(powerUpEntity);
+		float distance = calculateDistance(pos, powerUpMotion.position);
+
+		if (distance < minDistance) {
+			minDistance = distance;
+			closestPowerUp = powerUpEntity;
+		}
+	}
+
+	return closestPowerUp;
+}
+
+void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float elapsed_ms) {
+	auto& shooter = registry.shooters.get(shooterEntity);
+	Motion& motion = registry.motions.get(shooterEntity);
+
+	shooter.time_since_last_shot_ms += elapsed_ms;
+	if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
+		vec2 bullet_direction = normalize(playerPosition - motion.position);
+
+		vec2 up_vector{ 0.0f, -1.0f };
+		float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+		float up_angle = std::atan2(up_vector.y, up_vector.x);
+		float angle_diff = bullet_angle - up_angle;
+		if (angle_diff < -M_PI) {
+			angle_diff += 2 * M_PI;
+		}
+		else if (angle_diff > M_PI) {
+			angle_diff -= 2 * M_PI;
+		}
+
+		create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
+		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
+	}
+}
+
+void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff) {
+	const int num_bullets = 12;
+	const float angle_increment = 2 * M_PI / num_bullets; 
+	for (int i = 0; i < num_bullets; ++i) {
+		float angle = i * angle_increment;
+		vec2 velocity = { cos(angle) * grape_bullet_speed, sin(angle) * grape_bullet_speed };
+		float final_angle = up_angle + angle_diff + angle;
+		create_enemy_bullet(renderer, pos, velocity, final_angle, 20,{1,0,1});
+	}
+}
+
+
+
+
+void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, float elapsed_ms) {
+	if (!boss.is_shooting) return;
+	boss.time_since_last_shot_ms += elapsed_ms;
+	std::cout << boss.time_since_last_shot_ms << std::endl;
+	if (boss.time_since_last_shot_ms < boss.shoot_interval_ms / 4) return;
+	vec2 bullet_direction = normalize(player_pos - motion.position);
+	vec2 up_vector{ 0.0f, -1.0f };
+	float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+	float up_angle = std::atan2(up_vector.y, up_vector.x);
+	float angle_diff = bullet_angle - up_angle;
+	if (angle_diff < -M_PI) {
+		angle_diff += 2 * M_PI;
+	}
+	else if (angle_diff > M_PI) {
+		angle_diff -= 2 * M_PI;
+	}
+	boss.powerup_duration_ms -= elapsed_ms;
+
+	switch (boss.bstate) {
+	case Bullet_State::Default: {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms) {
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff, 25, {1,0.5,0});
+			boss.time_since_last_shot_ms = 0;
+		}
+		return;
+	}
+	case Bullet_State::Grape: {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms*2) {
+			shootGrapeBullets(renderer, motion.position, bullet_direction, up_angle, angle_diff);
+		}
+		break;
+	}
+	case Bullet_State::Catus: {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 1280.0f, angle_diff, 50, {1,0,0});
+		}
+		break;
+	}
+	case Bullet_State::Cherry: {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff);
+		}
+		break;
+	}
+	case Bullet_State::Protein: {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms/4) {
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff, 10, { 1,0.5,0 });
+		}
+		break;
+	}
+	case Bullet_State::Lemon: {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
+		}
+		break;
+	}
+	}
+
+	boss.time_since_last_shot_ms = 0;
+	if (boss.powerup_duration_ms < 0) boss.bstate = Bullet_State::Default;
+}
+
+
+void AISystem::updateBoss(Entity bossEntity, vec2 chase_direction,
+	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
+	Boss& boss = registry.boss.get(bossEntity);
+	float distanceToPlayer = calculateDistance(motion.position, player_pos);
+	vec2 target_direction = chase_direction;
+	Entity closestPowerUp = findClosestPowerUp(motion.position);
+	
+
+
+	switch (boss.state) {
+	case BossState::Default: {
+		boss.is_shooting = true;
+		if (boss.rest_timer < 0) {
+			boss.state = BossState::Aiming;
+			boss.aim_timer = boss_aim_time;
+			break;
+		}
+		boss.rest_timer -= elapsed_ms;
+		if (!registry.players.has(closestPowerUp)) {
+			auto& power = registry.motions.get(closestPowerUp);
+			vec2 goalPos = calculateInterceptPosition(power.position, motion.position, 1);
+			target_direction = normalize(goalPos - motion.position);
+			
+		}
+		else if (distanceToPlayer < 400.f) {
+			vec2 awayDirection = -chase_direction;
+			float angleOffset = angleDistr(gen);
+			vec2 newDirection;
+			newDirection.x = awayDirection.x * cos(angleOffset) - awayDirection.y * sin(angleOffset);
+			newDirection.y = awayDirection.x * sin(angleOffset) + awayDirection.y * cos(angleOffset);
+			target_direction = newDirection;
+		}
+		motion.velocity = target_direction * enemy.speed;
+		break;
+	}
+	case BossState::Aiming: {
+		boss.is_shooting = false;
+		motion.velocity = { 0, 0 };
+		boss.aim_timer -= elapsed_ms;
+		if (boss.aim_timer <= 0) {
+			boss.aim_timer = 0;
+			boss.state = BossState::Charging;
+			if (!registry.players.has(closestPowerUp)) {
+				auto& power = registry.motions.get(closestPowerUp);
+				vec2 goalPos = calculateInterceptPosition(power.position, motion.position, 1);
+				target_direction = normalize(goalPos - motion.position);
+			}
+			boss.charge_direction = target_direction;
+		}
+		break;
+	}
+	case BossState::Charging: {
+		boss.is_shooting = false;
+		motion.velocity = boss.charge_direction * boss_charge_speed * enemy.speed;
+		boss.rest_timer += elapsed_ms * 2;
+		if (boss.rest_timer >= charger_rest_time) {
+			boss.rest_timer = boss_rest_time;
+			boss.state = BossState::Default;
+		}
+		break;
+	}
+	case BossState::Shooting: {
+		boss.is_shooting = true;
+		boss.powerup_duration_ms -= elapsed_ms;
+		if (boss.powerup_duration_ms < 0) {
+			boss.state = BossState::Default;
+		}
+		motion.velocity = { 0, 0 };
+		break;
+	}
+	}
+
+	boss_shoot(boss, motion, player_pos, elapsed_ms);
+}
+
+
+void AISystem::updateCleaner(Entity cleanerEntity, vec2 chase_direction,
+	Minion& enemy, Motion& motion, float elapsed_ms) {
+	Entity closestPowerUp = findClosestPowerUp(motion.position);
+
+	if (!registry.players.has(closestPowerUp)) {
+		auto& powerUpMotion = registry.motions.get(closestPowerUp);
+		vec2 directionToPowerUp = normalize(powerUpMotion.position - motion.position);
+
+		if (calculateDistance(motion.position, powerUpMotion.position) < pick_up_range) {
+			motion.velocity = directionToPowerUp * enemy.speed;
+		}
+	}
+	else {
+		vec2 direction = normalize(motion.velocity);
+		motion.velocity = direction * enemy.speed;
+	}
+}
+
 void AISystem::updateTank(Entity tankEntity, vec2 chase_direction,
 	Minion& enemy, Motion& motion, float elapsed_ms, vec2 player_pos) {
 	auto& tank = registry.tanks.get(tankEntity);
-
 	float distanceToPlayer = calculateDistance(motion.position, player_pos);
 
 	switch (tank.state) {
@@ -95,6 +314,7 @@ void AISystem::updateSniper(Entity sniperEntity, vec2 chase_direction,
 	float distanceToPlayer = calculateDistance(motion.position, player_pos);
 	float aimDistance = 700.0f; 
 	float avoidDistance = 500.0f; 
+
 
 	if (registry.protections.has(sniperEntity)) {
 		auto& protect = registry.protections.get(sniperEntity);
@@ -159,6 +379,7 @@ void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction,
 
 	float distanceToPlayer = calculateDistance(motion.position, player_pos);
 
+
 	switch (charger.state) {
 	case Charger_State::Approaching:
 		if (distanceToPlayer <= charger_aggro_range) {
@@ -167,11 +388,13 @@ void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction,
 		}
 		else {
 			motion.velocity = chase_direction * enemy.speed;
+
 		}
 		break;
 	case Charger_State::Aiming:
 	{
 		motion.velocity = { 0, 0 };
+
 		charger.aim_timer -= elapsed_ms;
 		float color_r = ((50 - charger.aim_timer) / 50) + 0.5;
 		vec3 color = { color_r,0.2,0.2 };
@@ -195,6 +418,7 @@ void AISystem::updateCharger(Entity chargerEntity, vec2 chase_direction,
 	case Charger_State::Resting:
 	{
 		motion.velocity = chase_direction * enemy.speed * ((80 - charger.rest_timer) / 80);
+
 		float color_r = (charger.rest_timer / 160) + 0.5;
 		vec3 color = { color_r,0.2,0.2 };
 		registry.colors.remove(chargerEntity);
@@ -218,32 +442,6 @@ ShooterState decideShooterState(const vec2& enemyPos, const vec2& playerPos, flo
 	}
 }
 
-void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float elapsed_ms) {
-	auto& shooter = registry.shooters.get(shooterEntity);
-	Motion& motion = registry.motions.get(shooterEntity);
-
-	
-	shooter.time_since_last_shot_ms += elapsed_ms;
-	if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
-		vec2 bullet_direction = normalize(playerPosition - motion.position);
-
-		vec2 up_vector{ 0.0f, -1.0f };
-		float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
-		float up_angle = std::atan2(up_vector.y, up_vector.x);
-		float angle_diff = bullet_angle - up_angle;
-		if (angle_diff < -M_PI) {
-			angle_diff += 2 * M_PI;
-		}
-		else if (angle_diff > M_PI) {
-			angle_diff -= 2 * M_PI;
-		}
-		
-		create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
-
-		
-		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
-	}
-}
 
 
 void AISystem::init(RenderSystem* renderer_arg) {
@@ -303,6 +501,12 @@ void AISystem::step(float elapsed_ms)
 		}
 		else if (enemy.type == Enemy_TYPE::TANK) {
 			updateTank(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
+		} 
+		else if (enemy.type == Enemy_TYPE::CLEANER) {
+			updateCleaner(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms);
+		}
+		else if (enemy.type == Enemy_TYPE::BOSS) {
+			updateBoss(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
 		}
 	}
 

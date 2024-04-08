@@ -21,13 +21,18 @@ const size_t MAX_TANK = 2;
 const size_t MAX_SNIPER = 2;
 const size_t MAX_HEALER = 1;
 const size_t MAX_GIANT = 1;
+const size_t MAX_CLEANER = 1;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 const size_t MAX_BATTERY_POWERUPS = 2;
 const size_t MAX_PROTEIN_POWDER_POWERUPS = 2;
 const size_t MAX_GRAPE_POWERUPS = 2;
 const size_t MAX_LEMON_POWERUPS = 2;
+const size_t MAX_CHERRY_POWERUPS = 2;
+const size_t MAX_SHIELD_POWERUPS = 2;
+const size_t MAX_CACTUS_POWERUPS = 2;
 const size_t POWERUP_DELAY_MS = 200 * 3;
+const int boss_spawn_score = 5000;
 const float PLAYER_POWERUP_SPAWN_DISTANCE = 150.0f;
 
 // UI
@@ -43,6 +48,9 @@ const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px  / 2, 0
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
 const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
 const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
+const vec2 SHIELD_POSITION_1 = { 270.f, 25.f };
+const vec2 SHIELD_POSITION_2 = { 320.f, 25.f };
+const vec2 SHIELD_POSITION_3 = { 370.f, 25.f };
 
 
 // BOUNDS
@@ -57,6 +65,9 @@ const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
 const vec2 PROTEIN_POWDER_POWERUP_BOUNDS = { 70.f, 80.f };
 const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 70.f };
 const vec2 GRAPE_POWERUP_BOUNDS = { 80.f, 70.f };
+const vec2 SHIELD_POWERUP_BOUNDS = { 70.f, 70.f };
+const vec2 CACTUS_POWERUP_BOUNDS = { 70.f, 70.f };
+const vec2 SHIELD_HEALTH_BOUNDS = { 40.f, 40.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
@@ -264,7 +275,31 @@ void WorldSystem::update_health_bar()
 	vec2 health_bar_scale = { current_width, HEALTH_BAR_BOUNDS.y };
 
 	createLine(health_bar_center, health_bar_scale);
+
 	
+
+	// Clear existing shield entities
+	if (registry.shields.has(shield_1) || registry.shields.has(shield_2) || registry.shields.has(shield_3)) {
+		registry.remove_all_components_of(shield_1);
+		registry.remove_all_components_of(shield_2);
+		registry.remove_all_components_of(shield_3);
+	}
+
+	// Update shield display based on blendy's current shields
+	switch (blendy.shield) {
+	case 3:
+		shield_3 = create_shield_health(renderer, SHIELD_POSITION_3, SHIELD_HEALTH_BOUNDS);
+		
+	case 2:
+		shield_2 = create_shield_health(renderer, SHIELD_POSITION_2, SHIELD_HEALTH_BOUNDS);
+		
+	case 1:
+		shield_1 = create_shield_health(renderer, SHIELD_POSITION_1, SHIELD_HEALTH_BOUNDS);
+		break;
+	default:
+		// No shields
+		break;
+	}
 }
 
 // make powerups spawn randomly on the map
@@ -275,13 +310,18 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	next_protein_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_grape_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_lemon_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_cherry_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_shield_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_cactus_powerup_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	// Get the position of the player
 	Motion& player_motion = registry.motions.get(player_blendy);
 	vec2 player_pos = player_motion.position;
 
 	// Spawn battery powerup 
-	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 0) {
+
+
+	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 200) {
 		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 20) + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		// Generate a random position, excluding the player's position
@@ -328,6 +368,44 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 		create_protein_powerup(renderer, random_pos, PROTEIN_POWDER_POWERUP_BOUNDS);
 	}
+
+	// Spawn cherry powerup
+	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 0.f && registry.score > 0) {
+		next_cherry_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_cherry_powerup(renderer, random_pos, PROTEIN_POWDER_POWERUP_BOUNDS);
+	}
+
+	// Spawn shield powerup
+	if (registry.powerUps.components.size() <= MAX_SHIELD_POWERUPS && next_shield_powerup_spawn < 0.f && registry.score > 50) {
+		next_shield_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_shield_powerup(renderer, random_pos, SHIELD_POWERUP_BOUNDS);
+	}
+
+	// Spawn cactus powerup
+	if (registry.powerUps.components.size() <= MAX_CACTUS_POWERUPS && next_cactus_powerup_spawn < 0.f && registry.score > 100) {
+		next_cactus_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
+
+		vec2 random_pos;
+		do {
+			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
+		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
+
+		create_cactus_powerup(renderer, random_pos, CACTUS_POWERUP_BOUNDS);
+	}
+
+
 }
 
 
@@ -354,10 +432,20 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_cleaner_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_sniper_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
+
+	/*if (registry.boss_spawned == false) {
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_boss(renderer, spawnPos, MINION_BOUNDS);
+		registry.boss_spawned = true;
+	}*/
+
+	
+	
 
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
@@ -391,6 +479,12 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_tank(renderer, spawnPos, MINION_BOUNDS);
+	}
+
+	if (registry.cleaners.components.size() < MAX_CLEANER && next_cleaner_spawn < 0.f && registry.score >= 1) {
+		next_cleaner_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
+		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+		create_cleaner(renderer, spawnPos, MINION_BOUNDS);
 	}
 
 
@@ -495,9 +589,6 @@ void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 veloc
 	}
 }
 
-
-
-
 // Update our game world
 vec2 WorldSystem::getCurrentMousePosition() {
 	double xpos, ypos;
@@ -545,6 +636,24 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 					bullet_timer = bullet_launch_interval * 2 / 3;
 					blendy.lemon_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
 				}
+				else if (blendy.cactus_powerup_duration_ms > 0.0f) {
+					float new_bullet_speed = bullet_speed * 1.5;
+					create_cactus_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
+					bullet_timer = bullet_launch_interval / 1.5;
+					blendy.cactus_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+					
+				}
+				else if (blendy.cherry_powerup_duration_ms > 0.0f) {
+					// Calculate bullet directions for triple shot
+					vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x); // Perpendicular direction
+
+					// Spawn three bullets for triple shot
+					create_fast_bullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
+					create_fast_bullet(renderer, blendy_pos, (bullet_direction + side_direction * 0.2f) * bullet_speed, angle_diff);
+					create_fast_bullet(renderer, blendy_pos, (bullet_direction - side_direction * 0.2f) * bullet_speed, angle_diff);
+					bullet_timer = bullet_launch_interval;
+					blendy.cherry_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				}
 				else {
 					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
 					createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
@@ -565,7 +674,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		registry.remove_all_components_of(e);
 	}
 
-	update_minion_animation(elapsed_ms_since_last_update);
+	//update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
 	update_powerups(elapsed_ms_since_last_update);
@@ -668,6 +777,7 @@ void WorldSystem::restart_game() {
 	is_dead = false;
 	registry.is_dead = false;
 	registry.score = 0;
+	registry.boss_spawned = false;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	cursor = create_cursor(renderer, {window_width_px/2,window_height_px/2});
@@ -720,7 +830,7 @@ void WorldSystem::update_score()
 void WorldSystem::hit_player(const int& damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
 		auto& player = registry.players.get(player_blendy);
-		if (player.health - damage <= 0) {
+		if (player.health - damage <= 0 && player.shield == 0) {
 			player.health = 0;
 			update_health_bar();
 			is_dead = true;
@@ -735,7 +845,13 @@ void WorldSystem::hit_player(const int& damage) {
 			Mix_FadeOutMusic(1500.f);
 			Mix_HaltMusic();
 		}
+		else if (player.shield > 0) {
+			player.shield--;
+			update_health_bar();
+		}
 		else {
+			player.shield = 0;
+			update_health_bar();
 			player.health -= damage;
 			Mix_PlayChannel(-1, player_hurt, 0);
 			update_health_bar();
@@ -745,19 +861,37 @@ void WorldSystem::hit_player(const int& damage) {
 
 void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	Minion& minion = registry.minions.get(target);
-	minion.health -= std::max((damage-minion.armor),1.f);
+	//minion.health -= std::max((damage-minion.armor),1.f);
 	auto& blendy = registry.players.get(player_blendy);
+
+	// blendy has cactus powerup
+	if (blendy.cactus_powerup_duration_ms > 0) {
+		Mix_PlayChannel(-1, minion_hurt, 0);
+		int new_damage = damage * 3;
+		minion.health -= std::max((new_damage - minion.armor), 1.f);
+	}
+	// blendy does not have cactus powerup regular attack
+	else {
+		Mix_PlayChannel(-1, minion_hurt, 0);
+		minion.health -= std::max((damage - minion.armor), 1.f);
+	}
+
 	if (minion.health <= 0) {
 		registry.score += minion.score;
 		Mix_PlayChannel(-1, minion_dead, 0);
+		if (registry.boss.has(target)) {
+			//todo:
+		}
+		registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(target));
 		registry.remove_all_components_of(target);
 	} else {
 		Mix_PlayChannel(-1, minion_hurt, 0);
+
+		// blendy has lemon powerup
 		if (blendy.lemon_powerup_duration_ms > 0) {
 			minion.armor = 0;
 		}
-	}
-	
+	}	
 }
 
 
@@ -775,11 +909,13 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other)) {
 				int damage = registry.minions.get(entity_other).damage;
 				hit_player(damage);
+				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 				registry.remove_all_components_of(entity_other);
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {
 					int damage = registry.bullets.get(entity_other).damage;
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 					hit_player(damage);
 				}
@@ -792,6 +928,7 @@ void WorldSystem::handle_collisions() {
 					blendy.health = blendy.max_health;
 					update_health_bar();
 					Mix_PlayChannel(-1, powerup_pickup_battery, 0);
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
@@ -800,22 +937,94 @@ void WorldSystem::handle_collisions() {
 					Mix_PlayChannel(-1, powerup_pickup_protein, 0);
 					blendy.grape_powerup_duration_ms = 0.f;
 					blendy.lemon_powerup_duration_ms = 0.f;
+					blendy.cherry_powerup_duration_ms = 0.f;
+					blendy.cactus_powerup_duration_ms = 0.f;
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
 					blendy.grape_powerup_duration_ms = 500.f;
 					blendy.protein_powerup_duration_ms = 0.f;
 					blendy.lemon_powerup_duration_ms = 0.f;
+					blendy.cherry_powerup_duration_ms = 0.f;
 					Mix_PlayChannel(-1, powerup_pickup_grape, 0);
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
 					blendy.lemon_powerup_duration_ms = 300.f;
 					blendy.grape_powerup_duration_ms = 0.f;
 					blendy.protein_powerup_duration_ms = 0.f;
+					blendy.cherry_powerup_duration_ms = 0.f;
+					blendy.cactus_powerup_duration_ms = 0.f;
 					Mix_PlayChannel(-1, powerup_pickup_lemon, 0);
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
+				else if (powerup.type == POWERUP_TYPE::CHERRY) {
+					blendy.cherry_powerup_duration_ms = 300.f;
+					blendy.lemon_powerup_duration_ms = 0.f;
+					blendy.grape_powerup_duration_ms = 0.f;
+					blendy.protein_powerup_duration_ms = 0.f;
+					blendy.cactus_powerup_duration_ms = 0.f;
+					registry.remove_all_components_of(entity_other);
+				}
+				else if (powerup.type == POWERUP_TYPE::CACTUS) {
+					blendy.cactus_powerup_duration_ms = 300.f;
+					blendy.cherry_powerup_duration_ms = 0.f;
+					blendy.lemon_powerup_duration_ms = 0.f;
+					blendy.grape_powerup_duration_ms = 0.f;
+					blendy.protein_powerup_duration_ms = 0.f;
+					registry.remove_all_components_of(entity_other);
+				}
+				else if (powerup.type == POWERUP_TYPE::SHIELD) {
+					if (blendy.shield < blendy.max_shield) {
+						blendy.shield += 1;
+						update_health_bar();
+						registry.remove_all_components_of(entity_other);
+					}
+					else if (blendy.shield == blendy.max_shield) {
+							blendy.shield = blendy.max_shield;
+							update_health_bar();
+							registry.remove_all_components_of(entity_other);
+					}
+					//std::cout << "Blendy shield: " << blendy.shield << std::endl;
+				}
+				
+			}
+		}
+		else if (registry.cleaners.has(entity)) {
+			if (registry.powerUps.has(entity_other)) {
+				if (registry.boss.has(entity)) {
+					PowerUp& powerup = registry.powerUps.get(entity_other);
+					Boss& boss = registry.boss.get(entity);
+					Minion& m = registry.minions.get(entity);
+					switch (powerup.type) {
+					case POWERUP_TYPE::BATTERY:
+						m.health += 200;
+						if (m.health > m.max_health) m.health = m.max_health;
+						break;
+					/*case POWERUP_TYPE::Nuts:
+						m.health += 800;
+						if (m.health > m.max_health) m.health = m.max_health;
+						break;*/
+					case POWERUP_TYPE::LEMON:
+					/*case POWERUP_TYPE::Cherry:*/
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.powerup_duration_ms = 30;
+						break;
+					case POWERUP_TYPE::GRAPE:
+					case POWERUP_TYPE::	PROTEIN:
+					/*case POWERUP_TYPE::Cactus:*/
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.state = BossState::Shooting;
+						boss.powerup_duration_ms = 30;
+						break;
+					default:
+						break;
+					}
+				}
+				registry.remove_all_components_of(entity_other);
 				
 			}
 		}
@@ -824,6 +1033,7 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other) && bullet.friendly) {
 				int damage = registry.bullets.get(entity).damage;
 				hit_enemy(entity_other, damage);
+				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity));
 				registry.remove_all_components_of(entity);
 			}
 		}

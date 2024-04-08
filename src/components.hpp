@@ -21,7 +21,10 @@ enum class POWERUP_TYPE {
 	BATTERY = PAC_FRUIT + 1,
 	PROTEIN = BATTERY + 1,
 	GRAPE = PROTEIN + 1,
-	LEMON = GRAPE + 1
+	LEMON = GRAPE + 1,
+	CHERRY = LEMON + 1,
+	SHIELD = CHERRY + 1,
+	CACTUS = SHIELD + 1
 };
 
 enum class Sniper_State {
@@ -45,8 +48,10 @@ enum class Enemy_TYPE {
 	GIANT = HEALER + 1,
 	SNIPER = GIANT + 1,
 	TANK = SNIPER +1,
-	Manager = TANK +1,
+	CLEANER = TANK +1,
+	BOSS = CLEANER + 1,
 };
+
 
 enum class Charger_State {
 	Approaching = 0,
@@ -54,6 +59,38 @@ enum class Charger_State {
 	Charging = Aiming +1,
 	Resting = Charging + 1,
 };
+
+enum class Bullet_State {
+	Default,
+	Protein,
+	Grape,
+	Catus,
+	Lemon,
+	Cherry,
+};
+
+
+enum class BossState {
+	Default,
+	Aiming,
+	Charging,
+	PowerUpSeeking,
+	Shooting,
+};
+
+struct Boss {
+	BossState state = BossState::Default;
+	Bullet_State bstate = Bullet_State::Default;
+	float aim_timer = 0;
+	float shoot_interval_ms = 25.0f;
+	float time_since_last_shot_ms = 0.0f;
+	bool is_shooting = true;
+	float powerup_duration_ms = 0.f;
+	vec2 charge_direction;
+	float rest_timer = 30;
+	int isAngry = 0;
+};
+
 
 enum class Direction {
 	Up,
@@ -71,9 +108,13 @@ struct Player {
 	int current_effect = 0;
 	bool pac_mode = false;
 	bool protein_powerup = false;
+	int shield = 0;
+	int max_shield = 3;
 	float protein_powerup_duration_ms = 0.f;
 	float grape_powerup_duration_ms = 0.f;
 	float lemon_powerup_duration_ms = 0.f;
+	float cherry_powerup_duration_ms = 0.f;
+	float cactus_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -90,6 +131,8 @@ struct Player {
 
 };
 
+
+
 static const std::map<Direction, std::string> blendy_direction_mesh = {
 	{Direction::Up, mesh_path("Blendy-up.obj")},
 	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
@@ -104,10 +147,19 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 	{Direction::Right, mesh_path("minion-right.obj")}
 };
 
+// A component to represent shield
+struct Shield {
 
+};
 
+struct Mesh_entity {
 
+};
 struct Roamer {
+
+};
+
+struct Cleaner {
 
 };
 
@@ -213,6 +265,7 @@ struct Motion {
 	float y_animate = 0.f;
 	EntityType type = EntityType::Generic;
 
+	
 	bool operator==(const Motion& other) const {
 		return position == other.position &&
 			angle == other.angle &&
@@ -475,6 +528,7 @@ enum class TEXTURE_ASSET_ID {
 	BLT_2_N = BLT_1_N + 1,
 	BLT_3_N = BLT_2_N + 1,
 
+
 	HEALER_D0 = BLT_3_N + 1,
 	HEALER_D0_N = HEALER_D0 + 1,
 	HEALER_D1 = HEALER_D0_N + 1,
@@ -577,8 +631,10 @@ enum class TEXTURE_ASSET_ID {
 	SNIPER_U2_N = SNIPER_U2 + 1,
 
 	CURSOR = SNIPER_U2_N + 1,
-
-	TEXTURE_COUNT = CURSOR + 1
+  CHERRY_POWERUP = CURSOR + 1,
+	SHIELD_POWERUP = CHERRY_POWERUP + 1,
+	CACTUS_POWERUP = SHIELD_POWERUP + 1,
+	TEXTURE_COUNT = CACTUS_POWERUP + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
@@ -608,9 +664,14 @@ enum class GEOMETRY_BUFFER_ID {
 	BLENDY_UP = MINION_BULLET + 1,
 	BLENDY_DOWN = BLENDY_UP + 1,
 	BLENDY_LEFT = BLENDY_DOWN + 1,
-	BLENDY_RIGHT = BLENDY_LEFT + 1
+	BLENDY_RIGHT = BLENDY_LEFT + 1,
+	GRAPE = BLENDY_RIGHT + 1,
+	LEMON = GRAPE + 1,
+	ORANGE = LEMON + 1,
+	PROTEIN_POWER = ORANGE + 1,
+	BATTERY = PROTEIN_POWER + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::BLENDY_RIGHT + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BATTERY + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
