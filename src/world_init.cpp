@@ -112,6 +112,8 @@ Entity create_shield_health(RenderSystem* renderer, const vec2& position, const 
 }
 
 
+
+
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
 	auto entity = Entity();
 	// Store a reference to the potentially re-used mesh object, like createChicken
@@ -227,12 +229,6 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 
 	renderer->setDirectionalLight(entity);
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::DIRECTIONAL_LIGHT,
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
@@ -674,10 +670,10 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y});
-	vec3 color = { 0.8,0.8,0.0 };
-	registry.colors.insert(entity, color);
-	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
+	/*vec3 color = { 0.8,0.8,0.0 };
+	registry.colors.insert(entity, color);*/
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 	auto& dodger = registry.shooters.emplace(entity);
 
@@ -808,10 +804,10 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.max_health = 50;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	vec3 color = { 0.2,0.8,0.8 };
-	registry.colors.insert(entity, color);
-	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
+	/*vec3 color = { 0.2,0.8,0.8 };
+	registry.colors.insert(entity, color);*/
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 	auto& dodger = registry.snipers.emplace(entity);
 
 	registry.renderRequests.insert(
@@ -853,8 +849,8 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	vec3 color = { 0,1,0 };
-	registry.colors.insert(entity, color);
+	/*vec3 color = { 0,1,0 };
+	registry.colors.insert(entity, color);*/
 
 	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
@@ -969,6 +965,7 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 	return entity;
 }
 
+
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display) {
 	auto entity = Entity();
 	Mesh& mesh = renderer->getMesh(geometry_id);
@@ -987,5 +984,26 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, En
 			 EFFECT_ASSET_ID::CHICKEN,
 			geometry_id });
 	}
+  	return entity;
+}
+
+Entity create_cursor(RenderSystem* renderer, const vec2& position)
+{
+	auto entity = Entity();
+	registry.cursor.emplace(entity);
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0,0 };
+	motion.position = position;
+	motion.scale = vec2({ 50,50 });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CURSOR,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
+
 	return entity;
 }

@@ -71,6 +71,8 @@ Entity create_shield_powerup(RenderSystem* renderer, const vec2& position, const
 Entity create_shield_health(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+
+Entity create_cursor(RenderSystem* renderer, const vec2& position);
 Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_cactus_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);

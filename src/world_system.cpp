@@ -44,13 +44,14 @@ const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
 const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
 const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
-const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
+const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px  / 2, 0};
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
 const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
 const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
 const vec2 SHIELD_POSITION_1 = { 270.f, 25.f };
 const vec2 SHIELD_POSITION_2 = { 320.f, 25.f };
 const vec2 SHIELD_POSITION_3 = { 370.f, 25.f };
+
 
 // BOUNDS
 const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
@@ -183,7 +184,7 @@ GLFWwindow* WorldSystem::create_window() {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
-
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
@@ -248,6 +249,7 @@ GLFWwindow* WorldSystem::create_window() {
 
 	return window;
 }
+
 
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
@@ -552,18 +554,16 @@ void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
 		// if minion is not moving, render original image
 		if (minion_motion.velocity.x == 0 && minion_motion.velocity.y == 0) {
 			// just keep the current image
+			RenderRequest request = registry.renderRequests.get(registry.minions.entities[j]);
 			registry.renderRequests.remove(registry.minions.entities[j]);
 			registry.renderRequests.insert(
 				registry.minions.entities[j],
-				{ TEXTURE_ASSET_ID::MINION,
-					TEXTURE_ASSET_ID::MINION_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				{ request.used_texture, request.used_normal_map,request.used_effect,request.used_geometry});
 		}
 		else {
 			// minion is moving - calculate appropriate frame to put in render request
 			registry.renderRequests.remove(registry.minions.entities[j]);
-			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage, registry.minions.entities[j]);
+			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage,minion.type, registry.minions.entities[j]);
 		}
 	}
 }
@@ -669,6 +669,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	return;
 }
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+	
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
 	}
@@ -686,13 +687,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (is_dead) {
 		Motion& player_motion = registry.motions.get(player_blendy);
 		float sec_passed = elapsed_ms_since_last_update / 1000;
-		player_motion.velocity = player_motion.velocity*(1 - sec_passed) + dead_velocity * sec_passed;
+		player_motion.velocity = player_motion.velocity * (1 - sec_passed) + dead_velocity * sec_passed;
 		player_motion.angle = player_motion.angle * (1 - sec_passed) + dead_angle * sec_passed;
-		player_motion.scale= player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
+		player_motion.scale = player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
 	}
 
 	spawn_minions(elapsed_ms_since_last_update);
-	
+
 
 	// BLENDY ANIMATION
 	update_blendy_animation(elapsed_ms_since_last_update);
@@ -702,31 +703,49 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
-    ScreenState &screen = registry.screenStates.components[0];
+	ScreenState& screen = registry.screenStates.components[0];
 
-    float min_counter_ms = 3000.f;
+	float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
 		counter.counter_ms -= elapsed_ms_since_last_update;
-		
+
 		//
-		if(counter.counter_ms < min_counter_ms){
-		    min_counter_ms = counter.counter_ms;
+		if (counter.counter_ms < min_counter_ms) {
+			min_counter_ms = counter.counter_ms;
 		}
 
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
 			screen.darken_screen_factor = 0;
-            restart_game();
+			restart_game();
 			return true;
 		}
 	}
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
+
+	
 	return true;
+}
+
+void WorldSystem::render_cursor() {
+	vec2 mouse_position = getCurrentMousePosition();
+	if (mouse_position.x > window_width_px || mouse_position.x < 0 || mouse_position.y > window_height_px || mouse_position.y < 0) {
+		return;
+	}
+	registry.motions.get(cursor).position = mouse_position;
+	registry.renderRequests.remove(cursor);
+	registry.renderRequests.insert(
+		cursor,
+		{ TEXTURE_ASSET_ID::CURSOR,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
 }
 
 // Reset the world state to its initial state
@@ -751,22 +770,30 @@ void WorldSystem::restart_game() {
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
 	    registry.remove_all_components_of(registry.motions.entities.back());
+	registry.cursor.remove(cursor);
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
-
 	is_dead = false;
 	registry.is_dead = false;
 	registry.score = 0;
 	registry.boss_spawned = false;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
+	cursor = create_cursor(renderer, {window_width_px/2,window_height_px/2});
 	update_health_bar();
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
 }
-
+void WorldSystem::window_minimized_callback() {
+	registry.is_minimized = true;
+	Mix_PauseMusic();
+}
+void WorldSystem::window_unminimized_callback() {
+	Mix_ResumeMusic();
+	registry.is_minimized = false;
+}
 void WorldSystem::console_debug_fps()
 {
 	if (debugging.show_game_fps)
@@ -1089,8 +1116,8 @@ void WorldSystem::handlePlayerMovement(int key, int action) {
 
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	handlePlayerMovement(key, action);
-
-	auto& motion = registry.motions.get(directional_light);
+	// Unable the directional light to move
+	/*auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;
 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I) {
 		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
@@ -1106,11 +1133,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
+	}*/
 
 	// Toggle the help screen visibility when "H" is pressed
 	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
 		if (showHelpScreen) {
+			
 			registry.is_pause = true;
 			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
 		}
@@ -1132,12 +1160,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	}
 
-	// check window boundary
-	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	if (new_pos.x > window_width_px) new_pos.x = window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y > window_height_px) new_pos.y = window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	motion.position = new_pos;
+	//// check window boundary
+	//if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
+	//if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
+	//if (new_pos.x > window_width_px) new_pos.x = window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2;
+	//if (new_pos.y > window_height_px) new_pos.y = window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
+	//motion.position = new_pos;
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
@@ -1497,7 +1525,52 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 	}
 }
 
-void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion) {
+void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Enemy_TYPE type,Entity minion) {
+	if (type == Enemy_TYPE::HEALER || type == Enemy_TYPE::ROAMER || type == Enemy_TYPE::SHOOTER || type == Enemy_TYPE::SNIPER) {
+		TEXTURE_ASSET_ID texture = TEXTURE_ASSET_ID::HEALER_D0; // healer, roamer,shooter,sniper
+		if (type == Enemy_TYPE::HEALER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (type == Enemy_TYPE::ROAMER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 24);
+		}
+		else if (type == Enemy_TYPE::SHOOTER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 48);
+		}
+		else if (type == Enemy_TYPE::SNIPER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 72);
+		}
+		// down, left, right, up
+		if (up) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 18);
+		}
+		else if (down) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (left) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 6);
+		}
+		else if (right) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 12);
+		}
+		if (stage == 0) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (stage == 1) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 2);
+		}
+		else {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 4);
+		}
+		TEXTURE_ASSET_ID normal_map = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 1);
+		registry.renderRequests.insert(
+			minion,
+			{ texture,
+				normal_map,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+		return;
+	}
 	if (up) {
 		// going up
 		if (stage == 0) {
