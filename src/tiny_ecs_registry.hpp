@@ -44,6 +44,7 @@ public:
 	ComponentContainer<Cleaner> cleaners;
 	ComponentContainer<Boss> boss;
 	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
+	ComponentContainer<Shield>shields;
 
 	int score = 0;
 	bool is_pause = false;
@@ -84,6 +85,7 @@ public:
 		registry_list.push_back(&cleaners);
 		registry_list.push_back(&boss);
 		registry_list.push_back(&protections);
+		registry_list.push_back(&shields);
 	}
 
 	void clear_all_components() {

@@ -95,11 +95,22 @@ private:
 	float next_giant_spawn = 100;
 	float next_healer_spawn = 100;
 	float next_cleaner_spawn = 100;
+
 	float next_battery_powerup_spawn = 100;
 	float next_protein_powerup_spawn = 100;
 	float next_grape_powerup_spawn = 100;
 	float next_lemon_powerup_spawn = 100;
+	float next_battery_powerup_spawn = 100;
+	float next_protein_powerup_spawn = 100;
+	float next_grape_powerup_spawn = 100;
+	float next_lemon_powerup_spawn = 100;
+	float next_cherry_powerup_spawn = 100;
+	float next_shield_powerup_spawn = 100;
+	float next_cactus_powerup_spawn = 100;
 	Entity health_bar_box;
+	Entity shield_1;
+	Entity shield_2;
+	Entity shield_3;
 
 	// music references
 	Mix_Music* background_music;

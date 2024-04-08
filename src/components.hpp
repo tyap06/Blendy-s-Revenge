@@ -21,7 +21,10 @@ enum class POWERUP_TYPE {
 	BATTERY = PAC_FRUIT + 1,
 	PROTEIN = BATTERY + 1,
 	GRAPE = PROTEIN + 1,
-	LEMON = GRAPE + 1
+	LEMON = GRAPE + 1,
+	CHERRY = LEMON + 1,
+	SHIELD = CHERRY + 1,
+	CACTUS = SHIELD + 1
 };
 
 enum class Sniper_State {
@@ -105,9 +108,13 @@ struct Player {
 	int current_effect = 0;
 	bool pac_mode = false;
 	bool protein_powerup = false;
+	int shield = 0;
+	int max_shield = 3;
 	float protein_powerup_duration_ms = 0.f;
 	float grape_powerup_duration_ms = 0.f;
 	float lemon_powerup_duration_ms = 0.f;
+	float cherry_powerup_duration_ms = 0.f;
+	float cactus_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -140,8 +147,10 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 	{Direction::Right, mesh_path("minion-right.obj")}
 };
 
+// A component to represent shield
+struct Shield {
 
-
+};
 
 
 struct Roamer {
@@ -509,7 +518,11 @@ enum class TEXTURE_ASSET_ID {
 	BLT_2_N = BLT_1_N + 1,
 	BLT_3_N = BLT_2_N + 1,
 
-	TEXTURE_COUNT = BLT_3_N + 1,
+	CHERRY_POWERUP = BLT_3_N + 1,
+	SHIELD_POWERUP = CHERRY_POWERUP + 1,
+	CACTUS_POWERUP = SHIELD_POWERUP + 1,
+
+	TEXTURE_COUNT = CACTUS_POWERUP + 1,
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
