@@ -34,6 +34,8 @@ const float PLAYER_POWERUP_SPAWN_DISTANCE = 150.0f;
 const vec3 BLENDY_COLOR = { 0.78f, 0.39f, 0.62f };
 const vec3 MAGENTA = { 0.78f, 0.39f, 0.62f };
 const vec3 RED = { 1.f, 0.f, 0.f };
+const vec3 WHITE = vec3{ 1.f,1.f,1.f };
+
 
 // DEFAULT START POSITIONS
 const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
@@ -103,7 +105,6 @@ WorldSystem::~WorldSystem() {
 		Mix_FreeChunk(dead_sound);
 	if (get_point != nullptr)
 		Mix_FreeChunk(get_point);
-
 	if (powerup_pickup_battery != nullptr)
 		Mix_FreeChunk(powerup_pickup_battery);
 	if (powerup_pickup_grape != nullptr)
@@ -674,8 +675,8 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
-	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, RED, 0.05f);
-	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 30.f, MAGENTA, MAGENTA, 0.2f);
+	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f);
+	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 30.f, MAGENTA, RED, 0.2f);
 }
 
 void WorldSystem::console_debug_fps()

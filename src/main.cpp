@@ -52,13 +52,10 @@ int main()
 			physics.step(elapsed_ms);
 			ai.step(elapsed_ms);
 			world.step(elapsed_ms);
+			renderer.particles_step(elapsed_ms);
 		}
 
 		renderer.draw();
-
-		if (!registry.is_pause) {
-			renderer.update_particle_emitters(elapsed_ms);
-		}
 	}
 
 	return EXIT_SUCCESS;

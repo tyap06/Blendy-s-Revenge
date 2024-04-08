@@ -1,14 +1,23 @@
-#include "SimpleParticles.hpp"
+#include "particle_system.hpp"
 
+constexpr int NUMBER_OF_PARTICLES_PER_INSTANCE = 100;
+constexpr int NUMBER_OF_VERTICES_IN_SQUARE = 4;
+constexpr float THREE_SIXTY_DEGREES = 360.f;
 
-SimpleEmitter::SimpleEmitter()
+// DEFAULT VALUES
+const vec2& DEFAULT_EMITTER_POSITION = vec2{ window_width_px / 2, window_height_px / 2 };
+const float& DEFAULT_BASE_LIFETIME = (float)10.f;
+const float DEFAULT_CENTRE_OFFSET = 30.f;
+const float& DEFAULT_VELOCITY_MAGNITUDE = 0.05f;
+const vec3& DEFAULT_START_COLOR = vec3{ 1.0,0.0,0.0 };
+const vec3& DEFAULT_END_COLOR = vec3{ 1.0,1.0,1.0 };
+
+Emitter::Emitter()
 {
 
 }
 
-
-
-SimpleEmitter::~SimpleEmitter()
+Emitter::~Emitter()
 {
 	glDeleteBuffers(1, &this->vertexBuffer);
 	glDeleteBuffers(1, &this->positionBuffer);
@@ -16,7 +25,7 @@ SimpleEmitter::~SimpleEmitter()
 	gl_has_errors();
 }
 
-void SimpleEmitter::update(const float& dt)
+void Emitter::update(const float& dt)
 {
 	for (uint i = 0; i < this->particles.size(); ++i)
 	{
@@ -39,9 +48,7 @@ void SimpleEmitter::update(const float& dt)
 	}
 }
 
-
-
-void SimpleEmitter::draw()
+void Emitter::draw()
 {
 	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(4);
@@ -50,7 +57,9 @@ void SimpleEmitter::draw()
 
 	// update the position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, this->positionBuffer);
-	glBufferSubData(GL_ARRAY_BUFFER, 0, this->particles.size() * 4 * sizeof(float), this->positions);
+
+	gl_has_errors();
+	glBufferSubData(GL_ARRAY_BUFFER, 0, this->particles.size() * 4 * sizeof(float), this->positions.data()); // throws INVALID_VALUE
 
 	gl_has_errors();
 
@@ -78,38 +87,34 @@ void SimpleEmitter::draw()
 	gl_has_errors();
 }
 
-void SimpleEmitter::seed_random_number_generator()
+void Emitter::seed_random_number_generator()
 {
 	auto time_since_beginning = glfwGetTime();
 	auto new_seed = time_since_beginning * 10000000;
 	rng.seed(new_seed);
 }
 
-void SimpleEmitter::set_emitter_uniforms()
+float Emitter::get_base_lifetime() const
 {
-	// Add any emitter uniforms that you want to configure here later
+	return this->initial_lifetime;
 }
 
-void SimpleEmitter::set_particle_attributes(
+void Emitter::set_particle_attributes(
 	unsigned int i,
-	const vec2& emitter_position = vec2{ window_width_px / 2, window_height_px / 2 },
-	const float& base_lifetime = (float) 10.f,
-	const float centre_offset = 30.f,
-	const float& velocity_magnitude = 0.05f,
-	const vec3& start_color = vec3{1.0,0.0,0.0},
-	const vec3& end_color = vec3{ 1.0,1.0,1.0 }
+	const vec2& emitter_position = DEFAULT_EMITTER_POSITION,
+	const float& base_lifetime = DEFAULT_BASE_LIFETIME,
+	const float centre_offset = DEFAULT_CENTRE_OFFSET,
+	const float& velocity_magnitude = DEFAULT_VELOCITY_MAGNITUDE,
+	const vec3& start_color = DEFAULT_START_COLOR,
+	const vec3& end_color = DEFAULT_END_COLOR
 	)
 {
 	seed_random_number_generator();
 
-	//constexpr float base_lifetime = 10.f;
-	//const vec2 emitter_position = vec2{ window_width_px / 2, window_height_px / 2 };
-	//constexpr float centre_offset = 30.f; // per emitter value
-
 	const float lifetime = base_lifetime;
-	const float random_angle = uniform_dist(rng) * 360.f;
-	const float random_position_x = emitter_position.x + (uniform_dist(rng) - 0.5f) * centre_offset; // [width/2-30,width/2+30];
-	const float random_position_y = emitter_position.y + (uniform_dist(rng) - 0.5f) * centre_offset; // [height/2-30,height/2+30];
+	const float random_angle = uniform_dist(rng) * THREE_SIXTY_DEGREES;
+	const float random_position_x = emitter_position.x + (uniform_dist(rng) - 0.5f) * centre_offset; 
+	const float random_position_y = emitter_position.y + (uniform_dist(rng) - 0.5f) * centre_offset;
 
 	this->particles[i].position = vec3(random_position_x, random_position_y, 1.0);
 	this->particles[i].lifetime = lifetime;
@@ -119,20 +124,43 @@ void SimpleEmitter::set_particle_attributes(
 	this->particles[i].velocity_magnitude = velocity_magnitude;
 }
 
-void SimpleEmitter::init(
+void Emitter::create_square_vertices(std::vector<float>& out_vertices)
+{
+	// Bottom Left
+	out_vertices.push_back(0.0f);
+	out_vertices.push_back(0.0f);
+	out_vertices.push_back(0.0f);
+
+	// Bottom Right
+	out_vertices.push_back(1.0f);
+	out_vertices.push_back(0.0f);
+	out_vertices.push_back(0.0f);
+
+	// Top Left
+	out_vertices.push_back(0.0f);
+	out_vertices.push_back(1.0f);
+	out_vertices.push_back(0.0f);
+
+	// Top Right
+	out_vertices.push_back(1.0f);
+	out_vertices.push_back(1.0f);
+	out_vertices.push_back(0.0f);
+}
+
+void Emitter::init(
 	const vec2& emitter_position,
 	const float& base_lifetime,
 	const float& centre_offset,
 	const float& outward_velocity_magnitude
 )
 {
-	const unsigned int NUMBER_OF_PARTICLES = 100;
-	// create 100 particles
-	this->particles.resize(NUMBER_OF_PARTICLES);
+	this->initial_lifetime = base_lifetime;
+
+	// create number_of_particles particles
+	this->particles.resize(NUMBER_OF_PARTICLES_PER_INSTANCE);
 	for (uint i = 0; i < this->particles.size(); ++i)
 	{
 		set_particle_attributes(i, emitter_position, base_lifetime, centre_offset, outward_velocity_magnitude);
-		set_emitter_uniforms();
 	}
 
 	// create a vertex and position buffer
@@ -141,32 +169,20 @@ void SimpleEmitter::init(
 
 	gl_has_errors();
 
-	// fill the vertex buffer
-	std::vector< float > vertices;
-	vertices.push_back(0.0f);
-	vertices.push_back(0.0f);
-	vertices.push_back(0.0f);
-
-	vertices.push_back(1.0f);
-	vertices.push_back(0.0f);
-	vertices.push_back(0.0f);
-
-	vertices.push_back(0.0f);
-	vertices.push_back(1.0f);
-	vertices.push_back(0.0f);
-
-	vertices.push_back(1.0f);
-	vertices.push_back(1.0f);
-	vertices.push_back(0.0f);
+	std::vector<float> out_vertices;
+	create_square_vertices(out_vertices);
 
 	glBindBuffer(GL_ARRAY_BUFFER, this->vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(float), vertices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, out_vertices.size() * sizeof(float), out_vertices.data(), GL_STATIC_DRAW);
 
 	gl_has_errors();
 
+	// 4 * to represent 4 positions for each vertex of a square
+	positions.resize(NUMBER_OF_PARTICLES_PER_INSTANCE * NUMBER_OF_VERTICES_IN_SQUARE);
+
 	// fill the position buffer
 	glBindBuffer(GL_ARRAY_BUFFER, this->positionBuffer);
-	glBufferData(GL_ARRAY_BUFFER, this->particles.size() * 4 * sizeof(float), this->positions, GL_DYNAMIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, this->particles.size() * 4 * sizeof(float), positions.data(), GL_DYNAMIC_DRAW);
 
 	gl_has_errors();
 }

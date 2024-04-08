@@ -3,22 +3,21 @@
 #include <random>
 #include "common.hpp"
 
-class SimpleEmitter
+class Emitter
 {
 public:
-	SimpleEmitter();
-	~SimpleEmitter();
+	Emitter();
+	~Emitter();
 
 	void update(const float& dt);
 	void draw();
 	void seed_random_number_generator();
-	void set_emitter_uniforms(
-		
-	);
+	float get_base_lifetime() const;
+	
 	void init(
 		const vec2& emitter_position,
 		const float& base_lifetime,
-		const float& centre_offset, 
+		const float& centre_offset,
 		const float& outward_velocity_magnitude
 	);
 
@@ -34,16 +33,18 @@ private:
 	};
 
 	std::vector<Particle> particles;
-
-	float positions[400];
+	std::vector<float> positions;
 
 	GLuint vertexBuffer;
 	GLuint positionBuffer;
+
+	float initial_lifetime;
 
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	// Helper Functions
+	void create_square_vertices(std::vector<float>& out_vertices);
 	void set_particle_attributes(
 		unsigned i,
 		const vec2& emitter_position,
