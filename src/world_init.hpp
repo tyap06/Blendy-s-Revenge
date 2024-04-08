@@ -68,5 +68,3 @@ Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const 
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 Entity create_cursor(RenderSystem* renderer, const vec2& position);
-
-Entity createHelpToolTip(RenderSystem* renderer, vec2 pos, vec2 bounds);

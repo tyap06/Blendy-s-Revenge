@@ -282,7 +282,6 @@ class RenderSystem {
 			textures_path("Sniper_u2_n.png"),
 
 			textures_path("cursor.png"),
-			textures_path("Help_Tool_Tip.png")
 
 
 

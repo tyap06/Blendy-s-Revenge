@@ -41,7 +41,7 @@ public:
 	// Callback For minimize the Window
 	void window_minimized_callback();
 	void window_unminimized_callback();
-
+	void render_cursor();
 	
   
 private:
@@ -88,7 +88,6 @@ private:
 	Entity fps_counter;
 	float next_minion_spawn = 100;
 	Entity health_bar_frame;
-	Entity help_tooltip;
 	Entity help_screen;
 	bool showHelpScreen = true;
 	float next_powerup_spawn = 100;
@@ -155,7 +154,7 @@ private:
 	void update_game_music();
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 
-	void render_cursor(vec2 mouse_position);
+	
 
 };
 

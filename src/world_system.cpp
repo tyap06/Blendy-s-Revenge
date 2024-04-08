@@ -39,11 +39,11 @@ const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
 const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
 const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
-const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
+const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px  / 2, 0};
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
 const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
 const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
-const vec2 HELP_TOOLTIP_POSITION = { window_width_px - 50,30 };
+
 
 // BOUNDS
 const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
@@ -560,7 +560,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	return;
 }
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
-
+	
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
 	}
@@ -578,13 +578,13 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	if (is_dead) {
 		Motion& player_motion = registry.motions.get(player_blendy);
 		float sec_passed = elapsed_ms_since_last_update / 1000;
-		player_motion.velocity = player_motion.velocity*(1 - sec_passed) + dead_velocity * sec_passed;
+		player_motion.velocity = player_motion.velocity * (1 - sec_passed) + dead_velocity * sec_passed;
 		player_motion.angle = player_motion.angle * (1 - sec_passed) + dead_angle * sec_passed;
-		player_motion.scale= player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
+		player_motion.scale = player_motion.scale * (1 - sec_passed) + dead_scale * sec_passed;
 	}
 
 	spawn_minions(elapsed_ms_since_last_update);
-	
+
 
 	// BLENDY ANIMATION
 	update_blendy_animation(elapsed_ms_since_last_update);
@@ -594,24 +594,24 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	// Processing the blendy state
 	assert(registry.screenStates.components.size() <= 1);
-    ScreenState &screen = registry.screenStates.components[0];
+	ScreenState& screen = registry.screenStates.components[0];
 
-    float min_counter_ms = 3000.f;
+	float min_counter_ms = 3000.f;
 	for (Entity entity : registry.deathTimers.entities) {
 		// progress timer
 		DeathTimer& counter = registry.deathTimers.get(entity);
 		counter.counter_ms -= elapsed_ms_since_last_update;
-		
+
 		//
-		if(counter.counter_ms < min_counter_ms){
-		    min_counter_ms = counter.counter_ms;
+		if (counter.counter_ms < min_counter_ms) {
+			min_counter_ms = counter.counter_ms;
 		}
 
 		// restart the game once the death timer expired
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
 			screen.darken_screen_factor = 0;
-            restart_game();
+			restart_game();
 			return true;
 		}
 	}
@@ -619,12 +619,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 
-	// render cursor
-	render_cursor(getCurrentMousePosition());
+	
 	return true;
 }
 
-void WorldSystem::render_cursor(vec2 mouse_position) {
+void WorldSystem::render_cursor() {
+	vec2 mouse_position = getCurrentMousePosition();
 	if (mouse_position.x > window_width_px || mouse_position.x < 0 || mouse_position.y > window_height_px || mouse_position.y < 0) {
 		return;
 	}
@@ -665,10 +665,9 @@ void WorldSystem::restart_game() {
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
-
 	is_dead = false;
 	registry.is_dead = false;
-	registry.score = 1000;
+	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	cursor = create_cursor(renderer, {window_width_px/2,window_height_px/2});
@@ -676,15 +675,14 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
-	help_tooltip = createHelpToolTip(renderer, HELP_TOOLTIP_POSITION, {80,35});
 }
 void WorldSystem::window_minimized_callback() {
+	registry.is_minimized = true;
 	Mix_PauseMusic();
-	registry.is_pause = true;
 }
 void WorldSystem::window_unminimized_callback() {
 	Mix_ResumeMusic();
-	registry.is_pause = false;
+	registry.is_minimized = false;
 }
 void WorldSystem::console_debug_fps()
 {
@@ -908,8 +906,8 @@ void WorldSystem::handlePlayerMovement(int key, int action) {
 
 void WorldSystem::on_key(int key, int, int action, int mod) {
 	handlePlayerMovement(key, action);
-
-	auto& motion = registry.motions.get(directional_light);
+	// Unable the directional light to move
+	/*auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;
 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I) {
 		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
@@ -925,11 +923,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
+	}*/
 
 	// Toggle the help screen visibility when "H" is pressed
 	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
 		if (showHelpScreen) {
+			
 			registry.is_pause = true;
 			help_screen = createHelpScreen(renderer, CENTER_OF_SCREEN, HELP_SCREEN_BOUNDS);
 		}
@@ -951,12 +950,12 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	}
 
-	// check window boundary
-	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	if (new_pos.x > window_width_px) new_pos.x = window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y > window_height_px) new_pos.y = window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	motion.position = new_pos;
+	//// check window boundary
+	//if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
+	//if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
+	//if (new_pos.x > window_width_px) new_pos.x = window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2;
+	//if (new_pos.y > window_height_px) new_pos.y = window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
+	//motion.position = new_pos;
 
 	// Resetting game
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {

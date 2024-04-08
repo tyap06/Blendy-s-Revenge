@@ -86,28 +86,7 @@ Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	return entity;
 }
 
-Entity createHelpToolTip(RenderSystem* renderer, vec2 pos, vec2 bounds)
-{
-	auto entity = Entity();
 
-	// Initialize the motion
-	auto& motion = registry.motions.emplace(entity);
-	motion.position = pos;
-	motion.angle = 0.f;
-	motion.velocity = { 0.f, 0.f };
-	motion.scale = bounds;
-	registry.tooltip.emplace(entity);
-
-	// Create a render request for the health bar
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::HELP_TOOLTIP,
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		EFFECT_ASSET_ID::TEXTURED,
-		GEOMETRY_BUFFER_ID::SPRITE });
-
-	return entity;
-}
 
 
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
@@ -224,12 +203,6 @@ Entity create_directional_light(RenderSystem* renderer, const vec2& position, co
 
 	renderer->setDirectionalLight(entity);
 
-	registry.renderRequests.insert(
-		entity,
-		{ TEXTURE_ASSET_ID::DIRECTIONAL_LIGHT,
-			TEXTURE_ASSET_ID::TEXTURE_COUNT,
-		 EFFECT_ASSET_ID::TEXTURED,
-		 GEOMETRY_BUFFER_ID::SPRITE });
 
 	return entity;
 }
