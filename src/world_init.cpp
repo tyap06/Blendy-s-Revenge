@@ -496,6 +496,8 @@ Entity create_cherry_powerup(RenderSystem* renderer, const vec2& position, const
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::CHERRY;
 
+	create_mesh(renderer, motion.position, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::LEMON_POWERUP, TEXTURE_ASSET_ID::TEXTURE_COUNT, GEOMETRY_BUFFER_ID::LEMON, false);
+
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::CHERRY_POWERUP,
@@ -526,6 +528,7 @@ Entity create_shield_powerup(RenderSystem* renderer, const vec2& position, const
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::SHIELD;
+	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::BATTERY_POWERUP, TEXTURE_ASSET_ID::BATTERY_POWERUP_NM, GEOMETRY_BUFFER_ID::BATTERY, false);
 
 	registry.renderRequests.insert(
 		entity,
@@ -557,6 +560,7 @@ Entity create_cactus_powerup(RenderSystem* renderer, const vec2& position, const
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::CACTUS;
+	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::BATTERY_POWERUP, TEXTURE_ASSET_ID::BATTERY_POWERUP_NM, GEOMETRY_BUFFER_ID::BATTERY, false);
 
 	registry.renderRequests.insert(
 		entity,
@@ -899,6 +903,7 @@ Entity create_cleaner(RenderSystem* renderer, const vec2& position, const vec2& 
 
 	registry.roamers.emplace(entity);
 	registry.cleaners.emplace(entity);
+	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::BATTERY_POWERUP, TEXTURE_ASSET_ID::BATTERY_POWERUP_NM, GEOMETRY_BUFFER_ID::BATTERY, false);
 
 	registry.renderRequests.insert(
 		entity,

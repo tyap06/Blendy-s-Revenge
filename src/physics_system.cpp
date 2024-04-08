@@ -125,6 +125,8 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		|| (registry.players.has(entity1) && registry.minions.has(entity2))
 		|| (registry.players.has(entity1) && registry.powerUps.has(entity2))
 		|| (registry.players.has(entity2) && registry.powerUps.has(entity1))
+		|| (registry.cleaners.has(entity1) && registry.powerUps.has(entity2))
+			|| (registry.cleaners.has(entity2) && registry.powerUps.has(entity1))
 		)
 	{
 		// pass
