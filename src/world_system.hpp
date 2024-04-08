@@ -95,11 +95,6 @@ private:
 	float next_giant_spawn = 100;
 	float next_healer_spawn = 100;
 	float next_cleaner_spawn = 100;
-
-	float next_battery_powerup_spawn = 100;
-	float next_protein_powerup_spawn = 100;
-	float next_grape_powerup_spawn = 100;
-	float next_lemon_powerup_spawn = 100;
 	float next_battery_powerup_spawn = 100;
 	float next_protein_powerup_spawn = 100;
 	float next_grape_powerup_spawn = 100;
