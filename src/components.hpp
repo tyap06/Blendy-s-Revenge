@@ -107,7 +107,14 @@ struct Player {
 	int max_effect = 3;
 	int current_effect = 0;
 	bool pac_mode = false;
-	bool protein_powerup = false;
+	bool protein_lemon_combo = false;
+	bool grape_lemon_combo = false;
+	bool cherry_lemon_combo = false;
+	bool protein_cherry_combo = false;
+	bool protein_grape_combo = false;
+	bool cactus_protein_combo = false;
+	bool cactus_grape_combo = false;
+	bool cactus_cherry_combo = false;
 	int shield = 0;
 	int max_shield = 3;
 	float protein_powerup_duration_ms = 0.f;

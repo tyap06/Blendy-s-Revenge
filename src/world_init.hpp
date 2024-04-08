@@ -74,3 +74,4 @@ Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_cactus_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+Entity create_orange_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
