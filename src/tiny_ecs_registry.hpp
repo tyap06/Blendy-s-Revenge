@@ -35,6 +35,7 @@ public:
 	ComponentContainer<EnemyBullet> enemyBullets;
 	ComponentContainer<Mesh_collision> mesh_collision;
 	ComponentContainer<Panel> panel;
+	ComponentContainer<CutScene> cutScenes;
 	ComponentContainer<Charger> chargers;
 	ComponentContainer<Giant> giants;
 	ComponentContainer<Healer> healers;
@@ -43,6 +44,9 @@ public:
 	ComponentContainer<Protection> protections;
 	ComponentContainer<Entity> Entity_Mesh_Entity;
 	ComponentContainer<Mesh_entity> Mesh_entity;
+	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
+	ComponentContainer<ParticleEmitter> particleEmitters;
+	ComponentContainer<EmitterTimer> emitterTimers;
 
 	int score;
 	bool is_pause;
@@ -73,6 +77,7 @@ public:
 		registry_list.push_back(&roamers);
 		registry_list.push_back(&helpScreens);
 		registry_list.push_back(&panel);
+		registry_list.push_back(&cutScenes);
 		registry_list.push_back(&chargers);
 		registry_list.push_back(&healers);
 		registry_list.push_back(&giants);
@@ -80,7 +85,8 @@ public:
 		registry_list.push_back(&snipers);
 		registry_list.push_back(&protections);
 		registry_list.push_back(&Mesh_entity);
-
+		registry_list.push_back(&particleEmitters);
+		registry_list.push_back(&emitterTimers);
 	}
 
 	void clear_all_components() {

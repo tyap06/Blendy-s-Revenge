@@ -52,6 +52,7 @@ int main()
 			world.handle_collisions();
 			ai.step(elapsed_ms);
 			world.step(elapsed_ms);
+			renderer.particles_step(elapsed_ms);
 		}
 
 		renderer.draw();

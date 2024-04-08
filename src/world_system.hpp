@@ -59,6 +59,8 @@ private:
 	float elapsed_ms = 0.0f;
 	float bullet_speed = 600.f;
 	float bullet_launch_interval = 0.39f;
+	int cutscene_stage = 0;
+	float cutscene_interval = 100.f;
 	// restart level
 	void restart_game();
 	void console_debug_fps();
@@ -82,6 +84,7 @@ private:
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
+	Entity current_cutscene;
 	float next_minion_spawn = 100;
 	Entity health_bar_frame;
 	Entity help_screen;
@@ -99,6 +102,8 @@ private:
 	float next_grape_powerup_spawn;
 	float next_lemon_powerup_spawn;
 	Entity health_bar_box;
+	bool cutscene_active;
+	bool has_restarted;
 
 	// music references
 	Mix_Music* background_music;
@@ -123,6 +128,10 @@ private:
 
 	// score counter variables
 	Entity score_counter;
+
+	// Particle System
+	Entity test_particle_emitter;
+	Entity test_particle_emitter_2;
 
 	// C++ random number generator
 	std::default_random_engine rng;
@@ -149,6 +158,8 @@ private:
 	void update_health_bar();
 	void update_game_music();
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
+	void handle_cutScenes();
+	void handle_help_screen();
 };
 
 
