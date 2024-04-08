@@ -360,16 +360,16 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.boss_spawned == false) {
+	/*if (registry.boss_spawned == false) {
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_boss(renderer, spawnPos, MINION_BOUNDS);
 		registry.boss_spawned = true;
-	}
+	}*/
 
 	
 	
 
-	/*if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
+	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_minion(renderer, spawnPos, MINION_BOUNDS);
@@ -415,7 +415,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_giant(renderer, spawnPos, bound, registry.score);
-	}*/
+	}
 
 }
 
@@ -742,6 +742,9 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	if (minion.health <= 0) {
 		registry.score += minion.score;
 		Mix_PlayChannel(-1, minion_dead, 0);
+		if (registry.boss.has(target)) {
+			//todo:
+		}
 		registry.remove_all_components_of(target);
 	} else {
 		Mix_PlayChannel(-1, minion_hurt, 0);

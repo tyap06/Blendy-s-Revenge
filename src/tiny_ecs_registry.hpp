@@ -47,6 +47,7 @@ public:
 
 	int score = 0;
 	bool is_pause = false;
+	bool is_winning = false;
 	bool is_dead = false;
 	bool boss_spawned = false;
 
