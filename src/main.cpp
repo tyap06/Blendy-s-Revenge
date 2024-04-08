@@ -55,6 +55,10 @@ int main()
 		}
 
 		renderer.draw();
+
+		if (!registry.is_pause) {
+			renderer.update_particle_emitters(elapsed_ms);
+		}
 	}
 
 	return EXIT_SUCCESS;

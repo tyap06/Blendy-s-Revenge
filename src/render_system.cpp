@@ -11,8 +11,6 @@
 
 void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_request, GLuint program)
 {
-	
-
 	GLuint health_bar_texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::FULL_HEALTH_BAR];
 
 	GLuint health_bar_effect_id = effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR];
@@ -64,7 +62,50 @@ void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_reque
 
 }
 
+void RenderSystem::handle_particle_rendering(const RenderRequest& render_request, const GLuint& program, const mat3& projection, const Transform& transform)
+{
+	auto& particle_emitters = registry.particleEmitters;
 
+	for (int i = 0; i < particle_emitters.size(); i++)
+	{
+		// Redundantly calling set program again
+		glUseProgram(program);
+
+		GLint M_v_loc = glGetUniformLocation(program, "M_v");
+		GLint M_p_loc = glGetUniformLocation(program, "M_p");
+		GLint particleSize_loc = glGetUniformLocation(program, "particleSize");
+		GLint startColor_loc = glGetUniformLocation(program, "startColor");
+		GLint endColor_loc = glGetUniformLocation(program, "endColor");
+		//assert(M_v_loc > -1);
+		//assert(M_p_loc > -1);
+		assert(particleSize_loc > -1);
+		assert(startColor_loc > -1);
+		//assert(endColor_loc > -1);
+		gl_has_errors();
+
+		// Setting uniform values to the currently bound program
+		glUniformMatrix3fv(M_v_loc, 1, GL_FALSE, (float*)&transform.mat);
+		gl_has_errors();
+
+		glUniformMatrix3fv(M_p_loc, 1, GL_FALSE, (float*)&projection);
+		gl_has_errors();
+
+		glUniform1f(particleSize_loc, 5);
+		gl_has_errors();
+
+		auto& particle_emitter = particle_emitters.components[i];
+		auto& emitter_instance = particle_emitter.emitter_instance;
+
+		glUniform3fv(startColor_loc, 1, &particle_emitter.particle_start_color[0]);
+		gl_has_errors();
+
+		glUniform3fv(endColor_loc, 1, &particle_emitter.particle_end_color[0]);
+		gl_has_errors();
+
+		emitter_instance.draw();
+		gl_has_errors();
+	}
+}
 
 
 const char* fontVertexShaderSource =
@@ -322,6 +363,18 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 	gl_has_errors();
 }
 
+void RenderSystem::update_particle_emitters(const float& elapsed_ms)
+{
+	auto& particle_emitters = registry.particleEmitters;
+
+	for (int i = 0; i < particle_emitters.size(); i++)
+	{
+		auto& emitter_instance = particle_emitters.components[i].emitter_instance;
+		emitter_instance.update(elapsed_ms);
+		gl_has_errors();
+	}
+}
+
 void RenderSystem::handle_normal_map_uniform(Entity entity, const GLuint program)
 {
 	GLuint normal_map_id =
@@ -545,6 +598,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	else if (render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
 	{
 		handle_health_bar_rendering(render_request, program);
+	} else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLES)
+	{
+		handle_particle_rendering(render_request, program, projection, transform);
 	}
 	else
 	{
