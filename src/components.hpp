@@ -313,6 +313,7 @@ struct ParticleEmitter
 	Emitter emitter_instance;
 	vec3 particle_start_color;
 	vec3 particle_end_color;
+	float particle_size;
 };
 
 
