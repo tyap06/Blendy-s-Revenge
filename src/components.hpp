@@ -107,7 +107,9 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 
 
 
+struct Mesh_entity {
 
+};
 struct Roamer {
 
 };
@@ -207,6 +209,7 @@ struct Motion {
 	float y_animate = 0.f;
 	EntityType type = EntityType::Generic;
 
+	
 	bool operator==(const Motion& other) const {
 		return position == other.position &&
 			angle == other.angle &&
@@ -529,9 +532,14 @@ enum class GEOMETRY_BUFFER_ID {
 	BLENDY_UP = MINION_BULLET + 1,
 	BLENDY_DOWN = BLENDY_UP + 1,
 	BLENDY_LEFT = BLENDY_DOWN + 1,
-	BLENDY_RIGHT = BLENDY_LEFT + 1
+	BLENDY_RIGHT = BLENDY_LEFT + 1,
+	GRAPE = BLENDY_RIGHT + 1,
+	LEMON = GRAPE + 1,
+	ORANGE = LEMON + 1,
+	PROTEIN_POWER = ORANGE + 1,
+	BATTERY = PROTEIN_POWER + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::BLENDY_RIGHT + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BATTERY + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;

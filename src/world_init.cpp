@@ -2,8 +2,6 @@
 #include "tiny_ecs_registry.hpp"
 #include <iostream>
 #include <random>
-Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
-
 
 Entity createLine(vec2 position, vec2 scale)
 {
@@ -190,6 +188,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 	registry.mesh_collision.emplace(entity);
 	registry.meshPtrs.emplace(entity, &mesh);
 
+
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -294,10 +293,10 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
 
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
@@ -306,6 +305,8 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
+
 	// Create and (empty) Minion component to be able to refer to all minions
 	registry.minions.emplace(entity);
 	registry.renderRequests.insert(
@@ -323,10 +324,10 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
 
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
@@ -339,7 +340,8 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	minion.health = score/2;
 	minion.max_health = score/2;
 	minion.speed = 50;
-	
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
+
 	registry.giants.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -359,8 +361,8 @@ Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, cons
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	registry.mesh_collision.emplace(entity);
 
 	// Initialize the motion
@@ -372,6 +374,7 @@ Entity create_battery_powerup(RenderSystem* renderer, const vec2& position, cons
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
 
+	create_mesh(renderer, motion.position, motion.scale, 50.f, entity, TEXTURE_ASSET_ID::BATTERY_POWERUP, TEXTURE_ASSET_ID::TEXTURE_COUNT, GEOMETRY_BUFFER_ID::BATTERY, false);
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::BATTERY;
@@ -390,8 +393,8 @@ Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, cons
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	registry.mesh_collision.emplace(entity);
 
 	// Initialize the motion
@@ -402,6 +405,7 @@ Entity create_protein_powerup(RenderSystem* renderer, const vec2& position, cons
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	create_mesh(renderer, motion.position, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::PROTEIN_POWERUP, TEXTURE_ASSET_ID::TEXTURE_COUNT, GEOMETRY_BUFFER_ID::PROTEIN_POWER, false);
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -421,8 +425,8 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 	auto entity = Entity();
 
 	// Store a reference to the potentially re-used mesh object (the value is stored in the resource cache)
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	registry.mesh_collision.emplace(entity);
 
 	// Initialize the motion
@@ -433,6 +437,7 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	create_mesh(renderer, motion.position, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::GRAPE_POWERUP, TEXTURE_ASSET_ID::TEXTURE_COUNT, GEOMETRY_BUFFER_ID::GRAPE, false);
 
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
@@ -464,6 +469,8 @@ Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const 
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	create_mesh(renderer, motion.position, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::LEMON_POWERUP, TEXTURE_ASSET_ID::TEXTURE_COUNT, GEOMETRY_BUFFER_ID::LEMON, false);
+
 	// Create and (empty) powerup component to be able to refer to all minions
 	auto& powerup = registry.powerUps.emplace(entity);
 	powerup.type = POWERUP_TYPE::LEMON;
@@ -539,9 +546,9 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto entity = Entity();
 
 	
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::SHOOTER;
@@ -552,6 +559,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.scale = vec2({ -bounds.x, bounds.y});
 	vec3 color = { 0.8,0.8,0.0 };
 	registry.colors.insert(entity, color);
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 
 	auto& dodger = registry.shooters.emplace(entity);
@@ -569,9 +577,9 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::CHARGER;
@@ -585,6 +593,7 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = {0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 	auto& charger = registry.chargers.emplace(entity);
 
@@ -602,9 +611,9 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::TANK;
@@ -619,6 +628,7 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = { 0,0,0 };
 	registry.colors.insert(entity, color);
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 	auto& tank = registry.tanks.emplace(entity);
 
@@ -635,9 +645,9 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::SNIPER;
@@ -650,7 +660,7 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = { 0.2,0.8,0.8 };
 	registry.colors.insert(entity, color);
-
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 	auto& dodger = registry.snipers.emplace(entity);
 
@@ -671,9 +681,9 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 	auto entity = Entity();
 
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::ROAMER;
@@ -696,6 +706,7 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 	vec3 color = { 0,1,0 };
 	registry.colors.insert(entity, color);
 
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 	auto& dodger = registry.roamers.emplace(entity);
 
@@ -724,7 +735,7 @@ Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, floa
 	motion.position = pos;
 	motion.angle = angle;
 	motion.velocity = velocity; 
-	motion.scale = vec2(40.0f, 100.0f);
+	motion.scale = vec2(100.0f, 100.0f);
 	auto& bullet = registry.bullets.emplace(entity);
 	bullet.friendly = false;
 	bullet.damage = damage;
@@ -745,7 +756,8 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 	auto entity = Entity();
 	Mesh& mesh = renderer->getMesh(geometry_id);
 	registry.meshPtrs.emplace(entity, &mesh);
-	registry.Entity_to_Bullet_Mesh_Entity.insert(object_entity, entity);
+	registry.Mesh_entity.emplace(entity);
+	registry.Entity_Mesh_Entity.insert(object_entity, entity);
 	Motion& motion = registry.motions.emplace(entity);
 	motion.position = pos;
 	motion.angle = angle;
@@ -761,6 +773,25 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 	}
 	return entity;
 }
+
+Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display) {
+	auto entity = Entity();
+	Mesh& mesh = renderer->getMesh(geometry_id);
+	registry.meshPtrs.emplace(entity, &mesh);
+	registry.Entity_Mesh_Entity.insert(object_entity, entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.scale = scale;
+	motion.velocity = { 0.f, 0.f };
+	if (display) {
+		registry.renderRequests.insert(
+			entity,
+			{ texture_id_one,
+				texture_id_two,
+			 EFFECT_ASSET_ID::CHICKEN,
+			geometry_id });
+	}
 
 Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 {
