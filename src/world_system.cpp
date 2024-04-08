@@ -673,7 +673,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		registry.remove_all_components_of(e);
 	}
 
-	update_minion_animation(elapsed_ms_since_last_update);
+	//update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
 	update_powerups(elapsed_ms_since_last_update);
@@ -855,6 +855,7 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 		if (registry.boss.has(target)) {
 			//todo:
 		}
+		registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(target));
 		registry.remove_all_components_of(target);
 	} else {
 		Mix_PlayChannel(-1, minion_hurt, 0);
@@ -881,11 +882,13 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other)) {
 				int damage = registry.minions.get(entity_other).damage;
 				hit_player(damage);
+				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 				registry.remove_all_components_of(entity_other);
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {
 					int damage = registry.bullets.get(entity_other).damage;
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 					hit_player(damage);
 				}
@@ -898,6 +901,7 @@ void WorldSystem::handle_collisions() {
 					blendy.health = blendy.max_health;
 					update_health_bar();
 					Mix_PlayChannel(-1, powerup_pickup_battery, 0);
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
@@ -908,6 +912,7 @@ void WorldSystem::handle_collisions() {
 					blendy.lemon_powerup_duration_ms = 0.f;
 					blendy.cherry_powerup_duration_ms = 0.f;
 					blendy.cactus_powerup_duration_ms = 0.f;
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
@@ -916,6 +921,7 @@ void WorldSystem::handle_collisions() {
 					blendy.lemon_powerup_duration_ms = 0.f;
 					blendy.cherry_powerup_duration_ms = 0.f;
 					Mix_PlayChannel(-1, powerup_pickup_grape, 0);
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
@@ -925,6 +931,7 @@ void WorldSystem::handle_collisions() {
 					blendy.cherry_powerup_duration_ms = 0.f;
 					blendy.cactus_powerup_duration_ms = 0.f;
 					Mix_PlayChannel(-1, powerup_pickup_lemon, 0);
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::CHERRY) {
@@ -999,6 +1006,7 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other) && bullet.friendly) {
 				int damage = registry.bullets.get(entity).damage;
 				hit_enemy(entity_other, damage);
+				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity));
 				registry.remove_all_components_of(entity);
 			}
 		}
