@@ -43,6 +43,7 @@ const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIREC
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
 const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
 const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
+const vec2 HELP_TOOLTIP_POSITION = { window_width_px - 50,30 };
 
 // BOUNDS
 const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
@@ -172,7 +173,7 @@ GLFWwindow* WorldSystem::create_window() {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
-
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
@@ -237,6 +238,7 @@ GLFWwindow* WorldSystem::create_window() {
 
 	return window;
 }
+
 
 void WorldSystem::init(RenderSystem* renderer_arg) {
 	this->renderer = renderer_arg;
@@ -458,18 +460,16 @@ void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
 		// if minion is not moving, render original image
 		if (minion_motion.velocity.x == 0 && minion_motion.velocity.y == 0) {
 			// just keep the current image
+			RenderRequest request = registry.renderRequests.get(registry.minions.entities[j]);
 			registry.renderRequests.remove(registry.minions.entities[j]);
 			registry.renderRequests.insert(
 				registry.minions.entities[j],
-				{ TEXTURE_ASSET_ID::MINION,
-					TEXTURE_ASSET_ID::MINION_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				{ request.used_texture, request.used_normal_map,request.used_effect,request.used_geometry});
 		}
 		else {
 			// minion is moving - calculate appropriate frame to put in render request
 			registry.renderRequests.remove(registry.minions.entities[j]);
-			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage, registry.minions.entities[j]);
+			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage,minion.type, registry.minions.entities[j]);
 		}
 	}
 }
@@ -560,6 +560,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	return;
 }
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
 	}
@@ -617,7 +618,25 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	// reduce window brightness if any of the present chickens is dying
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
+
+	// render cursor
+	render_cursor(getCurrentMousePosition());
 	return true;
+}
+
+void WorldSystem::render_cursor(vec2 mouse_position) {
+	if (mouse_position.x > window_width_px || mouse_position.x < 0 || mouse_position.y > window_height_px || mouse_position.y < 0) {
+		return;
+	}
+	registry.motions.get(cursor).position = mouse_position;
+	registry.renderRequests.remove(cursor);
+	registry.renderRequests.insert(
+		cursor,
+		{ TEXTURE_ASSET_ID::CURSOR,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
 }
 
 // Reset the world state to its initial state
@@ -642,19 +661,22 @@ void WorldSystem::restart_game() {
 	// All that have a motion, we could also iterate over all bug, eagles, ... but that would be more cumbersome
 	while (registry.motions.entities.size() > 0)
 	    registry.remove_all_components_of(registry.motions.entities.back());
+	registry.cursor.remove(cursor);
 
 	// Debugging for memory/component leaks
 	registry.list_all_components();
 
 	is_dead = false;
 	registry.is_dead = false;
-	registry.score = 0;
+	registry.score = 1000;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
+	cursor = create_cursor(renderer, {window_width_px/2,window_height_px/2});
 	update_health_bar();
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
+	help_tooltip = createHelpToolTip(renderer, HELP_TOOLTIP_POSITION, {80,35});
 }
 
 void WorldSystem::console_debug_fps()
@@ -1287,7 +1309,52 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 	}
 }
 
-void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion) {
+void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Enemy_TYPE type,Entity minion) {
+	if (type == Enemy_TYPE::HEALER || type == Enemy_TYPE::ROAMER || type == Enemy_TYPE::SHOOTER || type == Enemy_TYPE::SNIPER) {
+		TEXTURE_ASSET_ID texture = TEXTURE_ASSET_ID::HEALER_D0; // healer, roamer,shooter,sniper
+		if (type == Enemy_TYPE::HEALER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (type == Enemy_TYPE::ROAMER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 24);
+		}
+		else if (type == Enemy_TYPE::SHOOTER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 48);
+		}
+		else if (type == Enemy_TYPE::SNIPER) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 72);
+		}
+		// down, left, right, up
+		if (up) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 18);
+		}
+		else if (down) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (left) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 6);
+		}
+		else if (right) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 12);
+		}
+		if (stage == 0) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (stage == 1) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 2);
+		}
+		else {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 4);
+		}
+		TEXTURE_ASSET_ID normal_map = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 1);
+		registry.renderRequests.insert(
+			minion,
+			{ texture,
+				normal_map,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+		return;
+	}
 	if (up) {
 		// going up
 		if (stage == 0) {

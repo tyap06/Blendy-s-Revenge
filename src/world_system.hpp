@@ -79,11 +79,13 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_blendy;
+	Entity cursor;
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
 	float next_minion_spawn = 100;
 	Entity health_bar_frame;
+	Entity help_tooltip;
 	Entity help_screen;
 	bool showHelpScreen = true;
 	float next_powerup_spawn = 100;
@@ -130,7 +132,7 @@ private:
 
 	void hit_player(const int& damage);
 	void hit_enemy(const Entity& target, const int& damage);
-
+	
 	// Private Helpers For Initialization
 	void update_blendy_animation(float elapsed_ms_since_last_update);
 	void update_minion_animation(float elapsed_ms_since_last_update);
@@ -139,7 +141,7 @@ private:
 	void update_player_movement();
 	void move_player(vec2 direction);
 	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
-	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion);
+	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Enemy_TYPE type, Entity minion);
 	float get_y_animate(int stage, int going_up);
 	void update_fps(float elapsed_ms_since_last_update);
 	void update_score();
@@ -149,6 +151,9 @@ private:
 	void update_health_bar();
 	void update_game_music();
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
+
+	void render_cursor(vec2 mouse_position);
+
 };
 
 

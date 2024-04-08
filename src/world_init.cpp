@@ -86,6 +86,29 @@ Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds)
 	return entity;
 }
 
+Entity createHelpToolTip(RenderSystem* renderer, vec2 pos, vec2 bounds)
+{
+	auto entity = Entity();
+
+	// Initialize the motion
+	auto& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = 0.f;
+	motion.velocity = { 0.f, 0.f };
+	motion.scale = bounds;
+	registry.tooltip.emplace(entity);
+
+	// Create a render request for the health bar
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::HELP_TOOLTIP,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
 	auto entity = Entity();
@@ -514,8 +537,8 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y});
-	vec3 color = { 0.8,0.8,0.0 };
-	registry.colors.insert(entity, color);
+	/*vec3 color = { 0.8,0.8,0.0 };
+	registry.colors.insert(entity, color);*/
 
 
 	auto& dodger = registry.shooters.emplace(entity);
@@ -612,8 +635,8 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.max_health = 50;
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	vec3 color = { 0.2,0.8,0.8 };
-	registry.colors.insert(entity, color);
+	/*vec3 color = { 0.2,0.8,0.8 };
+	registry.colors.insert(entity, color);*/
 
 
 	auto& dodger = registry.snipers.emplace(entity);
@@ -657,8 +680,8 @@ Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	vec3 color = { 0,1,0 };
-	registry.colors.insert(entity, color);
+	/*vec3 color = { 0,1,0 };
+	registry.colors.insert(entity, color);*/
 
 
 	auto& dodger = registry.roamers.emplace(entity);
@@ -723,5 +746,25 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 			 EFFECT_ASSET_ID::CHICKEN,
 			geometry_id });
 	}
+	return entity;
+}
+
+Entity create_cursor(RenderSystem* renderer, const vec2& position)
+{
+	auto entity = Entity();
+	registry.cursor.emplace(entity);
+	auto& motion = registry.motions.emplace(entity);
+	motion.angle = 0.f;
+	motion.velocity = { 0,0 };
+	motion.position = position;
+	motion.scale = vec2({ 50,50 });
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CURSOR,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
 	return entity;
 }

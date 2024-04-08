@@ -39,6 +39,12 @@ int main()
 	// variable timestep loop
 	auto t = Clock::now();
 	while (!world.is_over()) {
+		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+			registry.is_pause = true;
+		}
+		else {
+			registry.is_pause = false;
+		}
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
 

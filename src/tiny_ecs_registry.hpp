@@ -42,6 +42,9 @@ public:
 	ComponentContainer<Sniper> snipers;
 	ComponentContainer<Protection> protections;
 	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
+	ComponentContainer<Cursor> cursor;
+	ComponentContainer<ToolTip> tooltip;
+
 
 	int score;
 	bool is_pause;
