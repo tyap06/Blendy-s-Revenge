@@ -143,36 +143,48 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 	case Bullet_State::Grape: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms*2) {
 			shootGrapeBullets(renderer, motion.position, bullet_direction, up_angle, angle_diff);
+			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	case Bullet_State::Cactus: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
+			//todo:
 			create_enemy_bullet(renderer, motion.position, bullet_direction * 1280.0f, angle_diff, 50, {1,0,0});
+			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	case Bullet_State::Cherry: {
-		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms) {
+			vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x);
+			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.2f) * 320.0f, angle_diff);
+			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.2f) * 320.0f, angle_diff);
 			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff);
+			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	case Bullet_State::Protein: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms/4) {
 			create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff, 10, { 1,0.5,0 });
+			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	case Bullet_State::Lemon: {
-		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms/2) {
+			//todo:
+			float spread_degrees = distr(gen);
+			float spread_radians = spread_degrees * (M_PI / 180.0f);
+			angle_diff += spread_radians;
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.f, angle_diff);
+			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	}
 
-	boss.time_since_last_shot_ms = 0;
 	if (boss.powerup_duration_ms < 0) boss.bstate = Bullet_State::Default;
 }
 
