@@ -370,7 +370,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn cherry powerup
-	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 0.f && registry.score > 0) {
+	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 0.f) {
 		next_cherry_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -546,6 +546,7 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::update_boss_animation(float elapsed_ms_since_last_update) {
+	if (registry.boss_spawned == false) return;
 	Boss& final_boss = registry.boss.get(boss);
 	Minion& boss_minion = registry.minions.get(boss);
 	Motion& boss_motion = registry.motions.get(boss);
@@ -950,6 +951,9 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 		Mix_PlayChannel(-1, minion_dead, 0);
 		if (registry.boss.has(target)) {
 			//todo:
+		}
+		if (registry.loots.has(target)) {
+			create_shield_powerup(renderer, registry.motions.get(target).position, SHIELD_POWERUP_BOUNDS);
 		}
 		registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(target));
 		registry.remove_all_components_of(target);

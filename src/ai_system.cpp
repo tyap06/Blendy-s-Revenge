@@ -90,6 +90,11 @@ void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float ela
 			angle_diff -= 2 * M_PI;
 		}
 
+		if (registry.splitShooters.has(shooterEntity)) {
+			vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x);
+			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.2f) * 280.0f, angle_diff);
+			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.2f) * 280.0f, angle_diff);
+		}
 		create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
 		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
 	}
@@ -481,7 +486,7 @@ void AISystem::step(float elapsed_ms)
 			vec2 direction = normalize(motion.velocity);
 			motion.velocity = direction * (original_speed);
 		}
-		else if (enemy.type == Enemy_TYPE::SHOOTER) {
+		else if (enemy.type == Enemy_TYPE::SHOOTER || enemy.type == Enemy_TYPE::SPLIT_SHOOTER) {
 			ShooterState state = decideShooterState(motion.position, predicted_player_pos, ideal_range_from_player);
 			switch (state) {
 			case ShooterState::Approach:

@@ -687,6 +687,34 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	return entity;
 }
 
+Entity create_split_shooter(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
+	auto entity = Entity();
+
+
+	registry.mesh_collision.emplace(entity);
+	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	minion.type = Enemy_TYPE::SPLIT_SHOOTER;
+	minion.score = 40;
+	motion.angle = 0.f;
+	motion.velocity = { 0, -80.f };
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y });
+
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
+	auto& dodger = registry.shooters.emplace(entity);
+	registry.splitShooters.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MINION,
+		  TEXTURE_ASSET_ID::MINION_NM,
+		  EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
 	auto entity = Entity();
 

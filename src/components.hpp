@@ -55,9 +55,10 @@ enum class Enemy_TYPE {
 	HEALER = CHARGER + 1,
 	GIANT = HEALER + 1,
 	SNIPER = GIANT + 1,
-	TANK = SNIPER +1,
-	CLEANER = TANK +1,
-	BOSS = CLEANER + 1,
+	TANK = SNIPER + 1,
+	CLEANER = TANK + 1,
+	SPLIT_SHOOTER = CLEANER + 1,
+	BOSS = SPLIT_SHOOTER + 1,
 };
 
 
@@ -90,6 +91,14 @@ struct Boss {
 	int isAngry = 0;
 
 	int going_up = -1;
+};
+
+struct SplitShooter {
+
+};
+
+struct Loot {
+
 };
 
 

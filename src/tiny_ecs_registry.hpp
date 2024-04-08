@@ -42,6 +42,8 @@ public:
 	ComponentContainer<Sniper> snipers;
 	ComponentContainer<Protection> protections;
 	ComponentContainer<Cleaner> cleaners;
+	ComponentContainer<SplitShooter> splitShooters;
+	ComponentContainer<Loot> loots;
 	ComponentContainer<Boss> boss;
 	ComponentContainer<Entity> Entity_to_Bullet_Mesh_Entity;
 
@@ -56,7 +58,7 @@ public:
 	bool is_winning = false;
 	bool is_dead = false;
 	bool boss_spawned = false;
-	bool is_minimized;
+	bool is_minimized = false;
 
 
 	// constructor that adds all containers for looping over them
@@ -90,6 +92,8 @@ public:
 		registry_list.push_back(&tanks);
 		registry_list.push_back(&snipers);
 		registry_list.push_back(&cleaners);
+		registry_list.push_back(&splitShooters);
+		registry_list.push_back(&loots);
 		registry_list.push_back(&boss);
 		registry_list.push_back(&protections);
 		registry_list.push_back(&shields);
