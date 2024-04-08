@@ -1020,6 +1020,18 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 }
 
 
+Entity create_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int type) {
+	if (type == 0) {
+		return createBullet(renderer, pos, velocity, angle);
+	}
+	else if (type == 1) {
+		return create_lemon_bullet(renderer, pos, velocity, angle);
+	}
+	else {
+		return create_cactus_bullet(renderer, pos, velocity, angle);
+	}
+}
+
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display) {
 	auto entity = Entity();
 	Mesh& mesh = renderer->getMesh(geometry_id);

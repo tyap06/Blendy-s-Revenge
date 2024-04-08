@@ -161,7 +161,7 @@ private:
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
 	void update_game_music();
-	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff, int type);
 
 	
 

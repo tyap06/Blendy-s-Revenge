@@ -641,7 +641,7 @@ void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
 }
 
 
-void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity,float up_angle, float angle_diff) {
+void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity,float up_angle, float angle_diff,int type) {
 	auto& blendy = registry.players.get(player_blendy);
 	const int num_bullets = 12; 
 	const float angle_increment = 2 * M_PI / num_bullets; // Angle increment for each bullet
@@ -657,26 +657,7 @@ void WorldSystem::shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 veloc
 		// calculate final angle for bullet
 		float final_angle = up_angle + angle_diff + angle;
 
-
-		if (blendy.grape_lemon_combo == true 
-			&& blendy.protein_grape_combo == false
-			&& blendy.cactus_grape_combo == false) {
-			create_orange_bullet(renderer, pos, velocity, final_angle);
-		}
-		else if (blendy.protein_grape_combo == true 
-			&& blendy.grape_lemon_combo == false 
-			&& blendy.cactus_grape_combo == false) {
-			create_fast_bullet(renderer, pos, velocity, final_angle);
-		}
-		else if (blendy.cactus_grape_combo == true 
-			&& blendy.grape_lemon_combo == false
-			&& blendy.protein_grape_combo == false) {
-			create_cactus_bullet(renderer, pos, velocity, final_angle);
-		}
-		else {
-			// Create the bullet with the calculated angle and velocity
-			createBullet(renderer, pos, velocity, final_angle);
-		}
+		create_bullet(renderer, pos, velocity, final_angle, type);
 	}	
 }
 
@@ -691,6 +672,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	Motion& motion = registry.motions.get(player_blendy);
 	vec2& blendy_pos = motion.position;
 	vec2 mouse_position = getCurrentMousePosition();
+	auto& blendy = registry.players.get(player_blendy);
 	if (!is_dead) {
 		
 			if (bullet_timer <= 0.0f) {
@@ -699,240 +681,48 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
 				float up_angle = std::atan2(up_vector.y, up_vector.x);
 				float angle_diff = bullet_angle - up_angle;
-				auto& blendy = registry.players.get(player_blendy);
 				if (angle_diff < -M_PI) {
 					angle_diff += 2 * M_PI;
 				}
 				else if (angle_diff > M_PI) {
 					angle_diff -= 2 * M_PI;
 				}
-				if (blendy.protein_powerup_duration_ms > 0.f 
-					&& blendy.protein_lemon_combo == false
-					&& blendy.protein_cherry_combo == false
-					&& blendy.protein_grape_combo == false
-					&& blendy.cactus_protein_combo == false) {
-					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
-					float new_bullet_speed = bullet_speed * protein_coef;
-					create_fast_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval / protein_coef;
-					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					//std::cout << "Blendy protein powerup duration: " << blendy.protein_powerup_duration_ms << std::endl;
+
+				if (blendy.pattern_type == 0) {
+					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
 				}
-				else if (blendy.grape_powerup_duration_ms > 0.0f 
-					&& blendy.grape_lemon_combo == false 
-					&& blendy.protein_grape_combo == false
-					&& blendy.cactus_grape_combo == false) {
-					//std::cout << "bullet direction: (" << bullet_direction.x << ", " << bullet_direction.y << ")" << std::endl;
-					//std::cout << "angle diff: " << angle_diff << std::endl;
-					angle_diff = -3.02989;
-					float new_bullet_speed = bullet_speed * grape_coef;
-					shootGrapeBullets(renderer, blendy_pos, bullet_direction * bullet_speed, up_angle, angle_diff);
-					bullet_timer = bullet_launch_interval / grape_coef;
-					blendy.grape_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-				}
-				else if (blendy.lemon_powerup_duration_ms > 0.f 
-					&& blendy.protein_lemon_combo == false 
-					&& blendy.grape_lemon_combo == false
-					&& blendy.cherry_lemon_combo == false
-					&& blendy.protein_cherry_combo == false) {
-					create_lemon_bullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval * 3 / 4;
-					blendy.lemon_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-				}
-				else if (blendy.cactus_powerup_duration_ms > 0.0f
-					&& blendy.cactus_protein_combo == false
-					&& blendy.cactus_grape_combo == false
-					&& blendy.cactus_cherry_combo == false) {
-					float new_bullet_speed = bullet_speed * 1.5;
-					create_cactus_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval / 1.5;
-					blendy.cactus_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					
-				}
-				else if (blendy.cherry_powerup_duration_ms > 0.0f 
-					&& blendy.cherry_lemon_combo == false
-					&& blendy.protein_lemon_combo == false
-					&& blendy.grape_lemon_combo == false
-					&& blendy.protein_cherry_combo == false
-					&& blendy.cactus_cherry_combo == false) {
-					float new_bullet_speed = bullet_speed * cherry_coef;
-
-					// Calculate bullet directions for triple shot
-					vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x); // Perpendicular direction
-
-					// Spawn three bullets for triple shot
-					create_fast_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					create_fast_bullet(renderer, blendy_pos, (bullet_direction + side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					create_fast_bullet(renderer, blendy_pos, (bullet_direction - side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval * 1.75;
-					blendy.cherry_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-				}
-				// protein powder and lemon combo powerup
-				else if (blendy.protein_lemon_combo == true 
-					&& blendy.protein_grape_combo == false
-					&& blendy.protein_cherry_combo == false) {
-					float new_bullet_speed = bullet_speed * protein_coef;
-					create_orange_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval / protein_coef;
-					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					blendy.lemon_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					 
-					if (blendy.protein_powerup_duration_ms < 0.f && blendy.lemon_powerup_duration_ms < 0.f) {
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.protein_lemon_combo = false;
-					}
-				}
-				// grape and lemon combo powerup
-				else if (blendy.grape_lemon_combo == true 
-					&& blendy.protein_grape_combo == false) {
-					float new_bullet_speed = bullet_speed * grape_coef;
-					angle_diff = -3.02989;
-					shootGrapeBullets(renderer, blendy_pos, bullet_direction * bullet_speed, up_angle, angle_diff);
-					bullet_timer = bullet_launch_interval / grape_coef;
-					blendy.grape_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 3;
-					blendy.lemon_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 10;
-
-
-					if (blendy.grape_powerup_duration_ms < 0.f && blendy.lemon_powerup_duration_ms < 0.f) {
-						blendy.grape_powerup_duration_ms= 0.f;
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.grape_lemon_combo = false;
-					}
-				}
-				// cherry lemon combo powerup
-				else if (blendy.cherry_lemon_combo == true
-					&& blendy.protein_lemon_combo == false
-					&& blendy.protein_cherry_combo == false) {
-					float new_bullet_speed = bullet_speed * cherry_coef;
-
-					// Calculate bullet directions for triple shot
-					vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x); // Perpendicular direction
-
-					// Spawn three bullets for triple shot
-					create_orange_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					create_orange_bullet(renderer, blendy_pos, (bullet_direction + side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					create_orange_bullet(renderer, blendy_pos, (bullet_direction - side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval * 1.75;
-
-					blendy.cherry_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					blendy.lemon_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 2.5;
-
-					if (blendy.cherry_powerup_duration_ms < 0.f && blendy.lemon_powerup_duration_ms < 0.f) {
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.cherry_lemon_combo = false;
-					}
-				}
-				// protein cherry combo powerup
-				else if (blendy.protein_cherry_combo == true 
-					&& blendy.protein_lemon_combo == false
-					&& blendy.cherry_lemon_combo == false) {
-					float new_bullet_speed = bullet_speed * protein_coef;
-
-					// Calculate bullet directions for triple shot
-					vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x); // Perpendicular direction
-
-					// Spawn three bullets for triple shot
-					create_fast_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					create_fast_bullet(renderer, blendy_pos, (bullet_direction + side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					create_fast_bullet(renderer, blendy_pos, (bullet_direction - side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval / protein_coef;
-
-					blendy.cherry_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-
-					if (blendy.cherry_powerup_duration_ms < 0.f && blendy.protein_powerup_duration_ms < 0.f) {
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.protein_cherry_combo = false;
-					}
-				}
-				// protein and grape combo powerup
-				else if (blendy.protein_grape_combo == true 
-					&& blendy.protein_lemon_combo == false) {
-					float new_bullet_speed = bullet_speed * protein_coef;
-					angle_diff = -3.02989;
-					shootGrapeBullets(renderer, blendy_pos, bullet_direction * new_bullet_speed, up_angle, angle_diff);
-					bullet_timer = bullet_launch_interval / protein_coef;
-					blendy.grape_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 3;
-					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 10;
-
-
-					if (blendy.grape_powerup_duration_ms < 0.f && blendy.protein_powerup_duration_ms < 0.f) {
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.protein_grape_combo = false;
-					}
-				}
-				// cactus and protein combo powerup
-				else if (blendy.cactus_protein_combo == true) {
-					float new_bullet_speed = bullet_speed * (1.5 + protein_coef);
-					create_cactus_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval / (1.5 + protein_coef);
-					blendy.cactus_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-
-					if (blendy.cactus_powerup_duration_ms < 0.f && blendy.protein_powerup_duration_ms < 0.f) {
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.cactus_protein_combo = false;
-					}
-
-				}
-				// cactus and grape combo powerup
-				else if (blendy.cactus_grape_combo == true) {
-					float new_bullet_speed = bullet_speed * grape_coef;
-					angle_diff = -3.02989;
-					shootGrapeBullets(renderer, blendy_pos, bullet_direction * bullet_speed, up_angle, angle_diff);
-
-					bullet_timer = bullet_launch_interval / grape_coef;
-					blendy.grape_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 3;
-					blendy.cactus_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 10;
-
-
-					if (blendy.grape_powerup_duration_ms < 0.f && blendy.cactus_powerup_duration_ms < 0.f) {
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.cactus_grape_combo = false;
-					}
-				}
-				// cactus cherry combo powerup
-				else if (blendy.cactus_cherry_combo == true) {
-					float new_bullet_speed = bullet_speed * cherry_coef;
-
-					// Calculate bullet directions for triple shot
-					vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x); // Perpendicular direction
-
-					// Spawn three bullets for triple shot
-					create_cactus_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff);
-					create_cactus_bullet(renderer, blendy_pos, (bullet_direction + side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					create_cactus_bullet(renderer, blendy_pos, (bullet_direction - side_direction * 0.2f) * new_bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval * 1.75;
-
-					blendy.cherry_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-					blendy.cactus_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed * 2.5;
-
-					if (blendy.cherry_powerup_duration_ms < 0.f && blendy.cactus_powerup_duration_ms < 0.f) {
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.cactus_cherry_combo = false;
-					}
+				else if (blendy.pattern_type == 1) {
+					shootGrapeBullets(renderer, blendy_pos, bullet_direction, angle_diff, up_angle, blendy.bullet_type);
 				}
 				else {
-					//std::cout << "Blendy protein powerup: " << blendy.protein_powerup << std::endl;
-
-					createBullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff);
-					bullet_timer = bullet_launch_interval;
+					//todo: cherry
+					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
+					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
+					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
 				}
+
+
+				if(blendy.bullet_type != 0) blendy.bullet_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				if (blendy.bullet_powerup_duration_ms < 0) blendy.bullet_type = 0;
+
+				if (blendy.pattern_type != 0) blendy.pattern_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				if (blendy.pattern_powerup_duration_ms < 0) blendy.pattern_type = 0;
+
+
+
+				
 			}
-			if (bullet_timer > 0.0f) {
-				bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
+			else if (bullet_timer > 0.0f) {
+				float multi_1 = 1;
+				float multi_2 = 1;
+				if (blendy.pattern_type == 1) multi_1 = 0.6;
+				if (blendy.pattern_type == 1) multi_1 = 0.8;
+				if (blendy.protein_powerup_duration_ms > 0) {
+					multi_2 = 1.5;
+					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				}
+				bullet_timer -= elapsed_ms_since_last_update / 1000.0f * multi_1 * multi_2;
 			}
-			//auto& blendy = registry.players.get(player_blendy);
-			//std::cout << "Blendy cherry powerup duration " << blendy.cherry_powerup_duration_ms << std::endl;
-			//std::cout << "Blendy lemon powerup duration " << blendy.lemon_powerup_duration_ms << std::endl;
-			//std::cout << "Blendy protein, lemon, grape" << blendy.protein_lemon_grape_combo << std::endl;	
 	}
 	return;
 }
@@ -1135,12 +925,9 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	auto& blendy = registry.players.get(player_blendy);
 
 	// blendy has cactus powerup
-	if (blendy.cactus_powerup_duration_ms > 0 
-		|| blendy.cactus_cherry_combo == true
-		|| blendy.cactus_grape_combo == true
-		|| blendy.cactus_protein_combo == true) {
+	if (blendy.bullet_type == 1) {
 		Mix_PlayChannel(-1, minion_hurt, 0);
-		int new_damage = damage * 8;
+		int new_damage = damage * 3;
 		minion.health -= std::max((new_damage - minion.armor), 1.f);
 	}
 	// blendy does not have cactus powerup regular attack
@@ -1163,11 +950,7 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	} else {
 		Mix_PlayChannel(-1, minion_hurt, 0);
 
-		// blendy has lemon powerup
-		if (blendy.lemon_powerup_duration_ms > 0 
-			|| blendy.cherry_lemon_combo == true
-			|| blendy.grape_lemon_combo == true
-			|| blendy.protein_lemon_combo == true) {
+		if (blendy.bullet_type == 2) {
 			minion.armor = 0;
 		}
 	}	
@@ -1210,174 +993,29 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
-					blendy.protein_powerup_duration_ms = 500.f;
-					Mix_PlayChannel(-1, powerup_pickup_protein, 0);
-					blendy.grape_powerup_duration_ms = 0.f;
-					blendy.lemon_powerup_duration_ms = 0.f;
-					blendy.cherry_powerup_duration_ms = 0.f;
-					blendy.cactus_powerup_duration_ms = 0.f;
-					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+					blendy.protein_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
-					
-					if (blendy.lemon_powerup_duration_ms > 0.f) {
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.cherry_lemon_combo = false;
-						blendy.protein_grape_combo = false;
-						blendy.cactus_protein_combo = false;
-						blendy.protein_lemon_combo = true;
-					}
-					else if (blendy.cherry_powerup_duration_ms > 0.f) {
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.cherry_lemon_combo = false;
-						blendy.protein_lemon_combo = false;
-						blendy.cactus_protein_combo = false;
-						blendy.protein_cherry_combo = true;
-					}
-					else if (blendy.grape_powerup_duration_ms > 0.f) {
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.protein_lemon_combo = false;
-						blendy.protein_cherry_combo = false;
-						blendy.cherry_lemon_combo = false;
-						blendy.protein_grape_combo = true;
-					} 
-					else if (blendy.cactus_powerup_duration_ms > 0.f) {
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.protein_cherry_combo = false;
-						blendy.protein_grape_combo = false;
-						blendy.protein_lemon_combo = false;
-						blendy.cactus_protein_combo = true;
-					}
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
-					blendy.grape_powerup_duration_ms = 500.f;
-					blendy.cherry_powerup_duration_ms = 0.f;
-					Mix_PlayChannel(-1, powerup_pickup_grape, 0);
-					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+					blendy.pattern_type = 1;
+					blendy.pattern_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
-
-					if (blendy.lemon_powerup_duration_ms > 0.f) {
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.protein_grape_combo = false;
-						blendy.cactus_grape_combo = false;
-						blendy.grape_lemon_combo = true;
-					} 
-					else if (blendy.protein_powerup_duration_ms > 0.f) {
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.cactus_grape_combo = false;
-						blendy.grape_lemon_combo = false;
-						blendy.protein_grape_combo = true;
-					}
-					else if (blendy.cactus_powerup_duration_ms > 0.f) {
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.grape_lemon_combo = false;
-						blendy.protein_grape_combo = false;
-						blendy.cactus_grape_combo = true;
-					}
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
-					blendy.lemon_powerup_duration_ms = 500.f;
-					blendy.cactus_powerup_duration_ms = 0.f;
-					Mix_PlayChannel(-1, powerup_pickup_lemon, 0);
-					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+					blendy.bullet_type = 1;
+					blendy.bullet_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
-					
-					if (blendy.protein_powerup_duration_ms > 0.f) {
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.grape_lemon_combo = false;
-						blendy.cherry_lemon_combo = false;
-						blendy.protein_lemon_combo = true;
-					}
-					else if (blendy.grape_powerup_duration_ms > 0.f) {
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.cherry_lemon_combo = false;
-						blendy.protein_lemon_combo = false;
-						blendy.grape_lemon_combo = true;
-					}
-					else if (blendy.cherry_powerup_duration_ms > 0.f) {
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.grape_lemon_combo = false;
-						blendy.protein_lemon_combo = false;
-						blendy.cherry_lemon_combo = true;
-					}
 				}
 				else if (powerup.type == POWERUP_TYPE::CHERRY) {
-					blendy.cherry_powerup_duration_ms = 300.f;
-					blendy.grape_powerup_duration_ms = 0.f;
+					blendy.pattern_type = 2;
+					blendy.pattern_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
-
-					if (blendy.lemon_powerup_duration_ms > 0.f) {
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cactus_cherry_combo = false;
-						blendy.protein_cherry_combo = false;
-						blendy.cherry_lemon_combo = true;
-					}
-					else if (blendy.protein_powerup_duration_ms > 0.f) {
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.cactus_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cherry_lemon_combo = false;
-						blendy.cactus_cherry_combo = false;
-						blendy.protein_cherry_combo = true;
-					}
-					else if (blendy.cactus_powerup_duration_ms > 0.f) {
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.protein_cherry_combo = false;
-						blendy.cherry_lemon_combo = false;
-						blendy.cactus_cherry_combo = true;
-					}
 				}
 				else if (powerup.type == POWERUP_TYPE::CACTUS) {
-					blendy.cherry_lemon_combo = false;
-					blendy.grape_lemon_combo = false;
-					blendy.protein_lemon_combo = false;
-					blendy.protein_cherry_combo = false;
-					blendy.protein_grape_combo = false;
-					blendy.cactus_powerup_duration_ms = 300.f;
-					blendy.lemon_powerup_duration_ms = 0.f;
+					blendy.bullet_type = 1;
+					blendy.bullet_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
-
-					if (blendy.protein_powerup_duration_ms > 0.f) {
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cactus_protein_combo = true;
-					}
-					else if (blendy.grape_powerup_duration_ms > 0.f) {
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.cherry_powerup_duration_ms = 0.f;
-						blendy.cactus_grape_combo = true;
-					}
-					else if (blendy.cherry_powerup_duration_ms > 0.f) {
-						blendy.lemon_powerup_duration_ms = 0.f;
-						blendy.protein_powerup_duration_ms = 0.f;
-						blendy.grape_powerup_duration_ms = 0.f;
-						blendy.cactus_cherry_combo = true;
-					}
+					
 				}
 				else if (powerup.type == POWERUP_TYPE::SHIELD) {
 					if (blendy.shield < blendy.max_shield) {

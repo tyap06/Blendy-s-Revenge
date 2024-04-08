@@ -69,7 +69,7 @@ Entity create_cherry_powerup(RenderSystem* renderer, const vec2& position, const
 Entity create_shield_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_shield_health(RenderSystem* renderer, const vec2& position, const vec2& bounds);
-
+Entity create_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int type);
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 Entity create_cursor(RenderSystem* renderer, const vec2& position);
