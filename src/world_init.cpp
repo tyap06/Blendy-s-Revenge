@@ -893,7 +893,7 @@ Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 	}
 	else if (stage == 10) {
 		// 3.1
-		cutScene.text[0] = "Blendy is happy.";
+		cutScene.text[0] = "Press 'R' to restart!";
 		cutScene.scale = 1.4;
 		cutScene.text_position[0].x = 1000;
 		cutScene.text_position[0].y = window_height_px - 120;

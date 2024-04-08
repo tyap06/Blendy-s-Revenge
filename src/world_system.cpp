@@ -84,8 +84,8 @@ const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 // CUTSCENE STUFF
 const int FIRST_CUT_SCENE_END = 6;
 const int SECOND_CUT_SCENE_END = 9;
-const int SECOND_CUT_SCORE = 10;
-const int THIRD_CUT_SCORE = 20;
+const int SECOND_CUT_SCORE = 700;
+const int THIRD_CUT_SCORE = 1500;
 
 // MUSIC
 const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
