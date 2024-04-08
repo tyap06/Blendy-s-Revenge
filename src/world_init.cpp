@@ -793,6 +793,9 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, En
 			geometry_id });
 	}
 
+	return entity;
+}
+
 Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 {
 	auto entity = Entity();
