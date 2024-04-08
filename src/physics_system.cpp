@@ -559,7 +559,7 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 			}
 			// only check polygons with indices that inside the overlap box 
 			for (vec2 point: positions) {
-				if (!isPointInBox(point, overlapBox)) {
+				if (isPointInBox(point, overlapBox)) {
 					is_inside_Box = true;
 				}
 			}
@@ -606,7 +606,7 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 				}
 				// only check polygons with indices that inside the overlap box 
 				for (vec2 point : positions) {
-					if (!isPointInBox(point, overlapBox)) {
+					if (isPointInBox(point, overlapBox)) {
 						is_inside_Box = true;
 					}
 				}
