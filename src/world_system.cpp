@@ -54,7 +54,8 @@ const vec2 SHIELD_POSITION_3 = { 370.f, 25.f };
 
 
 // BOUNDS
-const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
+const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH * 0.9, BLENDY_BB_HEIGHT * 0.9 };
+const vec2 BOSS_BOUNDS = { BLENDY_BB_WIDTH * 1.2, BLENDY_BB_HEIGHT * 1.2 };
 const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
@@ -429,24 +430,24 @@ vec2 generateRandomEdgePosition(float window_width_px, float window_height_px, s
 void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
-	/*next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_cleaner_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_sniper_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
-	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;*/
+	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.boss_spawned == false) {
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		boss = create_boss(renderer, spawnPos, MINION_BOUNDS);
+		boss = create_boss(renderer, spawnPos, BOSS_BOUNDS);
 		registry.boss_spawned = true;
 	}
 
 	
 	
-	/*
+	
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
@@ -493,7 +494,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_giant(renderer, spawnPos, bound, registry.score);
-	}*/
+	}
 
 }
 
@@ -541,7 +542,7 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 		// blendy is moving - calculate appropriate frame to put in render request
 		registry.renderRequests.remove(player_blendy);
 		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
-		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up);
+		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up,player_blendy);
 	}
 }
 
@@ -605,7 +606,7 @@ void WorldSystem::update_boss_animation(float elapsed_ms_since_last_update) {
 	else {
 		registry.renderRequests.remove(boss);
 		get_minion_render_request(boss_minion.up, boss_minion.down, boss_minion.right, boss_minion.left, boss_minion.frame_stage, Enemy_TYPE::BOSS, boss);
-		boss_motion.y_animate = get_y_animate(boss_minion.frame_stage, final_boss.going_up);
+		boss_motion.y_animate = get_y_animate(boss_minion.frame_stage, final_boss.going_up,boss);
 	}
 
 }
@@ -1291,8 +1292,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 }
 
-float WorldSystem::get_y_animate(int stage, int going_up) {
-	if (registry.deathTimers.has(player_blendy)) {
+float WorldSystem::get_y_animate(int stage, int going_up, Entity entity) {
+	if (registry.deathTimers.has(entity)) {
 		return 0;
 	}
 	if (stage == 0) {
@@ -1302,10 +1303,10 @@ float WorldSystem::get_y_animate(int stage, int going_up) {
 		return 0.3f * going_up;
 	}
 	else if (stage == 2) {
-		return 0.5f * going_up;
+		return 0.6f * going_up;
 	}
 	else if (stage == 3) {
-		return 1.0f * going_up;
+		return 1.5f * going_up;
 	}
 	else if (stage == 4) {
 		return 1.5f * going_up;
