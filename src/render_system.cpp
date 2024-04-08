@@ -297,7 +297,7 @@ bool RenderSystem::fontInit_internal(const std::string& font_filename, unsigned 
 
 bool RenderSystem::initializeFonts()
 {
-	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Pixel_Square + DOT_TTF, FONT_DEFAULT_SIZE);
+	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Future_Narrow + DOT_TTF, FONT_DEFAULT_SIZE);
 }
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color,
@@ -722,7 +722,7 @@ void RenderSystem::draw()
 
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity))
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity))
 			continue; 
 
 		drawTexturedMesh(entity, projection_2D);
@@ -731,15 +731,16 @@ void RenderSystem::draw()
 	// Phase 2: Draw only bullet entities
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity)))
+		if (registry.is_pause||!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity)))
 			continue; // Skip non-bullet entities in this phase
 
 		drawTexturedMesh(entity, projection_2D);
 	}
 
+
 	debug_fps(projection_2D);
 	display_score();
-
+	display_text();
 
 	// Rebinding dummy_vao here
 	glBindVertexArray(dummy_vao);
