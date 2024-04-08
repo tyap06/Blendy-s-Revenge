@@ -82,6 +82,7 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_blendy;
+	Entity boss;
 	Entity cursor;
 	Entity game_background;
 	Entity directional_light;
@@ -144,6 +145,7 @@ private:
 	
 	// Private Helpers For Initialization
 	void update_blendy_animation(float elapsed_ms_since_last_update);
+	void update_boss_animation(float elapsed_ms_since_last_update);
 	void update_minion_animation(float elapsed_ms_since_last_update);
 	void spawn_minions(float elapsed_ms_since_last_update);
 	void handlePlayerMovement(int key, int action);

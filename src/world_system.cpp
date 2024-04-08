@@ -429,24 +429,24 @@ vec2 generateRandomEdgePosition(float window_width_px, float window_height_px, s
 void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 {
 	elapsed_ms = elapsed_ms_since_last_update;
-	next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
+	/*next_minion_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_dodger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_roamer_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_cleaner_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_charger_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_sniper_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
-	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
+	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;*/
 
-	/*if (registry.boss_spawned == false) {
+	if (registry.boss_spawned == false) {
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		create_boss(renderer, spawnPos, MINION_BOUNDS);
+		boss = create_boss(renderer, spawnPos, MINION_BOUNDS);
 		registry.boss_spawned = true;
-	}*/
+	}
 
 	
 	
-
+	/*
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
@@ -493,7 +493,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_giant(renderer, spawnPos, bound, registry.score);
-	}
+	}*/
 
 }
 
@@ -545,11 +545,78 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 	}
 }
 
+void WorldSystem::update_boss_animation(float elapsed_ms_since_last_update) {
+	Boss& final_boss = registry.boss.get(boss);
+	Minion& boss_minion = registry.minions.get(boss);
+	Motion& boss_motion = registry.motions.get(boss);
+	boss_minion.up = false;
+	boss_minion.down = false;
+	boss_minion.left = false;
+	boss_minion.right = false;
+	if (boss_motion.velocity.x < 0 && boss_motion.velocity.x < -50) {
+		boss_minion.right = true;
+	}
+	else if (boss_motion.velocity.x > 0 && boss_motion.velocity.x > 50) {
+		boss_minion.left = true;
+	}
+	if (boss_motion.velocity.y > 0 && boss_motion.velocity.y > 50) {
+		boss_minion.down = true;
+	}
+	else if (boss_motion.velocity.y < 0 && boss_motion.velocity.y < -50) {
+		boss_minion.up = true;
+	}
+	
+	boss_minion.counter_ms -= elapsed_ms_since_last_update;
+	if (boss_minion.counter_ms < 0.f) {
+		boss_minion.counter_ms = BLENDY_FRAME_DELAY;
+		if (final_boss.going_up < 0) {
+			boss_minion.frame_stage += 1;
+			if (boss_minion.frame_stage > 3) {
+				boss_minion.frame_stage = 3;
+				final_boss.going_up = 1;
+			}
+		}
+		else {
+			boss_minion.frame_stage -= 1;
+			if (boss_minion.frame_stage < 0) {
+				boss_minion.frame_stage = 0;
+				final_boss.going_up = -1;
+			}
+		}
+	}
+	// get what the render request status should be
+	if (boss_motion.velocity.x == 0 && boss_motion.velocity.y == 0) {
+		// just keep the current image
+		if (!boss_minion.up && !boss_minion.down && !boss_minion.right && !boss_minion.left) {
+			RenderRequest request = registry.renderRequests.get(boss);
+			registry.renderRequests.remove(boss);
+			registry.renderRequests.insert(
+				boss,
+				{ request.used_texture, request.used_normal_map,request.used_effect,request.used_geometry });
+		}
+		else {
+			registry.renderRequests.remove(boss);
+			get_minion_render_request(boss_minion.up, boss_minion.down, boss_minion.right, boss_minion.left, boss_minion.frame_stage,Enemy_TYPE::BOSS,boss);
+		}
+		final_boss.going_up = 1;
+		boss_motion.y_animate = 0.f;
+	}
+	else {
+		registry.renderRequests.remove(boss);
+		get_minion_render_request(boss_minion.up, boss_minion.down, boss_minion.right, boss_minion.left, boss_minion.frame_stage, Enemy_TYPE::BOSS, boss);
+		boss_motion.y_animate = get_y_animate(boss_minion.frame_stage, final_boss.going_up);
+	}
+
+}
+
 void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
 	
 	for (int j = 0; j < registry.minions.entities.size(); j++) {
+
 		Minion& minion = registry.minions.get(registry.minions.entities[j]);
 		Motion& minion_motion = registry.motions.get(registry.minions.entities[j]);
+		if (minion.type == Enemy_TYPE::BOSS)
+			continue;
 		// get what the render request status should be
 		// if minion is not moving, render original image
 		if (minion_motion.velocity.x == 0 && minion_motion.velocity.y == 0) {
@@ -673,8 +740,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
 	}
-
-	//update_minion_animation(elapsed_ms_since_last_update);
+	if (registry.boss_spawned) {
+		update_boss_animation(elapsed_ms_since_last_update);
+	}
+	update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
 	update_powerups(elapsed_ms_since_last_update);
@@ -893,7 +962,6 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 		}
 	}	
 }
-
 
 
 // Compute collisions between entities
@@ -1569,6 +1637,55 @@ void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool
 				normal_map,
 			 EFFECT_ASSET_ID::TEXTURED,
 			 GEOMETRY_BUFFER_ID::SPRITE });
+		return;
+	}
+	if (type == Enemy_TYPE::BOSS) {
+		TEXTURE_ASSET_ID texture = TEXTURE_ASSET_ID::BOSS_D0;
+		if (down && left) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 32);
+		}
+		else if (down && right) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 40);
+		}
+		else if (up && left) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 48);
+		}
+		else if (up && right) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 56);
+		}
+		else if (down) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (left) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 8);
+		}
+		else if (right) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 16);
+		}
+		else if (up) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 24);
+		}
+
+		if (stage == 0) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
+		}
+		else if (stage == 1) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 2);
+		}
+		else if (stage == 2) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 4);
+		}
+		else if (stage == 3) {
+			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 6);
+		}
+		TEXTURE_ASSET_ID normal_map = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 1);
+		registry.renderRequests.insert(
+			minion,
+			{ texture,
+				normal_map,
+			 EFFECT_ASSET_ID::TEXTURED,
+			 GEOMETRY_BUFFER_ID::SPRITE });
+
 		return;
 	}
 	if (up) {

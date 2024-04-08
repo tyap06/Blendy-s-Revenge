@@ -739,14 +739,14 @@ Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bou
 	motion.velocity = { 0, -80.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	vec3 color = { 0.5,0.2,0.2 };
-	registry.colors.insert(entity, color);
+	/*vec3 color = { 0.5,0.2,0.2 };
+	registry.colors.insert(entity, color);*/
 
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::MINION,
-		  TEXTURE_ASSET_ID::MINION_NM,
+		{ TEXTURE_ASSET_ID::BOSS_D0,
+		  TEXTURE_ASSET_ID::BOSS_D0_N,
 		  EFFECT_ASSET_ID::TEXTURED,
 		  GEOMETRY_BUFFER_ID::SPRITE });
 
