@@ -80,3 +80,4 @@ Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, flo
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
 
+Entity create_orange_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);

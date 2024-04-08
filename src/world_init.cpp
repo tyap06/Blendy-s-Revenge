@@ -653,6 +653,32 @@ Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, flo
 	return entity;
 }
 
+Entity create_orange_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	//registry.meshPtrs.emplace(entity, &mesh);
+
+	registry.mesh_collision.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.scale = vec2(100.0f, 100.0f);
+	auto& bullet = registry.bullets.emplace(entity);
+
+	vec3 color = { 3,1,0 };
+	registry.colors.insert(entity, color);
+	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+	return entity;
+}
 
 
 Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
