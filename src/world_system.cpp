@@ -668,7 +668,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
-	registry.score = 0;
+	registry.score = 1000;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	cursor = create_cursor(renderer, {window_width_px/2,window_height_px/2});

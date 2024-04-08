@@ -670,7 +670,7 @@ void RenderSystem::draw()
 
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || !(registry.tooltip.has(entity) || registry.helpScreens.has(entity)))
+		if (!registry.motions.has(entity) || !(registry.tooltip.has(entity) || registry.helpScreens.has(entity) || registry.panel.has(entity)))
 			continue; // Skip non-bullet entities in this phase
 
 		drawTexturedMesh(entity, projection_2D);
