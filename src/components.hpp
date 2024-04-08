@@ -106,7 +106,9 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 
 
 
+struct Mesh_entity {
 
+};
 struct Roamer {
 
 };

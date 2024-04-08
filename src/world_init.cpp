@@ -626,7 +626,6 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	registry.colors.insert(entity, color);
 	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
-
 	auto& dodger = registry.snipers.emplace(entity);
 
 	registry.renderRequests.insert(

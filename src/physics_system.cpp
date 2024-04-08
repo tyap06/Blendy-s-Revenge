@@ -80,6 +80,9 @@ vec2 get_bounding_box(const Motion& motion)
 bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Motion& motion2)
 {
 	if (!(registry.mesh_collision.has(entity1) && registry.mesh_collision.has(entity2))) {
+		if (! registry.motions.has(entity1) || !registry.motions.has(entity2)) {
+			std::cout << "no motion" << std::endl;
+		}
 		return false;
 	}
 
@@ -140,6 +143,8 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 	// check bounding box overlap first 
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
+		std::cout << "Hit! AABB" << std::endl;
+
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
 		//if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
@@ -158,7 +163,7 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 				mesh_two = registry.meshPtrs.get(mesh_two_entity);
 			}
 		}
-
+		
 		if (registry.players.has(entity1)) {
 			auto& player = registry.players.get(entity1);
 			if (player.up) {
@@ -227,8 +232,10 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 			}
 		}
 		if (mesh_one != NULL && mesh_two != NULL) {
-			std::cout << "No Mesh found!!!!" << std::endl;
 			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
+		}
+		if (mesh_one == NULL && mesh_two == NULL) {
+			std::cout << "No mesh!!" << std::endl;
 		}
 	}
 	return false;
@@ -633,8 +640,10 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 				}
 			}
 
-			if (haveCollision)
+			if (haveCollision) {
+				std::cout << "Hit! SAT" << std::endl;
 				return haveCollision;
+			}
 		}
 		
 	}
