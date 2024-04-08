@@ -792,6 +792,8 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, En
 			 EFFECT_ASSET_ID::CHICKEN,
 			geometry_id });
 	}
+	return entity;
+}
 
 Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 {
