@@ -21,7 +21,10 @@ enum class POWERUP_TYPE {
 	BATTERY = PAC_FRUIT + 1,
 	PROTEIN = BATTERY + 1,
 	GRAPE = PROTEIN + 1,
-	LEMON = GRAPE + 1
+	LEMON = GRAPE + 1,
+	CHERRY = LEMON + 1,
+	SHIELD = CHERRY + 1,
+	CACTUS = SHIELD + 1
 };
 
 enum class Sniper_State {
@@ -45,8 +48,10 @@ enum class Enemy_TYPE {
 	GIANT = HEALER + 1,
 	SNIPER = GIANT + 1,
 	TANK = SNIPER +1,
-	Manager = TANK +1,
+	CLEANER = TANK +1,
+	BOSS = CLEANER + 1,
 };
+
 
 enum class Charger_State {
 	Approaching = 0,
@@ -54,6 +59,38 @@ enum class Charger_State {
 	Charging = Aiming +1,
 	Resting = Charging + 1,
 };
+
+enum class Bullet_State {
+	Default,
+	Protein,
+	Grape,
+	Catus,
+	Lemon,
+	Cherry,
+};
+
+
+enum class BossState {
+	Default,
+	Aiming,
+	Charging,
+	PowerUpSeeking,
+	Shooting,
+};
+
+struct Boss {
+	BossState state = BossState::Default;
+	Bullet_State bstate = Bullet_State::Default;
+	float aim_timer = 0;
+	float shoot_interval_ms = 25.0f;
+	float time_since_last_shot_ms = 0.0f;
+	bool is_shooting = true;
+	float powerup_duration_ms = 0.f;
+	vec2 charge_direction;
+	float rest_timer = 30;
+	int isAngry = 0;
+};
+
 
 enum class Direction {
 	Up,
@@ -71,9 +108,13 @@ struct Player {
 	int current_effect = 0;
 	bool pac_mode = false;
 	bool protein_powerup = false;
+	int shield = 0;
+	int max_shield = 3;
 	float protein_powerup_duration_ms = 0.f;
 	float grape_powerup_duration_ms = 0.f;
 	float lemon_powerup_duration_ms = 0.f;
+	float cherry_powerup_duration_ms = 0.f;
+	float cactus_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -90,6 +131,8 @@ struct Player {
 
 };
 
+
+
 static const std::map<Direction, std::string> blendy_direction_mesh = {
 	{Direction::Up, mesh_path("Blendy-up.obj")},
 	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
@@ -104,12 +147,19 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 	{Direction::Right, mesh_path("minion-right.obj")}
 };
 
+// A component to represent shield
+struct Shield {
 
+};
 
 struct Mesh_entity {
 
 };
 struct Roamer {
+
+};
+
+struct Cleaner {
 
 };
 
@@ -143,6 +193,13 @@ struct Sniper {
 
 
 struct Panel {
+
+};
+
+struct Cursor {
+
+};
+struct ToolTip {
 
 };
 
@@ -471,7 +528,113 @@ enum class TEXTURE_ASSET_ID {
 	BLT_2_N = BLT_1_N + 1,
 	BLT_3_N = BLT_2_N + 1,
 
-	TEXTURE_COUNT = BLT_3_N + 1,
+
+	HEALER_D0 = BLT_3_N + 1,
+	HEALER_D0_N = HEALER_D0 + 1,
+	HEALER_D1 = HEALER_D0_N + 1,
+	HEALER_D1_N = HEALER_D1 + 1,
+	HEALER_D2 = HEALER_D1_N + 1,
+	HEALER_D2_N = HEALER_D2 + 1,
+	HEALER_L0 = HEALER_D2_N + 1,
+	HEALER_L0_N = HEALER_L0 + 1,
+	HEALER_L1 = HEALER_L0_N + 1,
+	HEALER_L1_N = HEALER_L1 + 1,
+	HEALER_L2 = HEALER_L1_N + 1,
+	HEALER_L2_N = HEALER_L2 + 1,
+	HEALER_R0 = HEALER_L2_N + 1,
+	HEALER_R0_N = HEALER_R0 + 1,
+	HEALER_R1 = HEALER_R0_N + 1,
+	HEALER_R1_N = HEALER_R1 + 1,
+	HEALER_R2 = HEALER_R1_N + 1,
+	HEALER_R2_N = HEALER_R2 + 1,
+	HEALER_U0 = HEALER_R2_N + 1,
+	HEALER_U0_N = HEALER_U0 + 1,
+	HEALER_U1 = HEALER_U0_N + 1,
+	HEALER_U1_N = HEALER_U1 + 1,
+	HEALER_U2 = HEALER_U1_N + 1,
+	HEALER_U2_N = HEALER_U2 + 1,
+
+	ROAMER_D0 = HEALER_U2_N + 1,
+	ROAMER_D0_N = ROAMER_D0 + 1,
+	ROAMER_D1 = ROAMER_D0_N + 1,
+	ROAMER_D1_N = ROAMER_D1 + 1,
+	ROAMER_D2 = ROAMER_D1_N + 1,
+	ROAMER_D2_N = ROAMER_D2 + 1,
+	ROAMER_L0 = ROAMER_D2_N + 1,
+	ROAMER_L0_N = ROAMER_L0 + 1,
+	ROAMER_L1 = ROAMER_L0_N + 1,
+	ROAMER_L1_N = ROAMER_L1 + 1,
+	ROAMER_L2 = ROAMER_L1_N + 1,
+	ROAMER_L2_N = ROAMER_L2 + 1,
+	ROAMER_R0 = ROAMER_L2_N + 1,
+	ROAMER_R0_N = ROAMER_R0 + 1,
+	ROAMER_R1 = ROAMER_R0_N + 1,
+	ROAMER_R1_N = ROAMER_R1 + 1,
+	ROAMER_R2 = ROAMER_R1_N + 1,
+	ROAMER_R2_N = ROAMER_R2 + 1,
+	ROAMER_U0 = ROAMER_R2_N + 1,
+	ROAMER_U0_N = ROAMER_U0 + 1,
+	ROAMER_U1 = ROAMER_U0_N + 1,
+	ROAMER_U1_N = ROAMER_U1 + 1,
+	ROAMER_U2 = ROAMER_U1_N + 1,
+	ROAMER_U2_N = ROAMER_U2 + 1,
+
+
+	SHOOTER_D0 = ROAMER_U2_N + 1,
+	SHOOTER_D0_N = SHOOTER_D0 + 1,
+	SHOOTER_D1 = SHOOTER_D0_N + 1,
+	SHOOTER_D1_N = SHOOTER_D1 + 1,
+	SHOOTER_D2 = SHOOTER_D1_N + 1,
+	SHOOTER_D2_N = SHOOTER_D2 + 1,
+	SHOOTER_L0 = SHOOTER_D2_N + 1,
+	SHOOTER_L0_N = SHOOTER_L0 + 1,
+	SHOOTER_L1 = SHOOTER_L0_N + 1,
+	SHOOTER_L1_N = SHOOTER_L1 + 1,
+	SHOOTER_L2 = SHOOTER_L1_N + 1,
+	SHOOTER_L2_N = SHOOTER_L2 + 1,
+	SHOOTER_R0 = SHOOTER_L2_N + 1,
+	SHOOTER_R0_N = SHOOTER_R0 + 1,
+	SHOOTER_R1 = SHOOTER_R0_N + 1,
+	SHOOTER_R1_N = SHOOTER_R1 + 1,
+	SHOOTER_R2 = SHOOTER_R1_N + 1,
+	SHOOTER_R2_N = SHOOTER_R2 + 1,
+	SHOOTER_U0 = SHOOTER_R2_N + 1,
+	SHOOTER_U0_N = SHOOTER_U0 + 1,
+	SHOOTER_U1 = SHOOTER_U0_N + 1,
+	SHOOTER_U1_N = SHOOTER_U1 + 1,
+	SHOOTER_U2 = SHOOTER_U1_N + 1,
+	SHOOTER_U2_N = SHOOTER_U2 + 1,
+
+	SNIPER_D0 = SHOOTER_U2_N + 1,
+	SNIPER_D0_N = SNIPER_D0 + 1,
+	SNIPER_D1 = SNIPER_D0_N + 1,
+	SNIPER_D1_N = SNIPER_D1 + 1,
+	SNIPER_D2 = SNIPER_D1_N + 1,
+	SNIPER_D2_N = SNIPER_D2 + 1,
+	SNIPER_L0 = SNIPER_D2_N + 1,
+	SNIPER_L0_N = SNIPER_L0 + 1,
+	SNIPER_L1 = SNIPER_L0_N + 1,
+	SNIPER_L1_N = SNIPER_L1 + 1,
+	SNIPER_L2 = SNIPER_L1_N + 1,
+	SNIPER_L2_N = SNIPER_L2 + 1,
+	SNIPER_R0 = SNIPER_L2_N + 1,
+	SNIPER_R0_N = SNIPER_R0 + 1,
+	SNIPER_R1 = SNIPER_R0_N + 1,
+	SNIPER_R1_N = SNIPER_R1 + 1,
+	SNIPER_R2 = SNIPER_R1_N + 1,
+	SNIPER_R2_N = SNIPER_R2 + 1,
+	SNIPER_U0 = SNIPER_R2_N + 1,
+	SNIPER_U0_N = SNIPER_U0 + 1,
+	SNIPER_U1 = SNIPER_U0_N + 1,
+	SNIPER_U1_N = SNIPER_U1 + 1,
+	SNIPER_U2 = SNIPER_U1_N + 1,
+	SNIPER_U2_N = SNIPER_U2 + 1,
+
+	CURSOR = SNIPER_U2_N + 1,
+  CHERRY_POWERUP = CURSOR + 1,
+	SHIELD_POWERUP = CHERRY_POWERUP + 1,
+	CACTUS_POWERUP = SHIELD_POWERUP + 1,
+	TEXTURE_COUNT = CACTUS_POWERUP + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 

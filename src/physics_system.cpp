@@ -103,7 +103,7 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 
 				// Determine the separation speed. This could be a fixed value or based on the overlap
 				float overlap = sum_radii - distance;
-				float separationSpeed = overlap / 6;
+				float separationSpeed = std::min(overlap / 6,80.f);
 
 				// Adjust the velocities to separate the minions
 				// Entity1 moves away in the direction, Entity2 in the opposite
@@ -125,6 +125,8 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		|| (registry.players.has(entity1) && registry.minions.has(entity2))
 		|| (registry.players.has(entity1) && registry.powerUps.has(entity2))
 		|| (registry.players.has(entity2) && registry.powerUps.has(entity1))
+		|| (registry.cleaners.has(entity1) && registry.powerUps.has(entity2))
+			|| (registry.cleaners.has(entity2) && registry.powerUps.has(entity1))
 		)
 	{
 		// pass

@@ -38,7 +38,10 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
-
+	// Callback For minimize the Window
+	void window_minimized_callback();
+	void window_unminimized_callback();
+	void render_cursor();
 	
   
 private:
@@ -79,6 +82,7 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_blendy;
+	Entity cursor;
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
@@ -94,11 +98,18 @@ private:
 	float next_tank_spawn = 100;
 	float next_giant_spawn = 100;
 	float next_healer_spawn = 100;
-	float next_battery_powerup_spawn;
-	float next_protein_powerup_spawn;
-	float next_grape_powerup_spawn;
-	float next_lemon_powerup_spawn;
+	float next_cleaner_spawn = 100;
+	float next_battery_powerup_spawn = 100;
+	float next_protein_powerup_spawn = 100;
+	float next_grape_powerup_spawn = 100;
+	float next_lemon_powerup_spawn = 100;
+	float next_cherry_powerup_spawn = 100;
+	float next_shield_powerup_spawn = 100;
+	float next_cactus_powerup_spawn = 100;
 	Entity health_bar_box;
+	Entity shield_1;
+	Entity shield_2;
+	Entity shield_3;
 
 	// music references
 	Mix_Music* background_music;
@@ -130,7 +141,7 @@ private:
 
 	void hit_player(const int& damage);
 	void hit_enemy(const Entity& target, const int& damage);
-
+	
 	// Private Helpers For Initialization
 	void update_blendy_animation(float elapsed_ms_since_last_update);
 	void update_minion_animation(float elapsed_ms_since_last_update);
@@ -139,7 +150,7 @@ private:
 	void update_player_movement();
 	void move_player(vec2 direction);
 	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
-	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion);
+	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Enemy_TYPE type, Entity minion);
 	float get_y_animate(int stage, int going_up);
 	void update_fps(float elapsed_ms_since_last_update);
 	void update_score();
@@ -149,6 +160,9 @@ private:
 	void update_health_bar();
 	void update_game_music();
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
+
+	
+
 };
 
 

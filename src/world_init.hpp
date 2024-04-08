@@ -50,8 +50,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int damage = 25, vec3 color = { 0,40,0 });
 
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
-
-Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_cleaner(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
@@ -65,9 +64,18 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 
 Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
+Entity create_cherry_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_shield_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_shield_health(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
+Entity create_cursor(RenderSystem* renderer, const vec2& position);
+Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_cactus_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
-
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
 
