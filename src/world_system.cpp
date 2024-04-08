@@ -456,7 +456,12 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score >= 150) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		create_dodger(renderer, spawnPos, MINION_BOUNDS);
+		if (registry.score >= 1000) {
+			create_split_shooter(renderer, spawnPos, MINION_BOUNDS);
+		}
+		else {
+			create_dodger(renderer, spawnPos, MINION_BOUNDS);
+		}
 	}
 	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score >= 300) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);

@@ -328,7 +328,7 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	minion.max_health = score/2;
 	minion.speed = 50;
 	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
-
+	registry.loots.emplace(entity);
 	registry.giants.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -803,7 +803,6 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	vec3 color = { 0,0,0 };
 	registry.colors.insert(entity, color);
 	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
-
 	auto& tank = registry.tanks.emplace(entity);
 
 	registry.renderRequests.insert(
