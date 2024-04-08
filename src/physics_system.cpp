@@ -165,6 +165,7 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		}
 		
 		if (registry.players.has(entity1)) {
+
 			auto& player = registry.players.get(entity1);
 			if (player.up) {
 				mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
@@ -179,26 +180,28 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 				mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
 			}
 		}
-		else if (registry.minions.has(entity1)) {
-			auto& minion = registry.minions.get(entity1);
-			if (minion.up) {
-				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
-			}
-			else if (minion.down) {
-				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-			}
-			else if (minion.left) {
-				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
-			}
-			else if (minion.right) {
-				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
-			}
-			else {
-				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-			}
-		}
+		//else if (registry.minions.has(entity1)) {
+		//	auto& minion = registry.minions.get(entity1);
+		//	if (minion.up) {
+		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+		//	}
+		//	else if (minion.down) {
+		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+		//	}
+		//	else if (minion.left) {
+		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+		//	}
+		//	else if (minion.right) {
+		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
+		//	}
+		//	else {
+		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+		//	}
+		//}
 
 		if (registry.players.has(entity2)) {
+			std::cout << "Two not player " << std::endl;
+
 			auto& player = registry.players.get(entity2);
 			if (player.up) {
 				mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Up);
@@ -213,28 +216,30 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 				mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
 			}
 		}
-		else if (registry.minions.has(entity2)) {
-			auto& minion = registry.minions.get(entity2);
-			if (minion.up) {
-				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
-			}
-			else if (minion.down) {
-				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-			}
-			else if (minion.left) {
-				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
-			}
-			else if (minion.right) {
-				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
-			}
-			else {
-				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-			}
-		}
+		//else if (registry.minions.has(entity2)) {
+		//	std::cout << "Two not minion " << std::endl;
+
+		//	auto& minion = registry.minions.get(entity2);
+		//	if (minion.up) {
+		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+		//	}
+		//	else if (minion.down) {
+		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+		//	}
+		//	else if (minion.left) {
+		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+		//	}
+		//	else if (minion.right) {
+		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
+		//	}
+		//	else {
+		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+		//	}
+		//}
 		if (mesh_one != NULL && mesh_two != NULL) {
 			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 		}
-		if (mesh_one == NULL && mesh_two == NULL) {
+		if (mesh_one == NULL || mesh_two == NULL) {
 			std::cout << "No mesh!!" << std::endl;
 		}
 	}
@@ -651,10 +656,10 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 	return collision;
 }
 
-//vec2 normalize(const vec2& v) {
-//	float length = std::sqrt(v.x * v.x + v.y * v.y);
-//	return { v.x / length, v.y / length };
-//}
+vec2 normalize(const vec2& v) {
+	float length = std::sqrt(v.x * v.x + v.y * v.y);
+	return { v.x / length, v.y / length };
+}
 
 
 bool isParallel(const std::vector<vec2>& axis, const vec2& edge) {
