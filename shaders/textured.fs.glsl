@@ -28,10 +28,6 @@ uniform float time;
 // Output color
 layout(location = 0) out  vec4 color;
 
-float lerp(float start, float end, float t) {
-    return start * (1-t) + end*t;
-}
-
 void main()
 {
     vec4 texColor = texture(sampler0, texcoord);

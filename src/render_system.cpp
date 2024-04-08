@@ -64,9 +64,9 @@ void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_reque
 
 void RenderSystem::handle_particle_rendering(const RenderRequest& render_request, const GLuint& program, const mat3& projection, const Transform& transform)
 {
-	auto& particle_emitters = registry.particleEmitters;
+	auto& particle_emitter_registry = registry.particleEmitters;
 
-	for (int i = 0; i < particle_emitters.size(); i++)
+	for (int i = 0; i < particle_emitter_registry.size(); i++)
 	{
 		// Redundantly calling set program again
 		glUseProgram(program);
@@ -93,16 +93,28 @@ void RenderSystem::handle_particle_rendering(const RenderRequest& render_request
 		glUniform1f(particleSize_loc, 5);
 		gl_has_errors();
 
-		auto& particle_emitter = particle_emitters.components[i];
-		auto& emitter_instance = particle_emitter.emitter_instance;
+		auto& particle_emitter_entity = particle_emitter_registry.entities[i];
+		auto& particle_emitter_component = particle_emitter_registry.components[i];
+		auto& emitter_instance = particle_emitter_component.emitter_instance;
 
-		glUniform3fv(startColor_loc, 1, &particle_emitter.particle_start_color[0]);
+		glUniform3fv(startColor_loc, 1, &particle_emitter_component.particle_start_color[0]);
 		gl_has_errors();
 
-		glUniform3fv(endColor_loc, 1, &particle_emitter.particle_end_color[0]);
+		glUniform3fv(endColor_loc, 1, &particle_emitter_component.particle_end_color[0]);
+		gl_has_errors();
+
+		auto& emitter_timer_registry = registry.emitterTimers;
+		auto& emitter_timer = emitter_timer_registry.get(particle_emitter_entity);
+
+		GLint lifetime_loc = glGetUniformLocation(program, "lifetime");
+		assert(lifetime_loc > -1);
+		gl_has_errors();
+
+		glUniform1f(lifetime_loc, emitter_instance.get_base_lifetime());
 		gl_has_errors();
 
 		emitter_instance.draw();
+
 		gl_has_errors();
 	}
 }
@@ -363,7 +375,7 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 	gl_has_errors();
 }
 
-void RenderSystem::update_particle_emitters(const float& elapsed_ms)
+void RenderSystem::particles_step(const float& elapsed_ms)
 {
 	auto& particle_emitters = registry.particleEmitters;
 

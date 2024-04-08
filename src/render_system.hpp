@@ -13,7 +13,7 @@
 #include FT_FREETYPE_H
 #include <map>
 
-#include "SimpleParticles.hpp"
+#include "particle_system.hpp"
 
 
 struct Character {
@@ -206,7 +206,7 @@ class RenderSystem {
 	GLuint dummy_vao;
 
 	// Particle System
-	SimpleEmitter emitter;
+	Emitter emitter;
 
 public:
 	// Initialize the window
@@ -251,7 +251,7 @@ public:
 	void renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color, const glm::mat4& trans);
 
 	// Particle System
-	void update_particle_emitters(const float& elapsed_ms);
+	void particles_step(const float& elapsed_ms);
 private:
 	// Internal drawing functions for each entity type
 	void drawTexturedMesh(Entity entity, const mat3& projection);
