@@ -1022,12 +1022,15 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 
 Entity create_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int type) {
 	if (type == 0) {
+		velocity = velocity * 350.f;
 		return createBullet(renderer, pos, velocity, angle);
 	}
 	else if (type == 1) {
+		velocity = velocity * 280.f;
 		return create_lemon_bullet(renderer, pos, velocity, angle);
 	}
 	else {
+		velocity = velocity * 1000.f;
 		return create_cactus_bullet(renderer, pos, velocity, angle);
 	}
 }
