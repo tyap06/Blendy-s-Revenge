@@ -568,6 +568,7 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 	}
 	return;
 }
+
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
