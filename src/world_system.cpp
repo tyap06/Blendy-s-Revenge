@@ -699,7 +699,6 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				}
 				else {
 					//todo: cherry
-					blendy.bullet_type = 0;
 					float new_bullet_speed = bullet_speed * cherry_coef;
 
 					// Calculate bullet directions for triple shot
@@ -738,7 +737,6 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 
 				if (blendy.protein_powerup_duration_ms > 0) {
 					//multi_2 = 1.5;
-					bullet_speed = bullet_speed * 1.2;
 					bullet_timer = bullet_launch_interval / 1.2;
 					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
 				}
