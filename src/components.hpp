@@ -1,6 +1,7 @@
 #pragma once
 #include "common.hpp"
 #include <vector>
+#include "particle_system.hpp"
 #include <unordered_map>
 #include "../ext/stb_image/stb_image.h"
 #include <map>
@@ -61,14 +62,12 @@ enum class Enemy_TYPE {
 	BOSS = SPLIT_SHOOTER + 1,
 };
 
-
 enum class Charger_State {
 	Approaching = 0,
 	Aiming = Approaching + 1,
 	Charging = Aiming +1,
 	Resting = Charging + 1,
 };
-
 
 enum class BossState {
 	Default,
@@ -100,7 +99,6 @@ struct Loot {
 
 };
 
-
 enum class Direction {
 	Up,
 	Down,
@@ -117,13 +115,9 @@ struct Player {
 	int current_effect = 0;
 	bool pac_mode = false;
 	bool protein_powerup = false;
-	int shield = 0;
-	int max_shield = 3;
 	float protein_powerup_duration_ms = 0.f;
 	float grape_powerup_duration_ms = 0.f;
 	float lemon_powerup_duration_ms = 0.f;
-	float cherry_powerup_duration_ms = 0.f;
-	float cactus_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -140,8 +134,6 @@ struct Player {
 
 };
 
-
-
 static const std::map<Direction, std::string> blendy_direction_mesh = {
 	{Direction::Up, mesh_path("Blendy-up.obj")},
 	{Direction::Down, mesh_path("Blendy-Reduced.obj")},
@@ -156,19 +148,12 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 	{Direction::Right, mesh_path("minion-right.obj")}
 };
 
-// A component to represent shield
-struct Shield {
 
-};
 
 struct Mesh_entity {
 
 };
 struct Roamer {
-
-};
-
-struct Cleaner {
 
 };
 
@@ -202,13 +187,6 @@ struct Sniper {
 
 
 struct Panel {
-
-};
-
-struct Cursor {
-
-};
-struct ToolTip {
 
 };
 
@@ -311,6 +289,18 @@ struct HelpScreen
 	
 };
 
+// A component to represent cut scene
+struct CutScene
+{
+	int stage = 0;
+	// std::string text = "";
+	std::string text[4] = { "", "", "" , ""};
+	vec2 text_position[4] = { {0, 0},  {0, 0} , {0, 0} , {0,0} };
+	vec3 text_color[4] = { {0,0,0}, {0,0,0}, {0,0,0}, {0,0,0} };
+	float text_scale[4] = { 1.f, 1.f, 1.f, 1.f };
+	float scale = 1;
+};
+
 // If an entity represents an FPS counter
 struct FpsCounter
 {
@@ -323,6 +313,7 @@ struct ScoreCounter
 {
 	unsigned int current_score = 0;
 	float scale = 1.f;
+	bool show = true;
 };
 
 // A struct to refer to debugging graphics in the ECS
@@ -333,6 +324,12 @@ struct DebugComponent
 
 // A timer that will be associated to dying chicken
 struct DeathTimer
+{
+	float counter_ms = 2000;
+};
+
+// A timer that will be associated to a particle emitter
+struct EmitterTimer
 {
 	float counter_ms = 2000;
 };
@@ -368,6 +365,16 @@ struct Background
 {
 	
 };
+
+// A component to represent entities that are particle emitters
+struct ParticleEmitter
+{
+	Emitter emitter_instance;
+	vec3 particle_start_color;
+	vec3 particle_end_color;
+	float particle_size;
+};
+
 
 // LightSource component for entities that represent a LightSource
 struct LightSource
@@ -536,8 +543,6 @@ enum class TEXTURE_ASSET_ID {
 	BLT_1_N = BLT_0_N + 1,
 	BLT_2_N = BLT_1_N + 1,
 	BLT_3_N = BLT_2_N + 1,
-
-
 	HEALER_D0 = BLT_3_N + 1,
 	HEALER_D0_N = HEALER_D0 + 1,
 	HEALER_D1 = HEALER_D0_N + 1,
@@ -727,7 +732,8 @@ enum class EFFECT_ASSET_ID {
 	TEXTURED = CHICKEN + 1,
 	WIND = TEXTURED + 1,
 	HEALTH_BAR = WIND + 1,
-	EFFECT_COUNT = HEALTH_BAR + 1
+	PARTICLES = HEALTH_BAR + 1,
+	EFFECT_COUNT = PARTICLES + 1
 };
 
 const int effect_count = (int)EFFECT_ASSET_ID::EFFECT_COUNT;

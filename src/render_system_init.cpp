@@ -65,6 +65,7 @@ bool RenderSystem::init(GLFWwindow* window_arg)
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	//initializeParticleSystem();
 	initializeFonts();
 
 	return true;
@@ -212,6 +213,11 @@ void RenderSystem::initializeGlGeometryBuffers()
 		{{ 0.5,-0.5, depth}, red},
 	};
 
+	// 0 = bottom left
+	// 1 = top left
+	// 2 = top right
+	// 3 = bottom right
+
 	// Two triangles
 	line_indices = {0, 1, 3, 1, 2, 3};
 	
@@ -231,6 +237,11 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> screen_indices = { 0, 1, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
 }
+
+//void RenderSystem::initializeParticleSystem()
+//{
+//	emitter.init();
+//}
 
 RenderSystem::~RenderSystem()
 {
@@ -284,9 +295,27 @@ void RenderSystem::display_score()
 		auto& color_component = registry.colors.get(entity);
 
 		auto& motion = registry.motions.get(entity);
-
-		renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+		if (score_component.show) {
+			renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+		}
 	}
+}
+
+void RenderSystem::display_text()
+{
+	for (Entity entity : registry.cutScenes.entities)
+	{
+		auto& cutscene = registry.cutScenes.get(entity);
+		for (int i = 0; i < 4; i++) {
+			if (cutscene.text_position[i].x != 0) {
+				std::string cutscene_text(cutscene.text[i]);
+				// std::cout << cutscene_text << std::endl;
+				renderText(cutscene_text, cutscene.text_position[i].x, cutscene.text_position[i].y, cutscene.text_scale[i], cutscene.text_color[i], glm::mat4(1.f));
+			}
+		}
+		// 		renderText("Press 'C' to  skip", 1520, window_height_px - 50, 0.8, vec3(0.4f, 0.f, 0.3f), glm::mat4(1.f));
+	}
+
 }
 
 // Initialize the screen texture from a standard sprite

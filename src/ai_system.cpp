@@ -11,18 +11,10 @@ const float charger_aggro_range = 450.0f;
 const float charger_aim_time = 50.0f;
 const float charger_rest_time = 80.0f;
 const float charger_charge_speed = 4.0f;
-const float boss_charge_speed = 2.0f;
-const float boss_shoot_rage = 500.f;
-const float pick_up_range = 600.f;
-const float boss_aim_time = 40.0f;
-const float boss_rest_time = 150.0f;
-const float grape_bullet_speed = 400.f;
 
 std::random_device rd; 
 std::mt19937 gen(rd());
-std::uniform_real_distribution<> angleDistr(-M_PI / 2, M_PI / 2);
 std::uniform_int_distribution<> distr(-2000, 100); 
-std::uniform_real_distribution<float> spread(-5.0f, 5.0f);
 
 float calculateDistance(const vec2& pos1, const vec2& pos2) {
 	vec2 diff = pos1 - pos2;
@@ -459,6 +451,32 @@ ShooterState decideShooterState(const vec2& enemyPos, const vec2& playerPos, flo
 	}
 }
 
+void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float elapsed_ms) {
+	auto& shooter = registry.shooters.get(shooterEntity);
+	Motion& motion = registry.motions.get(shooterEntity);
+
+	
+	shooter.time_since_last_shot_ms += elapsed_ms;
+	if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
+		vec2 bullet_direction = normalize(playerPosition - motion.position);
+
+		vec2 up_vector{ 0.0f, -1.0f };
+		float bullet_angle = std::atan2(bullet_direction.y, bullet_direction.x);
+		float up_angle = std::atan2(up_vector.y, up_vector.x);
+		float angle_diff = bullet_angle - up_angle;
+		if (angle_diff < -M_PI) {
+			angle_diff += 2 * M_PI;
+		}
+		else if (angle_diff > M_PI) {
+			angle_diff -= 2 * M_PI;
+		}
+		
+		create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
+
+		
+		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
+	}
+}
 
 
 void AISystem::init(RenderSystem* renderer_arg) {
@@ -518,12 +536,6 @@ void AISystem::step(float elapsed_ms)
 		}
 		else if (enemy.type == Enemy_TYPE::TANK) {
 			updateTank(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
-		} 
-		else if (enemy.type == Enemy_TYPE::CLEANER) {
-			updateCleaner(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms);
-		}
-		else if (enemy.type == Enemy_TYPE::BOSS) {
-			updateBoss(enemy_enitiy, chase_direction, enemy, motion, elapsed_ms, player_position);
 		}
 	}
 
