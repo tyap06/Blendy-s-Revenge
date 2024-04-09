@@ -102,11 +102,33 @@ const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 // CUTSCENE STUFF
 const int FIRST_CUT_SCENE_END = 6;
 const int SECOND_CUT_SCENE_END = 9;
-const int SECOND_CUT_SCORE = 200;
-const int THIRD_CUT_SCORE = 300;
+const int SECOND_CUT_SCORE = 1500;
+const int THIRD_CUT_SCORE = 3000;
 
 // MUSIC
 const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
+
+// GAME BALANCE
+
+const float MULTIPLIER = 1.0;
+const unsigned int DODGER_SPAWN_SCORE = 200 * MULTIPLIER;
+const unsigned int ROAMER_SPAWN_SCORE = 300 * MULTIPLIER;
+const unsigned int CHARGER_SPAWN_SCORE = 500 * MULTIPLIER;
+const unsigned int SNIPER_SPAWN_SCORE = 800 * MULTIPLIER;
+const unsigned int SPLIT_SHOOTER_SPAWN_SCORE = 1200 * MULTIPLIER;
+const unsigned int TANK_SPAWN_SCORE = 1700 * MULTIPLIER;
+const unsigned int GIANT_SPAWN_SCORE = 2300 * MULTIPLIER;
+const unsigned int BOSS_SPAWN_SCORE = 3000 * MULTIPLIER;
+
+const unsigned int BATTERY_SPAWN_SCORE = 200 * MULTIPLIER;
+const unsigned int LEMON_SPAWN_SCORE = 300 * MULTIPLIER;
+const unsigned int PROTEIN_SPAWN_SCORE = 500 * MULTIPLIER;
+const unsigned int SHIELD_SPAWN_SCORE = 800 * MULTIPLIER;
+const unsigned int CHERRY_SPAWN_SCORE = 1200 * MULTIPLIER;
+const unsigned int CACTUS_SPAWN_SCORE = 1700 * MULTIPLIER;
+const unsigned int GRAPE_SPAWN_SCORE = 2300 * MULTIPLIER;
+
+
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -328,7 +350,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 	// Spawn battery powerup 
 
-	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > 100) {
+	if (registry.powerUps.components.size() <= MAX_BATTERY_POWERUPS && next_battery_powerup_spawn < 0.f && registry.score > BATTERY_SPAWN_SCORE) {
 		next_battery_powerup_spawn = (POWERUP_DELAY_MS * 20) + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		// Generate a random position, excluding the player's position
@@ -341,7 +363,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn grape powerup
-	if (registry.powerUps.components.size() <= MAX_GRAPE_POWERUPS && next_grape_powerup_spawn < 0.f && registry.score > 100) {
+	if (registry.powerUps.components.size() <= MAX_GRAPE_POWERUPS && next_grape_powerup_spawn < 0.f && registry.score > GRAPE_SPAWN_SCORE) {
 		next_grape_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -353,7 +375,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn lemon powerup
-	if (registry.powerUps.components.size() <= MAX_LEMON_POWERUPS && next_lemon_powerup_spawn < 0.f && registry.score > 100) {
+	if (registry.powerUps.components.size() <= MAX_LEMON_POWERUPS && next_lemon_powerup_spawn < 0.f && registry.score > LEMON_SPAWN_SCORE) {
 		next_lemon_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -365,7 +387,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn protein powder powerup
-	if (registry.powerUps.components.size() <= MAX_PROTEIN_POWDER_POWERUPS && next_protein_powerup_spawn < 0.f && registry.score > 500) {
+	if (registry.powerUps.components.size() <= MAX_PROTEIN_POWDER_POWERUPS && next_protein_powerup_spawn < 0.f && registry.score > PROTEIN_SPAWN_SCORE) {
 		next_protein_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -377,7 +399,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn cherry powerup
-	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 0.f && registry.score > 1000) {
+	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 0.f && registry.score > CHERRY_SPAWN_SCORE) {
 		next_cherry_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -389,7 +411,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn shield powerup
-	if (registry.powerUps.components.size() <= MAX_SHIELD_POWERUPS && next_shield_powerup_spawn < 0.f && registry.score > 100) {
+	if (registry.powerUps.components.size() <= MAX_SHIELD_POWERUPS && next_shield_powerup_spawn < 0.f && registry.score > SHIELD_SPAWN_SCORE) {
 		next_shield_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -401,7 +423,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn cactus powerup
-	if (registry.powerUps.components.size() <= MAX_CACTUS_POWERUPS && next_cactus_powerup_spawn < 0.f && registry.score > 0) {
+	if (registry.powerUps.components.size() <= MAX_CACTUS_POWERUPS && next_cactus_powerup_spawn < 0.f && registry.score > CACTUS_SPAWN_SCORE) {
 		next_cactus_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -443,9 +465,12 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
 	if (registry.boss_spawned == false) {
-		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		boss = create_boss(renderer, spawnPos, BOSS_BOUNDS);
-		registry.boss_spawned = true;
+		if (registry.score >= BOSS_SPAWN_SCORE)
+		{
+			vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
+			boss = create_boss(renderer, spawnPos, BOSS_BOUNDS);
+			registry.boss_spawned = true;
+		}
 	}
 
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
@@ -453,42 +478,42 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_minion(renderer, spawnPos, MINION_BOUNDS);
 	}
-	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score >= 150) {
+	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score >= DODGER_SPAWN_SCORE) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		if (registry.score >= 1000) {
+		if (registry.score >= SPLIT_SHOOTER_SPAWN_SCORE) {
 			create_split_shooter(renderer, spawnPos, MINION_BOUNDS);
 		}
 		else {
 			create_dodger(renderer, spawnPos, MINION_BOUNDS);
 		}
 	}
-	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score >= 300) {
+	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score >= ROAMER_SPAWN_SCORE) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_roamer(renderer, spawnPos, MINION_BOUNDS);
 	}
 
-	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f && registry.score >= 600) {
+	if (registry.chargers.components.size() < MAX_CHARGER && next_charger_spawn < 0.f && registry.score >= CHARGER_SPAWN_SCORE) {
 		next_charger_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_charger(renderer, spawnPos, MINION_BOUNDS);
 	}
 
-	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f && registry.score >= 900) {
+	if (registry.snipers.components.size() < MAX_SNIPER && next_sniper_spawn < 0.f && registry.score >= SNIPER_SPAWN_SCORE) {
 		next_sniper_spawn = MINION_DELAY_MS * 5 + 3 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_sniper(renderer, spawnPos, MINION_BOUNDS);
 	}
 
-	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f && registry.score >= 1100) {
+	if (registry.tanks.components.size() < MAX_SNIPER && next_tank_spawn < 0.f && registry.score >= TANK_SPAWN_SCORE) {
 		next_tank_spawn = MINION_DELAY_MS * 5 + 5 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		create_tank(renderer, spawnPos, MINION_BOUNDS);
 	}
 
 
-	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f && registry.score >= 1500) {
+	if (registry.giants.components.size() < MAX_GIANT && next_giant_spawn < 0.f && registry.score >= GIANT_SPAWN_SCORE) {
 		next_giant_spawn = MINION_DELAY_MS * 5 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 bound = { MINION_BOUNDS.x*1.5, MINION_BOUNDS.y*1.5 };
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
@@ -749,6 +774,13 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 }
 
 bool WorldSystem::step(float elapsed_ms_since_last_update) {
+	if (registry.is_winning)
+	{
+		cutscene_active = true;
+		cutscene_stage = 9;
+		handle_cutScenes();
+	}
+
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
 	}
@@ -835,10 +867,10 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		handle_cutScenes();
 	}
 
-	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END) {
-		cutscene_active = true;
-		handle_cutScenes();
-	}
+	//if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END) {
+	//	cutscene_active = true;
+	//	handle_cutScenes();
+	//}
 
 	return true;
 }
@@ -898,7 +930,7 @@ void WorldSystem::restart_game() {
 	registry.boss_spawned = false;
 
 	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
-	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
+	//test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
 	cutscene_active == true;
 	cursor = create_cursor(renderer, { window_width_px / 2,window_height_px / 2 });
 	handle_cutScenes();
@@ -1083,14 +1115,11 @@ void WorldSystem::handle_collisions() {
 					if (blendy.shield < blendy.max_shield) {
 						blendy.shield += 1;
 						update_health_bar();
-						registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 						registry.remove_all_components_of(entity_other);
 					}
 					else if (blendy.shield == blendy.max_shield) {
 							blendy.shield = blendy.max_shield;
 							update_health_bar();
-							registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
-
 							registry.remove_all_components_of(entity_other);
 					}
 					//std::cout << "Blendy shield: " << blendy.shield << std::endl;

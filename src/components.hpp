@@ -78,13 +78,13 @@ enum class BossState {
 };
 
 struct Boss {
-	BossState state = BossState::Shooting;
-	Bullet_State bstate = Bullet_State::Grape;
+	BossState state = BossState::Default;
+	Bullet_State bstate = Bullet_State::Default;
 	float aim_timer = 0;
 	float shoot_interval_ms = 20.0f;
 	float time_since_last_shot_ms = 0.0f;
 	bool is_shooting = true;
-	float powerup_duration_ms = 200.f;
+	float powerup_duration_ms = 0.f;
 	vec2 charge_direction;
 	float rest_timer = 30;
 	int isAngry = 0;
@@ -786,13 +786,9 @@ enum class GEOMETRY_BUFFER_ID {
 	ORANGE = LEMON + 1,
 	PROTEIN_POWER = ORANGE + 1,
 	BATTERY = PROTEIN_POWER + 1,
-	BOSS = BATTERY + 1,
-	CACTUS_BULLET = BOSS + 1,
-	CHERRY = CACTUS_BULLET + 1,
-	NUT = CHERRY + 1,
-	CACTUS = NUT + 1
+	BOSS = BATTERY + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::CACTUS + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BOSS + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
