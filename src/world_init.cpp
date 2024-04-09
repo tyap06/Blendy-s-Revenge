@@ -667,10 +667,35 @@ Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, flo
 	motion.position = pos;
 	motion.angle = angle;
 	motion.velocity = velocity;
-	motion.scale = vec2(60.f, 100.0f);
+	motion.scale = vec2(50.f, 50.f);
 	auto& bullet = registry.bullets.emplace(entity);
 
-	vec3 color = { 0, 1, 0 };
+	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::CACTUS_BULLET,
+			TEXTURE_ASSET_ID::BULLET_NM,
+		 EFFECT_ASSET_ID::TEXTURED,
+		 GEOMETRY_BUFFER_ID::SPRITE });
+	return entity;
+}
+
+Entity create_orange_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle) {
+	auto entity = Entity();
+	// Store a reference to the potentially re-used mesh object, like createChicken
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::BULLET);
+	//registry.meshPtrs.emplace(entity, &mesh);
+
+	registry.mesh_collision.emplace(entity);
+	Motion& motion = registry.motions.emplace(entity);
+	motion.position = pos;
+	motion.angle = angle;
+	motion.velocity = velocity;
+	motion.scale = vec2(100.0f, 100.0f);
+	auto& bullet = registry.bullets.emplace(entity);
+
+	vec3 color = { 3,1,0 };
 	registry.colors.insert(entity, color);
 	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
 
@@ -682,7 +707,6 @@ Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, flo
 		 GEOMETRY_BUFFER_ID::SPRITE });
 	return entity;
 }
-
 
 Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
 	auto entity = Entity();
@@ -792,7 +816,7 @@ Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.score = 10000;
 	motion.angle = 0.f;
 	minion.damage = 1000;
-	minion.health = 4000;
+	minion.health = 4;
 	minion.max_health = 4000;
 	minion.armor = 0;
 	minion.speed = 200;
@@ -1023,6 +1047,24 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, 
 	}
 	return entity;
 }
+
+
+
+Entity create_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int type) {
+	if (type == 0) {
+		velocity = velocity;
+		return createBullet(renderer, pos, velocity, angle);
+	}
+	else if (type == 1) {
+		velocity = velocity;
+		return create_lemon_bullet(renderer, pos, velocity, angle);
+	}
+	else {
+		velocity = velocity;
+		return create_cactus_bullet(renderer, pos, velocity, angle);
+	}
+}
+
 
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display) {
 	auto entity = Entity();

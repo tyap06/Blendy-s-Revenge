@@ -130,15 +130,13 @@ struct Player {
 	int max_health = 200;
 	int max_effect = 3;
 	int current_effect = 0;
-	bool pac_mode = false;
-	bool protein_powerup = false;
 	int shield = 0;
 	int max_shield = 3;
+	int bullet_type = 0;
+	int pattern_type = 0;
 	float protein_powerup_duration_ms = 0.f;
-	float grape_powerup_duration_ms = 0.f;
-	float lemon_powerup_duration_ms = 0.f;
-	float cherry_powerup_duration_ms = 0.f;
-	float cactus_powerup_duration_ms = 0.f;
+	float pattern_powerup_duration_ms = 0.f;
+	float bullet_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -749,7 +747,9 @@ enum class TEXTURE_ASSET_ID {
 	BOSS_UR3 = BOSS_UR2_N + 1,
 	BOSS_UR3_N = BOSS_UR3 + 1,
 
-	TEXTURE_COUNT = BOSS_UR3_N + 1
+	CACTUS_BULLET = BOSS_UR3_N + 1,
+
+	TEXTURE_COUNT = CACTUS_BULLET + 1
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
