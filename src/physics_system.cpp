@@ -90,8 +90,8 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
 	//plase don't touch the code in the next if statement
 	if (registry.minions.has(entity1) && registry.minions.has(entity2)) {
-		if () {
-
+		if (registry.boss.has(entity1) || registry.boss.has(entity2)) {
+			return true;
 		}
 		vec2 center_dis = motion1.position - motion2.position;
 		// Calculate the distance between the two entities
