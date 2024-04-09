@@ -78,13 +78,13 @@ enum class BossState {
 };
 
 struct Boss {
-	BossState state = BossState::Default;
-	Bullet_State bstate = Bullet_State::Cherry;
+	BossState state = BossState::Shooting;
+	Bullet_State bstate = Bullet_State::Grape;
 	float aim_timer = 0;
 	float shoot_interval_ms = 20.0f;
 	float time_since_last_shot_ms = 0.0f;
 	bool is_shooting = true;
-	float powerup_duration_ms = 300.f;
+	float powerup_duration_ms = 200.f;
 	vec2 charge_direction;
 	float rest_timer = 30;
 	int isAngry = 0;
@@ -165,6 +165,13 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 	{Direction::Down, mesh_path("Minion-Reduced.obj")},
 	{Direction::Left, mesh_path("minion-left.obj")},
 	{Direction::Right, mesh_path("minion-right.obj")}
+};
+
+static const std::map<Direction, std::string> boss_direction_mesh = {
+	{Direction::Up, mesh_path("boss_up.obj")},
+	{Direction::Down, mesh_path("boss_down.obj")},
+	{Direction::Left, mesh_path("boss_left.obj")},
+	{Direction::Right, mesh_path("boss_right.obj")}
 };
 
 
@@ -778,9 +785,10 @@ enum class GEOMETRY_BUFFER_ID {
 	LEMON = GRAPE + 1,
 	ORANGE = LEMON + 1,
 	PROTEIN_POWER = ORANGE + 1,
-	BATTERY = PROTEIN_POWER + 1
+	BATTERY = PROTEIN_POWER + 1,
+	BOSS = BATTERY + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::BATTERY + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BOSS + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;

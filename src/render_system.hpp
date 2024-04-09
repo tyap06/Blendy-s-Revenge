@@ -55,6 +55,7 @@ class RenderSystem {
 
 			std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BATTERY, mesh_path("battery.obj")),
 
+			std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BOSS, mesh_path("boss_down.obj")),
 
 		  // specify meshes of other assets here
 	};

@@ -102,16 +102,15 @@ const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 // CUTSCENE STUFF
 const int FIRST_CUT_SCENE_END = 6;
 const int SECOND_CUT_SCENE_END = 9;
-const int SECOND_CUT_SCORE = 700;
-const int THIRD_CUT_SCORE = 1500;
+const int SECOND_CUT_SCORE = 200;
+const int THIRD_CUT_SCORE = 300;
 
 // MUSIC
 const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
 
 // Create the bug world
 WorldSystem::WorldSystem()
-	: points(0),
-	has_restarted(false)
+	: points(0)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -196,7 +195,7 @@ GLFWwindow* WorldSystem::create_window() {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
-
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
@@ -547,8 +546,11 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::update_boss_animation(float elapsed_ms_since_last_update) {
-	if (registry.boss_spawned == false) return;
+
+	if (registry.boss_spawned == false || registry.is_winning) return;
+	
 	Boss& final_boss = registry.boss.get(boss);
+	
 	Minion& boss_minion = registry.minions.get(boss);
 	Motion& boss_motion = registry.motions.get(boss);
 	boss_minion.up = false;
@@ -800,6 +802,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
 			screen.darken_screen_factor = 0;
+			cutscene_stage = 5;
+			cutscene_active = true;
             restart_game();
 			return true;
 		}
@@ -826,19 +830,33 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 
-	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END && !has_restarted) {
+	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END) {
 		cutscene_active = true;
 		handle_cutScenes();
 	}
 
-	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END && !has_restarted) {
+	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END) {
 		cutscene_active = true;
 		handle_cutScenes();
 	}
 
 	return true;
 }
+void WorldSystem::render_cursor() {
+	vec2 mouse_position = getCurrentMousePosition();
+	if (mouse_position.x > window_width_px || mouse_position.x < 0 || mouse_position.y > window_height_px || mouse_position.y < 0) {
+		return;
+	}
+	registry.motions.get(cursor).position = mouse_position;
+	registry.renderRequests.remove(cursor);
+	registry.renderRequests.insert(
+		cursor,
+		{ TEXTURE_ASSET_ID::CURSOR,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
 
+}
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
 	game_music_state = MusicState::Ordinary;
@@ -867,6 +885,8 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
+	registry.boss_spawned = false;
+	registry.is_winning = false;
 	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
@@ -874,16 +894,23 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
-	registry.is_pause = false;
-	// score_component.show = true;
-	if (!has_restarted) {
-		cutscene_active == true;
-		handle_cutScenes();
-	}
+
+	registry.boss_spawned = false;
+
 	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
 	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
+	cutscene_active == true;
+	cursor = create_cursor(renderer, { window_width_px / 2,window_height_px / 2 });
+	handle_cutScenes();
 }
-
+void WorldSystem::window_minimized_callback() {
+	registry.is_minimized = true;
+	Mix_PauseMusic();
+}
+void WorldSystem::window_unminimized_callback() {
+	Mix_ResumeMusic();
+	registry.is_minimized = false;
+}
 void WorldSystem::console_debug_fps()
 {
 	if (debugging.show_game_fps)
@@ -920,7 +947,8 @@ void WorldSystem::update_score()
 void WorldSystem::hit_player(const int& damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
 		auto& player = registry.players.get(player_blendy);
-		if (player.health - damage <= 0 && player.shield == 0) {
+
+		if ((player.health - damage <= 0 && player.shield == 0) || damage == 1000) {
 			player.health = 0;
 			update_health_bar();
 			is_dead = true;
@@ -970,11 +998,11 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 		registry.score += minion.score;
 		Mix_PlayChannel(-1, minion_dead, 0);
 		if (registry.boss.has(target)) {
-			//todo:
+			registry.is_winning = true;
 		}
-		if (registry.loots.has(target)) {
+		/*if (registry.loots.has(target)) {
 			create_shield_powerup(renderer, registry.motions.get(target).position, SHIELD_POWERUP_BOUNDS);
-		}
+		}*/
 		registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(target));
 		registry.remove_all_components_of(target);
 	} else {
@@ -1002,8 +1030,10 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other)) {
 				int damage = registry.minions.get(entity_other).damage;
 				hit_player(damage);
-				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
-				registry.remove_all_components_of(entity_other);
+				if (!registry.boss.has(entity_other)) {
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+					registry.remove_all_components_of(entity_other);
+				}
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {
@@ -1081,20 +1111,27 @@ void WorldSystem::handle_collisions() {
 						if (m.health > m.max_health) m.health = m.max_health;
 						break;
 					case POWERUP_TYPE::LEMON:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.powerup_duration_ms = 100;
+						break;
 					case POWERUP_TYPE::CHERRY:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.powerup_duration_ms = 60;
+						boss.powerup_duration_ms = 100;
 						break;
 					case POWERUP_TYPE::GRAPE:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.state = BossState::Shooting;
+						boss.powerup_duration_ms = 300;
+						break;
 					case POWERUP_TYPE::	PROTEIN:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 100;
+						boss.powerup_duration_ms = 130;
 						break;
 					case POWERUP_TYPE::CACTUS:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 150;
+						boss.powerup_duration_ms = 200;
 						break;
 					default:
 						break;
@@ -1104,7 +1141,8 @@ void WorldSystem::handle_collisions() {
 				
 			}
 		}
-		else if (registry.bullets.has(entity)) {
+			else if (registry.bullets.has(entity)) {
+			
 			auto& bullet = registry.bullets.get(entity);
 			if (registry.minions.has(entity_other) && bullet.friendly) {
 				int damage = registry.bullets.get(entity).damage;
@@ -1119,7 +1157,7 @@ void WorldSystem::handle_collisions() {
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window)) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+	return bool(glfwWindowShouldClose(window));
 }
 
 void WorldSystem::handle_cutScenes()
@@ -1229,28 +1267,13 @@ void WorldSystem::handlePlayerMovement(int key, int action) {
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod) {
-	handlePlayerMovement(key, action);
-
-	auto& motion = registry.motions.get(directional_light);
-	vec2& new_pos = motion.position;
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I) {
-		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
+	if (!cutscene_active) {
+		handlePlayerMovement(key, action);
 	}
-
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_J) {
-		new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
-
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_K) {
-		new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
-	}
-
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L) {
-		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
+	
 
 	// Toggle the help screen visibility when "H" is pressed
-	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_H && !cutscene_active) {
 		handle_help_screen();
 	}
 
@@ -1259,30 +1282,22 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		handle_cutScenes();
 	}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
-		if (showHelpScreen) {
-			registry.is_pause = true;
-		}
-		else {
-			registry.is_pause = false;
-		}
 
-	}
+	//// Resetting game
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_R && !cutscene_active) {
+	//	int w, h;
+	//	glfwGetWindowSize(window, &w, &h);
 
-	// check window boundary
-	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	if (new_pos.x > window_width_px) new_pos.x = window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y > window_height_px) new_pos.y = window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	motion.position = new_pos;
+	//	has_restarted = true;
+ //       restart_game();
+	//}
 
-	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && cutscene_stage == 10) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-		has_restarted = true;
-        restart_game();
+		cutscene_stage = 5;
+		restart_game();
 	}
 
 	// Debugging
