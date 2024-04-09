@@ -361,13 +361,13 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 			
 
-			Entity& mesh_entity = registry.Entity_Mesh_Entity.get(entity);
-			Motion& mesh_motion = motion;
-			if (registry.motions.has(mesh_entity)) {
-				mesh_motion = registry.motions.get(mesh_entity);
-				//mesh_motion = motion;
-				mesh_motion.position = motion.position;
-			}
+			//Entity& mesh_entity = registry.Entity_Mesh_Entity.get(entity);
+			//Motion& mesh_motion = motion;
+			//if (registry.motions.has(mesh_entity)) {
+			//	mesh_motion = registry.motions.get(mesh_entity);
+			//	//mesh_motion = motion;
+			//	mesh_motion.position = motion.position;
+			//}
 
 			Minion& minion = registry.minions.get(entity);
 			
@@ -536,6 +536,7 @@ bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,
 	transform_two.translate(motion_two.position);
 	transform_two.rotate(motion_two.angle);
 	transform_two.scale(motion_two.scale);
+
 
 	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
 		axises.clear();
