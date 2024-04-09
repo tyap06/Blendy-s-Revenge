@@ -192,7 +192,7 @@ GLFWwindow* WorldSystem::create_window() {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
-
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
@@ -787,7 +787,21 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	return true;
 }
+void WorldSystem::render_cursor() {
+	vec2 mouse_position = getCurrentMousePosition();
+	if (mouse_position.x > window_width_px || mouse_position.x < 0 || mouse_position.y > window_height_px || mouse_position.y < 0) {
+		return;
+	}
+	registry.motions.get(cursor).position = mouse_position;
+	registry.renderRequests.remove(cursor);
+	registry.renderRequests.insert(
+		cursor,
+		{ TEXTURE_ASSET_ID::CURSOR,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
 
+}
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
 	game_music_state = MusicState::Ordinary;
@@ -826,9 +840,17 @@ void WorldSystem::restart_game() {
 	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
 	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
 	cutscene_active == true;
+	cursor = create_cursor(renderer, { window_width_px / 2,window_height_px / 2 });
 	handle_cutScenes();
 }
-
+void WorldSystem::window_minimized_callback() {
+	registry.is_minimized = true;
+	Mix_PauseMusic();
+}
+void WorldSystem::window_unminimized_callback() {
+	Mix_ResumeMusic();
+	registry.is_minimized = false;
+}
 void WorldSystem::console_debug_fps()
 {
 	if (debugging.show_game_fps)

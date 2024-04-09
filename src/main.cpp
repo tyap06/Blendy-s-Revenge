@@ -41,6 +41,12 @@ int main()
 	while (!world.is_over()) {
 		// Processes system messages, if this wasn't present the window would become unresponsive
 		glfwPollEvents();
+		if (glfwGetWindowAttrib(window, GLFW_ICONIFIED)) {
+			world.window_minimized_callback();
+		}
+		else {
+			world.window_unminimized_callback();
+		}
 
 		// Calculating elapsed times in milliseconds from the previous iteration
 		auto now = Clock::now();
@@ -54,7 +60,7 @@ int main()
 			world.step(elapsed_ms);
 			renderer.particles_step(elapsed_ms);
 		}
-
+		world.render_cursor();
 		renderer.draw();
 	}
 
