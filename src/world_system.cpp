@@ -102,7 +102,6 @@ const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 // CUTSCENE STUFF
 const int FIRST_CUT_SCENE_END = 6;
 const int SECOND_CUT_SCENE_END = 9;
-const int SECOND_CUT_SCORE = 1500;
 const int THIRD_CUT_SCORE = 3000;
 
 // MUSIC
@@ -110,25 +109,35 @@ const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
 
 // GAME BALANCE
 
-const float MULTIPLIER = 1.0;
-const unsigned int DODGER_SPAWN_SCORE = 200 * MULTIPLIER;
+const float MULTIPLIER = 1;
+const unsigned int DODGER_SPAWN_SCORE = 150 * MULTIPLIER;
 const unsigned int ROAMER_SPAWN_SCORE = 300 * MULTIPLIER;
-const unsigned int CHARGER_SPAWN_SCORE = 500 * MULTIPLIER;
-const unsigned int SNIPER_SPAWN_SCORE = 800 * MULTIPLIER;
-const unsigned int SPLIT_SHOOTER_SPAWN_SCORE = 1200 * MULTIPLIER;
-const unsigned int TANK_SPAWN_SCORE = 1700 * MULTIPLIER;
-const unsigned int GIANT_SPAWN_SCORE = 2300 * MULTIPLIER;
-const unsigned int BOSS_SPAWN_SCORE = 3000 * MULTIPLIER;
+const unsigned int CHARGER_SPAWN_SCORE = 600 * MULTIPLIER;
+const unsigned int SNIPER_SPAWN_SCORE = 900 * MULTIPLIER;
+const unsigned int TANK_SPAWN_SCORE = 1100 * MULTIPLIER;
+const unsigned int GIANT_SPAWN_SCORE = 1500 * MULTIPLIER;
+const unsigned int SPLIT_SHOOTER_SPAWN_SCORE = 2000 * MULTIPLIER;
+const unsigned int BOSS_SPAWN_SCORE = 7500 * MULTIPLIER;
 
-const unsigned int BATTERY_SPAWN_SCORE = 200 * MULTIPLIER;
-const unsigned int LEMON_SPAWN_SCORE = 300 * MULTIPLIER;
-const unsigned int PROTEIN_SPAWN_SCORE = 500 * MULTIPLIER;
-const unsigned int SHIELD_SPAWN_SCORE = 800 * MULTIPLIER;
-const unsigned int CHERRY_SPAWN_SCORE = 1200 * MULTIPLIER;
-const unsigned int CACTUS_SPAWN_SCORE = 1700 * MULTIPLIER;
-const unsigned int GRAPE_SPAWN_SCORE = 2300 * MULTIPLIER;
+const unsigned int BATTERY_SPAWN_SCORE = 0 * MULTIPLIER;
+const unsigned int PROTEIN_SPAWN_SCORE = 300 * MULTIPLIER;
+const unsigned int LEMON_SPAWN_SCORE = 600 * MULTIPLIER;
+const unsigned int GRAPE_SPAWN_SCORE = 1500 * MULTIPLIER;
+const unsigned int SHIELD_SPAWN_SCORE = 1500 * MULTIPLIER;
+const unsigned int CHERRY_SPAWN_SCORE = 1500 * MULTIPLIER;
+const unsigned int CACTUS_SPAWN_SCORE = 1500 * MULTIPLIER;
 
-
+const int SECOND_CUT_SCORE = BOSS_SPAWN_SCORE / 2;
+/* Point Counts:
+ * dodger 25
+ * roamer 30
+ * charger 40
+ * sniper 50
+ * tank 80
+ * giant 200
+ * split_shooter 40
+ * cleaner 50
+ */
 
 // Create the bug world
 WorldSystem::WorldSystem()
@@ -759,8 +768,8 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				}
 
 				if (blendy.protein_powerup_duration_ms > 0) {
-					
-					multi_2 = 10;
+					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;;
+					multi_2 = 3;
 				}
 
 				bullet_timer -= elapsed_ms_since_last_update / 1000.0f * multi_1 * multi_2;
@@ -1087,7 +1096,7 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
-					blendy.protein_powerup_duration_ms = 500.f;
+					blendy.protein_powerup_duration_ms = 1000.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
