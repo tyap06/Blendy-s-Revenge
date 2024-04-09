@@ -5,7 +5,6 @@
 ## Creative Features Basic (30%)
 ### Story Cutscence 10%
 Story of the game displaying before starting the game and custscens when beat the boss or killed by minions.
-
 ### Game Balance 10%
 We adjust the game balance make it feel rewarding and fun, thereby improving the overall quality of the game.
 ### Asset creation tools 10%
@@ -38,17 +37,18 @@ We created a vast array of visual content for game. Added lots of new graphic as
 - Persistent BOSS‘ s facing direction after stop moving
 - Be able to pickup the power ups
 ### New minions ai
-- new enemy charger(in light red color)
-- new enemy sniper(in blue color) 
-- new enemy tank (in black color)
-- new enemy giant (in rainbow color)
-## Creative Features Advanced (20%)
-### cooperative ai 
+- NEW Cleaner ( it will approach the power and remove it )
+- NEW Split shooter (It acts like a normal ranger but it will have split shots)
+
+## New Button actions
+### Cutscenes
+- Nothing should occur when any button other than ‘C’ is pressed, as all buttons should be disabled when cutscenes are active.
+- Game should restart when ‘r’ is pressed ONLY on the last cutscene. 
+- - Restart means that the help screen is shown, the score is set to 0, the health is restored to full, and the story (via the cutscenes) are restored back to the beginning.
+
+### Game settings
+- Game should pause and cutscenes should be displayed without any layering issues.
 
 
-## New AI System features
-- Boss 
-Chasing the player and will pick up the power ups. 
-
-Tank attempts to shield the Sniper from the player based on sniper and player position when possible. One sniper can be most protected by one tank.
+- Tank attempts to shield the Sniper from the player based on sniper and player position when possible. One sniper can be most protected by one tank.
 

@@ -417,13 +417,11 @@ void PhysicsSystem::step(float elapsed_ms)
 		*/
 
 		else {
-			if (registry.bullets.has(entity)) {
-				if (motion.position.x < 0.f || motion.position.x > window_width_px
-					|| motion.position.y < 0 || motion.position.y > window_height_px) {
+			if (motion.position.x < 0.f || motion.position.x > window_width_px
+				|| motion.position.y < 0 || motion.position.y > window_height_px) {
 
-					registry.remove_all_components_of(motion_registry.entities[i]);
-					continue;
-				}
+				registry.remove_all_components_of(motion_registry.entities[i]);
+				continue;
 			}
 
 			
