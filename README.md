@@ -20,7 +20,12 @@
 - freezing
 - press ‘R’ to restart
 - pressing buttons
-
+### AI
+- Boss
+- Cleaner
+- split shooter
+## Physics System
+- collision
 ## Creative Features Advanced (20%)
 
 
