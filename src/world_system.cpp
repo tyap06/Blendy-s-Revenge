@@ -987,6 +987,7 @@ void WorldSystem::handle_collisions() {
 					blendy.grape_powerup_duration_ms = 0.f;
 					blendy.protein_powerup_duration_ms = 0.f;
 					blendy.cactus_powerup_duration_ms = 0.f;
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::CACTUS) {
@@ -995,17 +996,21 @@ void WorldSystem::handle_collisions() {
 					blendy.lemon_powerup_duration_ms = 0.f;
 					blendy.grape_powerup_duration_ms = 0.f;
 					blendy.protein_powerup_duration_ms = 0.f;
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::SHIELD) {
 					if (blendy.shield < blendy.max_shield) {
 						blendy.shield += 1;
 						update_health_bar();
+						registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 						registry.remove_all_components_of(entity_other);
 					}
 					else if (blendy.shield == blendy.max_shield) {
 							blendy.shield = blendy.max_shield;
 							update_health_bar();
+							registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+
 							registry.remove_all_components_of(entity_other);
 					}
 					//std::cout << "Blendy shield: " << blendy.shield << std::endl;
