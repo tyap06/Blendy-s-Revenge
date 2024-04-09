@@ -57,6 +57,19 @@ class RenderSystem {
 
 			std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::BOSS, mesh_path("boss_down.obj")),
 
+			std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::CACTUS_BULLET, mesh_path("cactus_bullet.obj")),
+
+			std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::CHERRY, mesh_path("cherry.obj")),
+
+			std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::NUT, mesh_path("nut.obj")),
+
+			std::pair<GEOMETRY_BUFFER_ID, std::string>(GEOMETRY_BUFFER_ID::CACTUS, mesh_path("cactus.obj"))
+
+
+
+
+
+
 		  // specify meshes of other assets here
 	};
 
