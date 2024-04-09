@@ -1083,11 +1083,14 @@ void WorldSystem::handle_collisions() {
 					if (blendy.shield < blendy.max_shield) {
 						blendy.shield += 1;
 						update_health_bar();
+						registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 						registry.remove_all_components_of(entity_other);
 					}
 					else if (blendy.shield == blendy.max_shield) {
 							blendy.shield = blendy.max_shield;
 							update_health_bar();
+							registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+
 							registry.remove_all_components_of(entity_other);
 					}
 					//std::cout << "Blendy shield: " << blendy.shield << std::endl;
