@@ -114,7 +114,6 @@ private:
 	Entity shield_2;
 	Entity shield_3;
 	bool cutscene_active;
-	bool has_restarted;
 	Entity current_cutscene;
 
 	// music references
