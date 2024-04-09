@@ -87,16 +87,15 @@ const vec3 SCORE_TEXT_COLOR = BLENDY_COLOR;
 // CUTSCENE STUFF
 const int FIRST_CUT_SCENE_END = 6;
 const int SECOND_CUT_SCENE_END = 9;
-const int SECOND_CUT_SCORE = 700;
-const int THIRD_CUT_SCORE = 1500;
+const int SECOND_CUT_SCORE = 200;
+const int THIRD_CUT_SCORE = 300;
 
 // MUSIC
 const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
 
 // Create the bug world
 WorldSystem::WorldSystem()
-	: points(0),
-	has_restarted(false)
+	: points(0)
 {
 	// Seeding rng with random device
 	rng = std::default_random_engine(std::random_device()());
@@ -619,6 +618,8 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		if (counter.counter_ms < 0) {
 			registry.deathTimers.remove(entity);
 			screen.darken_screen_factor = 0;
+			cutscene_stage = 5;
+			cutscene_active = true;
             restart_game();
 			return true;
 		}
@@ -645,12 +646,12 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	screen.darken_screen_factor = 1 - min_counter_ms / 3000;
 	health_bar_frame = createHealthBar(renderer, HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 
-	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END && !has_restarted) {
+	if (registry.score >= SECOND_CUT_SCORE && cutscene_stage == FIRST_CUT_SCENE_END) {
 		cutscene_active = true;
 		handle_cutScenes();
 	}
 
-	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END && !has_restarted) {
+	if (registry.score >= THIRD_CUT_SCORE && cutscene_stage == SECOND_CUT_SCENE_END) {
 		cutscene_active = true;
 		handle_cutScenes();
 	}
@@ -693,14 +694,10 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
-	registry.is_pause = false;
-	// score_component.show = true;
-	if (!has_restarted) {
-		cutscene_active == true;
-		handle_cutScenes();
-	}
 	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
 	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
+	cutscene_active == true;
+	handle_cutScenes();
 }
 
 void WorldSystem::console_debug_fps()
@@ -852,7 +849,7 @@ void WorldSystem::handle_collisions() {
 
 // Should the game be over ?
 bool WorldSystem::is_over() const {
-	return bool(glfwWindowShouldClose(window)) || glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS;
+	return bool(glfwWindowShouldClose(window));
 }
 
 void WorldSystem::handle_cutScenes()
@@ -962,25 +959,10 @@ void WorldSystem::handlePlayerMovement(int key, int action) {
 }
 
 void WorldSystem::on_key(int key, int, int action, int mod) {
-	handlePlayerMovement(key, action);
-
-	auto& motion = registry.motions.get(directional_light);
-	vec2& new_pos = motion.position;
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I && !cutscene_active) {
-		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
+	if (!cutscene_active) {
+		handlePlayerMovement(key, action);
 	}
-
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_J && !cutscene_active) {
-		new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
-
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_K && !cutscene_active) {
-		new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
-	}
-
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L && !cutscene_active) {
-		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
-	}
+	
 
 	// Toggle the help screen visibility when "H" is pressed
 	if (action == GLFW_RELEASE && key == GLFW_KEY_H && !cutscene_active) {
@@ -992,37 +974,21 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		handle_cutScenes();
 	}
 
-	//if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
-	//	if (showHelpScreen) {
-	//		registry.is_pause = true;
-	//	}
-	//	else {
-	//		registry.is_pause = false;
-	//	}
 
+	//// Resetting game
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_R && !cutscene_active) {
+	//	int w, h;
+	//	glfwGetWindowSize(window, &w, &h);
+
+	//	has_restarted = true;
+ //       restart_game();
 	//}
-
-	// check window boundary
-	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y < 0) new_pos.y = DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	if (new_pos.x > window_width_px) new_pos.x = window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2;
-	if (new_pos.y > window_height_px) new_pos.y = window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2;
-	motion.position = new_pos;
-
-	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !cutscene_active) {
-		int w, h;
-		glfwGetWindowSize(window, &w, &h);
-
-		has_restarted = true;
-        restart_game();
-	}
 
 	if (action == GLFW_RELEASE && key == GLFW_KEY_R && cutscene_stage == 10) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
-		has_restarted = true;
+		cutscene_stage = 5;
 		restart_game();
 	}
 

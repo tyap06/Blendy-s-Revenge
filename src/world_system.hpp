@@ -103,7 +103,6 @@ private:
 	float next_lemon_powerup_spawn;
 	Entity health_bar_box;
 	bool cutscene_active;
-	bool has_restarted;
 
 	// music references
 	Mix_Music* background_music;
