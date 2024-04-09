@@ -716,13 +716,12 @@ void RenderSystem::draw()
 
 	mat3 projection_2D = createProjectionMatrix();
 	// Draw all textured meshes that have a position and size component
-	 // Phase 1: Draw all entities except bullets
+	// Phase 1: Draw all entities except bullets
 
-	
 
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity) || registry.cursor.has(entity) || registry.panel.has(entity))
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity) || registry.cursor.has(entity) || registry.panel.has(entity) || registry.cutScenes.has(entity))
 			continue;
 
 		drawTexturedMesh(entity, projection_2D);
@@ -737,7 +736,6 @@ void RenderSystem::draw()
 		drawTexturedMesh(entity, projection_2D);
 	}
 
-
 	for (Entity entity : registry.renderRequests.entities)
 	{
 		if (!registry.motions.has(entity) || !(registry.tooltip.has(entity) || registry.helpScreens.has(entity) || registry.panel.has(entity)))
@@ -745,9 +743,13 @@ void RenderSystem::draw()
 
 		drawTexturedMesh(entity, projection_2D);
 	}
+	for (Entity entity : registry.renderRequests.entities)
+	{
+		if (!registry.motions.has(entity) || !registry.cutScenes.has(entity))
+			continue; // Skip non-bullet entities in this phase
 
-
-	// Phase 3: Render Cursor, ALWAYS THE HIGHEST!
+		drawTexturedMesh(entity, projection_2D);
+	}
 	for (Entity entity : registry.renderRequests.entities) {
 		if (!registry.cursor.has(entity))
 			continue;
