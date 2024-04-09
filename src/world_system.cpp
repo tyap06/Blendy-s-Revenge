@@ -56,8 +56,7 @@ const vec2 SHIELD_POSITION_2 = { 320.f, 25.f };
 const vec2 SHIELD_POSITION_3 = { 370.f, 25.f };
 
 // BOUNDS
-const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH * 0.9, BLENDY_BB_HEIGHT * 0.9 };
-const vec2 BOSS_BOUNDS = { BLENDY_BB_WIDTH * 1.2, BLENDY_BB_HEIGHT * 1.2 };
+const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
 const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_LIGHT_BB_HEIGHT };
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
@@ -347,42 +346,6 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 
 		create_protein_powerup(renderer, random_pos, PROTEIN_POWDER_POWERUP_BOUNDS);
 	}
-
-	// Spawn cherry powerup
-	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 0.f) {
-		next_cherry_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
-
-		vec2 random_pos;
-		do {
-			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
-		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
-
-		create_cherry_powerup(renderer, random_pos, PROTEIN_POWDER_POWERUP_BOUNDS);
-	}
-
-	// Spawn shield powerup
-	if (registry.powerUps.components.size() <= MAX_SHIELD_POWERUPS && next_shield_powerup_spawn < 0.f && registry.score > 50) {
-		next_shield_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
-
-		vec2 random_pos;
-		do {
-			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
-		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
-
-		create_shield_powerup(renderer, random_pos, SHIELD_POWERUP_BOUNDS);
-	}
-
-	// Spawn cactus powerup
-	if (registry.powerUps.components.size() <= MAX_CACTUS_POWERUPS && next_cactus_powerup_spawn < 0.f && registry.score > 100) {
-		next_cactus_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
-
-		vec2 random_pos;
-		do {
-			random_pos = vec2(50.f + uniform_dist(rng) * (window_width_px - 150.f), 50.f + uniform_dist(rng) * (window_height_px - 300.f) + 150.f);
-		} while (length(random_pos - player_pos) < PLAYER_POWERUP_SPAWN_DISTANCE);
-
-		create_cactus_powerup(renderer, random_pos, CACTUS_POWERUP_BOUNDS);
-	}
 }
 
 
@@ -414,12 +377,6 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	next_tank_spawn -= elapsed_ms_since_last_update * current_speed;
 	next_giant_spawn -= elapsed_ms_since_last_update * current_speed;
 
-	if (registry.boss_spawned == false) {
-		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		boss = create_boss(renderer, spawnPos, BOSS_BOUNDS);
-		registry.boss_spawned = true;
-	}
-
 	if (registry.minions.components.size() < MAX_MINIONS && next_minion_spawn < 0.f ) {
 		next_minion_spawn = MINION_DELAY_MS + uniform_dist(rng) * MINION_DELAY_MS;
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
@@ -428,12 +385,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	if (registry.shooters.components.size() < MAX_DODGERS && next_dodger_spawn < 0.f && registry.score >= 150) {
 		next_dodger_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
-		if (registry.score >= 1000) {
-			create_split_shooter(renderer, spawnPos, MINION_BOUNDS);
-		}
-		else {
-			create_dodger(renderer, spawnPos, MINION_BOUNDS);
-		}
+		create_dodger(renderer, spawnPos, MINION_BOUNDS);
 	}
 	if (registry.roamers.components.size() < MAX_ROAMER && next_roamer_spawn < 0.f && registry.score >= 300) {
 		next_roamer_spawn = MINION_DELAY_MS * 3 + 2 * uniform_dist(rng) * (MINION_DELAY_MS);
@@ -513,83 +465,15 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 		// blendy is moving - calculate appropriate frame to put in render request
 		registry.renderRequests.remove(player_blendy);
 		get_blendy_render_request(blendy.up, blendy.down, blendy.right, blendy.left, blendy.frame_stage);
-		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up,player_blendy);
+		blendy_motion.y_animate = get_y_animate(blendy.frame_stage, blendy.going_up);
 	}
-}
-
-void WorldSystem::update_boss_animation(float elapsed_ms_since_last_update) {
-	if (registry.boss_spawned == false) return;
-	Boss& final_boss = registry.boss.get(boss);
-	Minion& boss_minion = registry.minions.get(boss);
-	Motion& boss_motion = registry.motions.get(boss);
-	boss_minion.up = false;
-	boss_minion.down = false;
-	boss_minion.left = false;
-	boss_minion.right = false;
-	if (boss_motion.velocity.x < 0 && boss_motion.velocity.x < -50) {
-		boss_minion.right = true;
-	}
-	else if (boss_motion.velocity.x > 0 && boss_motion.velocity.x > 50) {
-		boss_minion.left = true;
-	}
-	if (boss_motion.velocity.y > 0 && boss_motion.velocity.y > 50) {
-		boss_minion.down = true;
-	}
-	else if (boss_motion.velocity.y < 0 && boss_motion.velocity.y < -50) {
-		boss_minion.up = true;
-	}
-	
-	boss_minion.counter_ms -= elapsed_ms_since_last_update;
-	if (boss_minion.counter_ms < 0.f) {
-		boss_minion.counter_ms = BLENDY_FRAME_DELAY;
-		if (final_boss.going_up < 0) {
-			boss_minion.frame_stage += 1;
-			if (boss_minion.frame_stage > 3) {
-				boss_minion.frame_stage = 3;
-				final_boss.going_up = 1;
-			}
-		}
-		else {
-			boss_minion.frame_stage -= 1;
-			if (boss_minion.frame_stage < 0) {
-				boss_minion.frame_stage = 0;
-				final_boss.going_up = -1;
-			}
-		}
-	}
-	// get what the render request status should be
-	if (boss_motion.velocity.x == 0 && boss_motion.velocity.y == 0) {
-		// just keep the current image
-		if (!boss_minion.up && !boss_minion.down && !boss_minion.right && !boss_minion.left) {
-			RenderRequest request = registry.renderRequests.get(boss);
-			registry.renderRequests.remove(boss);
-			registry.renderRequests.insert(
-				boss,
-				{ request.used_texture, request.used_normal_map,request.used_effect,request.used_geometry });
-		}
-		else {
-			registry.renderRequests.remove(boss);
-			get_minion_render_request(boss_minion.up, boss_minion.down, boss_minion.right, boss_minion.left, boss_minion.frame_stage,Enemy_TYPE::BOSS,boss);
-		}
-		final_boss.going_up = 1;
-		boss_motion.y_animate = 0.f;
-	}
-	else {
-		registry.renderRequests.remove(boss);
-		get_minion_render_request(boss_minion.up, boss_minion.down, boss_minion.right, boss_minion.left, boss_minion.frame_stage, Enemy_TYPE::BOSS, boss);
-		boss_motion.y_animate = get_y_animate(boss_minion.frame_stage, final_boss.going_up,boss);
-	}
-
 }
 
 void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
 
 	for (int j = 0; j < registry.minions.entities.size(); j++) {
-
 		Minion& minion = registry.minions.get(registry.minions.entities[j]);
 		Motion& minion_motion = registry.motions.get(registry.minions.entities[j]);
-		if (minion.type == Enemy_TYPE::BOSS)
-			continue;
 		// get what the render request status should be
 		// if minion is not moving, render original image
 		if (minion_motion.velocity.x == 0 && minion_motion.velocity.y == 0) {
@@ -699,9 +583,6 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 		registry.remove_all_components_of(e);
 	}
 
-	if (registry.boss_spawned) {
-		update_boss_animation(elapsed_ms_since_last_update);
-	}
 	update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
@@ -816,7 +697,7 @@ void WorldSystem::restart_game() {
 	is_dead = false;
 	registry.is_dead = false;
 	registry.score = 0;
-	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
+	//game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
 	update_health_bar();
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
@@ -898,12 +779,6 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	if (minion.health <= 0) {
 		registry.score += minion.score;
 		Mix_PlayChannel(-1, minion_dead, 0);
-		if (registry.boss.has(target)) {
-			//todo:
-		}
-		if (registry.loots.has(target)) {
-			create_shield_powerup(renderer, registry.motions.get(target).position, SHIELD_POWERUP_BOUNDS);
-		}
 		registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(target));
 		registry.remove_all_components_of(target);
 	} else {
@@ -914,6 +789,7 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	}
 	
 }
+
 
 
 // Compute collisions between entities
@@ -976,74 +852,6 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 				}
-				else if (powerup.type == POWERUP_TYPE::CHERRY) {
-					blendy.cherry_powerup_duration_ms = 300.f;
-					blendy.lemon_powerup_duration_ms = 0.f;
-					blendy.grape_powerup_duration_ms = 0.f;
-					blendy.protein_powerup_duration_ms = 0.f;
-					blendy.cactus_powerup_duration_ms = 0.f;
-					registry.remove_all_components_of(entity_other);
-				}
-				else if (powerup.type == POWERUP_TYPE::CACTUS) {
-					blendy.cactus_powerup_duration_ms = 300.f;
-					blendy.cherry_powerup_duration_ms = 0.f;
-					blendy.lemon_powerup_duration_ms = 0.f;
-					blendy.grape_powerup_duration_ms = 0.f;
-					blendy.protein_powerup_duration_ms = 0.f;
-					registry.remove_all_components_of(entity_other);
-				}
-				else if (powerup.type == POWERUP_TYPE::SHIELD) {
-					if (blendy.shield < blendy.max_shield) {
-						blendy.shield += 1;
-						update_health_bar();
-						registry.remove_all_components_of(entity_other);
-					}
-					else if (blendy.shield == blendy.max_shield) {
-							blendy.shield = blendy.max_shield;
-							update_health_bar();
-							registry.remove_all_components_of(entity_other);
-					}
-					//std::cout << "Blendy shield: " << blendy.shield << std::endl;
-				}
-				
-			}
-		}
-		else if (registry.cleaners.has(entity)) {
-			if (registry.powerUps.has(entity_other)) {
-				if (registry.boss.has(entity)) {
-					PowerUp& powerup = registry.powerUps.get(entity_other);
-					Boss& boss = registry.boss.get(entity);
-					Minion& m = registry.minions.get(entity);
-					switch (powerup.type) {
-					case POWERUP_TYPE::BATTERY:
-						m.health += 200;
-						if (m.health > m.max_health) m.health = m.max_health;
-						break;
-					case POWERUP_TYPE::SHIELD:
-						m.health += 800;
-						if (m.health > m.max_health) m.health = m.max_health;
-						break;
-					case POWERUP_TYPE::LEMON:
-					case POWERUP_TYPE::CHERRY:
-						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.powerup_duration_ms = 60;
-						break;
-					case POWERUP_TYPE::GRAPE:
-					case POWERUP_TYPE::	PROTEIN:
-						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 100;
-						break;
-					case POWERUP_TYPE::CACTUS:
-						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 150;
-						break;
-					default:
-						break;
-					}
-				}
-				registry.remove_all_components_of(entity_other);
 				
 			}
 		}
@@ -1272,8 +1080,8 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	}
 }
 
-float WorldSystem::get_y_animate(int stage, int going_up, Entity entity) {
-	if (registry.deathTimers.has(entity)) {
+float WorldSystem::get_y_animate(int stage, int going_up) {
+	if (registry.deathTimers.has(player_blendy)) {
 		return 0;
 	}
 	if (stage == 0) {
@@ -1283,10 +1091,10 @@ float WorldSystem::get_y_animate(int stage, int going_up, Entity entity) {
 		return 0.3f * going_up;
 	}
 	else if (stage == 2) {
-		return 0.6f * going_up;
+		return 0.5f * going_up;
 	}
 	else if (stage == 3) {
-		return 1.5f * going_up;
+		return 1.0f * going_up;
 	}
 	else if (stage == 4) {
 		return 1.5f * going_up;
@@ -1578,101 +1386,7 @@ void WorldSystem::get_blendy_render_request(bool up, bool down, bool right, bool
 	}
 }
 
-void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Enemy_TYPE type,Entity minion) {
-	if (type == Enemy_TYPE::HEALER || type == Enemy_TYPE::ROAMER || type == Enemy_TYPE::SHOOTER || type == Enemy_TYPE::SNIPER) {
-		TEXTURE_ASSET_ID texture = TEXTURE_ASSET_ID::HEALER_D0; // healer, roamer,shooter,sniper
-		if (type == Enemy_TYPE::HEALER) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
-		}
-		else if (type == Enemy_TYPE::ROAMER) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 24);
-		}
-		else if (type == Enemy_TYPE::SHOOTER) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 48);
-		}
-		else if (type == Enemy_TYPE::SNIPER) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 72);
-		}
-		// down, left, right, up
-		if (up) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 18);
-		}
-		else if (down) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
-		}
-		else if (left) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 6);
-		}
-		else if (right) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 12);
-		}
-		if (stage == 0) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
-		}
-		else if (stage == 1) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 2);
-		}
-		else {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 4);
-		}
-		TEXTURE_ASSET_ID normal_map = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 1);
-		registry.renderRequests.insert(
-			minion,
-			{ texture,
-				normal_map,
-			 EFFECT_ASSET_ID::TEXTURED,
-			 GEOMETRY_BUFFER_ID::SPRITE });
-		return;
-	}
-	if (type == Enemy_TYPE::BOSS) {
-		TEXTURE_ASSET_ID texture = TEXTURE_ASSET_ID::BOSS_D0;
-		if (down && left) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 32);
-		}
-		else if (down && right) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 40);
-		}
-		else if (up && left) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 48);
-		}
-		else if (up && right) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 56);
-		}
-		else if (down) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
-		}
-		else if (left) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 8);
-		}
-		else if (right) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 16);
-		}
-		else if (up) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 24);
-		}
-
-		if (stage == 0) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 0);
-		}
-		else if (stage == 1) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 2);
-		}
-		else if (stage == 2) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 4);
-		}
-		else if (stage == 3) {
-			texture = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 6);
-		}
-		TEXTURE_ASSET_ID normal_map = static_cast<TEXTURE_ASSET_ID>(static_cast<int>(texture) + 1);
-		registry.renderRequests.insert(
-			minion,
-			{ texture,
-				normal_map,
-			 EFFECT_ASSET_ID::TEXTURED,
-			 GEOMETRY_BUFFER_ID::SPRITE });
-
-		return;
-	}
+void WorldSystem::get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion) {
 	if (up) {
 		// going up
 		if (stage == 0) {
