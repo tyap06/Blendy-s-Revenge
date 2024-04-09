@@ -22,6 +22,8 @@ Entity createHelpScreen(RenderSystem* renderer, vec2 pos, vec2 bounds);
 
 Entity createHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds);
 
+Entity createBossHealthBar(RenderSystem* renderer, vec2 pos, vec2 bounds);
+
 Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 // the background
