@@ -24,13 +24,13 @@ const size_t MAX_GIANT = 1;
 const size_t MAX_CLEANER = 1;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
-const size_t MAX_BATTERY_POWERUPS = 2;
-const size_t MAX_PROTEIN_POWDER_POWERUPS = 2;
-const size_t MAX_GRAPE_POWERUPS = 2;
-const size_t MAX_LEMON_POWERUPS = 2;
-const size_t MAX_CHERRY_POWERUPS = 2;
-const size_t MAX_SHIELD_POWERUPS = 2;
-const size_t MAX_CACTUS_POWERUPS = 2;
+const size_t MAX_BATTERY_POWERUPS = 3;
+const size_t MAX_PROTEIN_POWDER_POWERUPS = 3;
+const size_t MAX_GRAPE_POWERUPS = 3;
+const size_t MAX_LEMON_POWERUPS = 3;
+const size_t MAX_CHERRY_POWERUPS = 3;
+const size_t MAX_SHIELD_POWERUPS = 6;
+const size_t MAX_CACTUS_POWERUPS = 3;
 const size_t POWERUP_DELAY_MS = 200 * 3;
 const int boss_spawn_score = 5000;
 const float PLAYER_POWERUP_SPAWN_DISTANCE = 150.0f;
@@ -110,22 +110,22 @@ const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
 // GAME BALANCE
 
 const float MULTIPLIER = 1;
-const unsigned int DODGER_SPAWN_SCORE = 150 * MULTIPLIER;
+const unsigned int DODGER_SPAWN_SCORE = 100 * MULTIPLIER;
 const unsigned int ROAMER_SPAWN_SCORE = 300 * MULTIPLIER;
-const unsigned int CHARGER_SPAWN_SCORE = 600 * MULTIPLIER;
-const unsigned int SNIPER_SPAWN_SCORE = 900 * MULTIPLIER;
-const unsigned int TANK_SPAWN_SCORE = 1100 * MULTIPLIER;
-const unsigned int GIANT_SPAWN_SCORE = 1500 * MULTIPLIER;
-const unsigned int SPLIT_SHOOTER_SPAWN_SCORE = 2000 * MULTIPLIER;
+const unsigned int CHARGER_SPAWN_SCORE = 800 * MULTIPLIER;
+const unsigned int SNIPER_SPAWN_SCORE = 1300 * MULTIPLIER;
+const unsigned int TANK_SPAWN_SCORE = 1700 * MULTIPLIER;
+const unsigned int GIANT_SPAWN_SCORE = 2000 * MULTIPLIER;
+const unsigned int SPLIT_SHOOTER_SPAWN_SCORE = 2500 * MULTIPLIER;
 const unsigned int BOSS_SPAWN_SCORE = 7500 * MULTIPLIER;
 
 const unsigned int BATTERY_SPAWN_SCORE = 0 * MULTIPLIER;
 const unsigned int PROTEIN_SPAWN_SCORE = 300 * MULTIPLIER;
 const unsigned int LEMON_SPAWN_SCORE = 600 * MULTIPLIER;
 const unsigned int GRAPE_SPAWN_SCORE = 1500 * MULTIPLIER;
-const unsigned int SHIELD_SPAWN_SCORE = 1500 * MULTIPLIER;
-const unsigned int CHERRY_SPAWN_SCORE = 1500 * MULTIPLIER;
-const unsigned int CACTUS_SPAWN_SCORE = 1500 * MULTIPLIER;
+const unsigned int SHIELD_SPAWN_SCORE = 600 * MULTIPLIER;
+const unsigned int CHERRY_SPAWN_SCORE = 1100 * MULTIPLIER;
+const unsigned int CACTUS_SPAWN_SCORE = 1800 * MULTIPLIER;
 
 const int SECOND_CUT_SCORE = BOSS_SPAWN_SCORE / 2;
 /* Point Counts:
@@ -1096,7 +1096,7 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
-					blendy.protein_powerup_duration_ms = 1000.f;
+					blendy.protein_powerup_duration_ms = 2500.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {

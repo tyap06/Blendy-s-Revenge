@@ -73,6 +73,12 @@ Entity AISystem::findClosestPowerUp(vec2 pos) {
 void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float elapsed_ms) {
 	auto& shooter = registry.shooters.get(shooterEntity);
 	Motion& motion = registry.motions.get(shooterEntity);
+	if (registry.splitShooters.has(shooterEntity)) {
+		shooter.time_since_last_shot_ms += elapsed_ms / 2;
+	}
+	else {
+		shooter.time_since_last_shot_ms += elapsed_ms;
+	}
 
 	shooter.time_since_last_shot_ms += elapsed_ms;
 	if (shooter.time_since_last_shot_ms >= shooter.shoot_interval_ms) {
