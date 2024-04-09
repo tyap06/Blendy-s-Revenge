@@ -944,24 +944,24 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 
 	auto& motion = registry.motions.get(directional_light);
 	vec2& new_pos = motion.position;
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I) {
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_I && !cutscene_active) {
 		  new_pos = { motion.position.x, motion.position.y - LIGHT_SOURCE_MOVEMENT_DISTANCE };
 	}
 
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_J) {
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_J && !cutscene_active) {
 		new_pos = { motion.position.x - LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
 	}
 
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_K) {
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_K && !cutscene_active) {
 		new_pos = { motion.position.x, motion.position.y + LIGHT_SOURCE_MOVEMENT_DISTANCE };
 	}
 
-	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L) {
+	if ((action == GLFW_PRESS || action == GLFW_REPEAT) && key == GLFW_KEY_L && !cutscene_active) {
 		new_pos = { motion.position.x + LIGHT_SOURCE_MOVEMENT_DISTANCE, motion.position.y };
 	}
 
 	// Toggle the help screen visibility when "H" is pressed
-	if (action == GLFW_RELEASE && key == GLFW_KEY_H) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_H && !cutscene_active) {
 		handle_help_screen();
 	}
 
@@ -970,15 +970,15 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 		handle_cutScenes();
 	}
 
-	if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
-		if (showHelpScreen) {
-			registry.is_pause = true;
-		}
-		else {
-			registry.is_pause = false;
-		}
+	//if (action == GLFW_RELEASE && key == GLFW_KEY_SPACE) {
+	//	if (showHelpScreen) {
+	//		registry.is_pause = true;
+	//	}
+	//	else {
+	//		registry.is_pause = false;
+	//	}
 
-	}
+	//}
 
 	// check window boundary
 	if (new_pos.x < 0) new_pos.x = DIRECTIONAL_LIGHT_BB_WIDTH / 2;
@@ -988,12 +988,20 @@ void WorldSystem::on_key(int key, int, int action, int mod) {
 	motion.position = new_pos;
 
 	// Resetting game
-	if (action == GLFW_RELEASE && key == GLFW_KEY_R) {
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && !cutscene_active) {
 		int w, h;
 		glfwGetWindowSize(window, &w, &h);
 
 		has_restarted = true;
         restart_game();
+	}
+
+	if (action == GLFW_RELEASE && key == GLFW_KEY_R && cutscene_stage == 10) {
+		int w, h;
+		glfwGetWindowSize(window, &w, &h);
+
+		has_restarted = true;
+		restart_game();
 	}
 
 	// Debugging
