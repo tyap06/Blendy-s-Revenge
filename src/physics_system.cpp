@@ -90,6 +90,9 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 	//!!!!!!!note from Andrew:minion/minion sperate is added here because I want to use your function
 	//plase don't touch the code in the next if statement
 	if (registry.minions.has(entity1) && registry.minions.has(entity2)) {
+		if () {
+
+		}
 		vec2 center_dis = motion1.position - motion2.position;
 		// Calculate the distance between the two entities
 		float distance = sqrt(dot(center_dis, center_dis));
@@ -171,6 +174,9 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		Mesh* mesh_two_temp = getMeshForEntity(entity2);
 		if (mesh_one_temp != nullptr) {
 			mesh_one = mesh_one_temp;
+			if (registry.motions.has(registry.Entity_to_Bullet_Mesh_Entity.get(entity1))) {
+				motion1 = registry.motions.get(registry.Entity_to_Bullet_Mesh_Entity.get(entity1));
+			}
 		}
 		if (mesh_two_temp != nullptr) {
 			mesh_two = mesh_two_temp;
