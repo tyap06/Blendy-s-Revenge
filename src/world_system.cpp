@@ -699,7 +699,7 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	}
 
 	if (registry.boss_spawned) {
-		update_boss_animation(elapsed_ms_since_last_update);
+		//update_boss_animation(elapsed_ms_since_last_update);
 	}
 	update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);

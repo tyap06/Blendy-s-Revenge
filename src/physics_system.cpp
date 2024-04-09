@@ -407,18 +407,12 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 		}
 		*/
-
 		else {
-			if (registry.bullets.has(entity)) {
-				if (motion.position.x < 0.f || motion.position.x > window_width_px
-					|| motion.position.y < 0 || motion.position.y > window_height_px) {
-
-					registry.remove_all_components_of(motion_registry.entities[i]);
-					continue;
-				}
+			if (motion.position.x < 0.f || motion.position.x > window_width_px
+				|| motion.position.y < 0 || motion.position.y > window_height_px) {
+				registry.remove_all_components_of(motion_registry.entities[i]);
+				continue;
 			}
-
-			
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}
