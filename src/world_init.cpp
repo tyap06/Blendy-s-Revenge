@@ -826,7 +826,7 @@ Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bou
 	/*vec3 color = { 0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);*/
 
-	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::BOSS_D0, TEXTURE_ASSET_ID::BOSS_D0_N, GEOMETRY_BUFFER_ID::BOSS, false);
+	create_mesh(renderer, position, motion.velocity, {motion.scale.x * 1.5, motion.scale.y * 1.5}, motion.angle, entity, TEXTURE_ASSET_ID::BOSS_D0, TEXTURE_ASSET_ID::BOSS_D0_N, GEOMETRY_BUFFER_ID::BOSS, false);
 
 	registry.renderRequests.insert(
 		entity,
