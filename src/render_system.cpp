@@ -722,8 +722,8 @@ void RenderSystem::draw()
 
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity))
-			continue; 
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity) || registry.cursor.has(entity) || registry.panel.has(entity))
+			continue;
 
 		drawTexturedMesh(entity, projection_2D);
 	}
@@ -731,12 +731,28 @@ void RenderSystem::draw()
 	// Phase 2: Draw only bullet entities
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (registry.is_pause||!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity)))
+		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity)))
 			continue; // Skip non-bullet entities in this phase
 
 		drawTexturedMesh(entity, projection_2D);
 	}
 
+
+	for (Entity entity : registry.renderRequests.entities)
+	{
+		if (!registry.motions.has(entity) || !(registry.tooltip.has(entity) || registry.helpScreens.has(entity) || registry.panel.has(entity)))
+			continue; // Skip non-bullet entities in this phase
+
+		drawTexturedMesh(entity, projection_2D);
+	}
+
+
+	// Phase 3: Render Cursor, ALWAYS THE HIGHEST!
+	for (Entity entity : registry.renderRequests.entities) {
+		if (!registry.cursor.has(entity))
+			continue;
+		drawTexturedMesh(entity, projection_2D);
+	}
 
 	debug_fps(projection_2D);
 	display_score();

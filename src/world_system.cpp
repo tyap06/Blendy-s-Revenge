@@ -517,8 +517,11 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::update_boss_animation(float elapsed_ms_since_last_update) {
-	if (registry.boss_spawned == false) return;
+
+	if (registry.boss_spawned == false || registry.is_winning) return;
+	
 	Boss& final_boss = registry.boss.get(boss);
+	
 	Minion& boss_minion = registry.minions.get(boss);
 	Motion& boss_motion = registry.motions.get(boss);
 	boss_minion.up = false;
@@ -831,6 +834,7 @@ void WorldSystem::restart_game() {
 	is_dead = false;
 	registry.is_dead = false;
 	registry.boss_spawned = false;
+	registry.is_winning = false;
 	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
@@ -923,11 +927,11 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 		registry.score += minion.score;
 		Mix_PlayChannel(-1, minion_dead, 0);
 		if (registry.boss.has(target)) {
-			//todo:
+			registry.is_winning = true;
 		}
-		if (registry.loots.has(target)) {
+		/*if (registry.loots.has(target)) {
 			create_shield_powerup(renderer, registry.motions.get(target).position, SHIELD_POWERUP_BOUNDS);
-		}
+		}*/
 		registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(target));
 		registry.remove_all_components_of(target);
 	} else {
@@ -1080,7 +1084,8 @@ void WorldSystem::handle_collisions() {
 				
 			}
 		}
-		else if (registry.bullets.has(entity)) {
+			else if (registry.bullets.has(entity)) {
+			
 			auto& bullet = registry.bullets.get(entity);
 			if (registry.minions.has(entity_other) && bullet.friendly) {
 				int damage = registry.bullets.get(entity).damage;
