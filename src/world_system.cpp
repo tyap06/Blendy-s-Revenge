@@ -105,6 +105,7 @@ const int THIRD_CUT_SCORE = 1500;
 // MUSIC
 const unsigned int MUSIC_SPEEDUP_THRESHOLD = 1000;
 
+
 // Create the bug world
 WorldSystem::WorldSystem()
 	: points(0),
@@ -828,8 +829,8 @@ void WorldSystem::restart_game() {
 		cutscene_active == true;
 		handle_cutScenes();
 	}
-	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
-	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
+	//test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+	//test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
 }
 
 void WorldSystem::console_debug_fps()
@@ -920,10 +921,13 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 void WorldSystem::handle_collisions() {
 	// Loop over all collisions detected by the physics system
 	auto& collisionsRegistry = registry.collisions;
+	auto& motionRegistry = registry.motions;
 	for (uint i = 0; i < collisionsRegistry.components.size(); i++) {
 		// The entity and its collider
-		Entity entity = collisionsRegistry.entities[i];
-		Entity entity_other = collisionsRegistry.components[i].other;
+		Entity& entity = collisionsRegistry.entities[i];
+		Entity& entity_other = collisionsRegistry.components[i].other;
+		Motion& entity_motion = motionRegistry.get(entity);
+		Motion& entity_other_motion = motionRegistry.get(entity_other);
 
 		if (registry.players.has(entity)) {
 			if (registry.minions.has(entity_other)) {
@@ -931,6 +935,7 @@ void WorldSystem::handle_collisions() {
 				hit_player(damage);
 				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 				registry.remove_all_components_of(entity_other);
+				create_blendy_hit_particles(entity_motion);
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {
@@ -938,6 +943,7 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
 					hit_player(damage);
+					create_blendy_hit_particles(entity_motion);
 				}
 			}
 			// Check blendy - collisions with power ups
@@ -950,6 +956,7 @@ void WorldSystem::handle_collisions() {
 					Mix_PlayChannel(-1, powerup_pickup_battery, 0);
 					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
+					create_battery_pickup_particles(entity_other_motion);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
 					//blendy.protein_powerup = true;
@@ -959,6 +966,7 @@ void WorldSystem::handle_collisions() {
 					blendy.lemon_powerup_duration_ms = 0.f;
 					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
+					create_protein_powder_pickup_particles(entity_other_motion);
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
 					blendy.grape_powerup_duration_ms = 500.f;
@@ -967,6 +975,7 @@ void WorldSystem::handle_collisions() {
 					Mix_PlayChannel(-1, powerup_pickup_grape, 0);
 					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
+					create_grape_pickup_particles(entity_other_motion);
 				}
 				else if (powerup.type == POWERUP_TYPE::LEMON) {
 					blendy.lemon_powerup_duration_ms = 300.f;
@@ -975,6 +984,7 @@ void WorldSystem::handle_collisions() {
 					Mix_PlayChannel(-1, powerup_pickup_lemon, 0);
 					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
 					registry.remove_all_components_of(entity_other);
+					create_lemon_pickup_particles(entity_other_motion);
 				}
 				else if (powerup.type == POWERUP_TYPE::CHERRY) {
 					blendy.cherry_powerup_duration_ms = 300.f;
@@ -983,6 +993,7 @@ void WorldSystem::handle_collisions() {
 					blendy.protein_powerup_duration_ms = 0.f;
 					blendy.cactus_powerup_duration_ms = 0.f;
 					registry.remove_all_components_of(entity_other);
+					create_cherry_pickup_particles(entity_other_motion);
 				}
 				else if (powerup.type == POWERUP_TYPE::CACTUS) {
 					blendy.cactus_powerup_duration_ms = 300.f;
@@ -991,6 +1002,7 @@ void WorldSystem::handle_collisions() {
 					blendy.grape_powerup_duration_ms = 0.f;
 					blendy.protein_powerup_duration_ms = 0.f;
 					registry.remove_all_components_of(entity_other);
+					create_cactus_pickup_particles(entity_other_motion);
 				}
 				else if (powerup.type == POWERUP_TYPE::SHIELD) {
 					if (blendy.shield < blendy.max_shield) {
@@ -1003,6 +1015,7 @@ void WorldSystem::handle_collisions() {
 							update_health_bar();
 							registry.remove_all_components_of(entity_other);
 					}
+					create_shield_pickup_particles(entity_other_motion);
 					//std::cout << "Blendy shield: " << blendy.shield << std::endl;
 				}
 				
@@ -1054,6 +1067,7 @@ void WorldSystem::handle_collisions() {
 				hit_enemy(entity_other, damage);
 				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity));
 				registry.remove_all_components_of(entity);
+				create_enemy_hit_particles(entity_other_motion);
 			}
 		}
 	}
@@ -1101,6 +1115,81 @@ void WorldSystem::handle_help_screen() {
 	}
 
 	showHelpScreen = !showHelpScreen;
+}
+
+void WorldSystem::create_blendy_hit_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_enemy_hit_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_collision_with_blendy_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_battery_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_grape_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_lemon_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_protein_powder_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_split_shot_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_nut_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_cactus_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_cherry_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_shield_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_cleaner_pickup_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_boss_hit_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
+}
+
+void WorldSystem::create_boss_death_particles(const Motion& motion)
+{
+	create_particle_emitter(motion.position, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
 }
 
 void WorldSystem::move_player(vec2 direction) {

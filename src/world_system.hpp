@@ -173,6 +173,25 @@ private:
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 	void handle_cutScenes();
 	void handle_help_screen();
+
+	// Particle Calls
+	void create_blendy_hit_particles(const Motion& motion);
+	void create_enemy_hit_particles(const Motion& motion);
+	void create_collision_with_blendy_particles(const Motion& motion);
+	void create_battery_pickup_particles(const Motion& motion);
+	void create_grape_pickup_particles(const Motion& motion);
+	void create_lemon_pickup_particles(const Motion& motion);
+	void create_protein_powder_pickup_particles(const Motion& motion);
+	void create_split_shot_pickup_particles(const Motion& motion);
+	void create_nut_pickup_particles(const Motion& motion);
+	void create_cactus_pickup_particles(const Motion& motion);
+	void create_cherry_pickup_particles(const Motion& motion);
+	void create_shield_pickup_particles(const Motion& motion);
+	void create_cleaner_pickup_particles(const Motion& motion);
+
+	void create_boss_hit_particles(const Motion& motion);
+	void create_boss_death_particles(const Motion& motion);
+	
 };
 
 
