@@ -786,13 +786,9 @@ enum class GEOMETRY_BUFFER_ID {
 	ORANGE = LEMON + 1,
 	PROTEIN_POWER = ORANGE + 1,
 	BATTERY = PROTEIN_POWER + 1,
-	BOSS = BATTERY + 1,
-	CACTUS_BULLET = BOSS + 1,
-	CHERRY = CACTUS_BULLET + 1,
-	NUT = CHERRY + 1,
-	CACTUS = NUT + 1
+	BOSS = BATTERY + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::CACTUS + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BOSS + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
