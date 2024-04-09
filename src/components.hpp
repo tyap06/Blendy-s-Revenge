@@ -99,6 +99,23 @@ struct Loot {
 
 };
 
+struct Cleaner {
+
+};
+
+// A component to represent shield
+struct Shield {
+
+};
+
+struct ToolTip {
+
+};
+
+struct Cursor {
+
+};
+
 enum class Direction {
 	Up,
 	Down,
@@ -115,9 +132,13 @@ struct Player {
 	int current_effect = 0;
 	bool pac_mode = false;
 	bool protein_powerup = false;
+	int shield = 0;
+	int max_shield = 3;
 	float protein_powerup_duration_ms = 0.f;
 	float grape_powerup_duration_ms = 0.f;
 	float lemon_powerup_duration_ms = 0.f;
+	float cherry_powerup_duration_ms = 0.f;
+	float cactus_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -645,7 +666,7 @@ enum class TEXTURE_ASSET_ID {
 	SNIPER_U2_N = SNIPER_U2 + 1,
 
 	CURSOR = SNIPER_U2_N + 1,
-  CHERRY_POWERUP = CURSOR + 1,
+	CHERRY_POWERUP = CURSOR + 1,
 	SHIELD_POWERUP = CHERRY_POWERUP + 1,
 	CACTUS_POWERUP = SHIELD_POWERUP + 1,
 
