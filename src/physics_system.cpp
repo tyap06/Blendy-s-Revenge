@@ -361,13 +361,13 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 			
 
-			/*Entity& mesh_entity = registry.Entity_Mesh_Entity.get(entity);
-			Motion& mesh_motion = motion;*/
-			//if (registry.motions.has(mesh_entity)) {
-			//	mesh_motion = registry.motions.get(mesh_entity);
-			//	mesh_motion = motion;
-			//	//mesh_motion.position = motion.position;
-			//}
+			Entity& mesh_entity = registry.Entity_Mesh_Entity.get(entity);
+			Motion& mesh_motion = motion;
+			if (registry.motions.has(mesh_entity)) {
+				mesh_motion = registry.motions.get(mesh_entity);
+				//mesh_motion = motion;
+				mesh_motion.position = motion.position;
+			}
 
 			Minion& minion = registry.minions.get(entity);
 			
@@ -434,12 +434,16 @@ void PhysicsSystem::step(float elapsed_ms)
 		*/
 
 		else {
-			if (motion.position.x < 0.f || motion.position.x > window_width_px
-				|| motion.position.y < 0 || motion.position.y > window_height_px) {
+			if (registry.bullets.has(entity)) {
+				if (motion.position.x < 0.f || motion.position.x > window_width_px
+					|| motion.position.y < 0 || motion.position.y > window_height_px) {
 
-				registry.remove_all_components_of(motion_registry.entities[i]);
-				continue;
+					registry.remove_all_components_of(motion_registry.entities[i]);
+					continue;
+				}
 			}
+
+			
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}

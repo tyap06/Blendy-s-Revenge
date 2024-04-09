@@ -197,6 +197,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	
 	// Create an (empty) Blendy component to be able to refer to Blendy
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
@@ -305,7 +306,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
+	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, true);
 
 	// Create and (empty) Minion component to be able to refer to all minions
 	registry.minions.emplace(entity);
@@ -593,7 +594,7 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = {0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);
-	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, true);
 
 	auto& charger = registry.chargers.emplace(entity);
 
@@ -792,7 +793,8 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, En
 			 EFFECT_ASSET_ID::CHICKEN,
 			geometry_id });
 	}
-
+	return entity;
+}
 Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 {
 	auto entity = Entity();
