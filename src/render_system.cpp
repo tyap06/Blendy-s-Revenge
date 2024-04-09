@@ -11,8 +11,6 @@
 
 void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_request, GLuint program)
 {
-	
-
 	GLuint health_bar_texture_id = texture_gl_handles[(GLuint)TEXTURE_ASSET_ID::FULL_HEALTH_BAR];
 
 	GLuint health_bar_effect_id = effects[(GLuint)EFFECT_ASSET_ID::HEALTH_BAR];
@@ -64,7 +62,62 @@ void RenderSystem::handle_health_bar_rendering(const RenderRequest& render_reque
 
 }
 
+void RenderSystem::handle_particle_rendering(const RenderRequest& render_request, const GLuint& program, const mat3& projection, const Transform& transform)
+{
+	auto& particle_emitter_registry = registry.particleEmitters;
 
+	for (int i = 0; i < particle_emitter_registry.size(); i++)
+	{
+		// Redundantly calling set program again
+		glUseProgram(program);
+
+		GLint M_v_loc = glGetUniformLocation(program, "M_v");
+		GLint M_p_loc = glGetUniformLocation(program, "M_p");
+		GLint particleSize_loc = glGetUniformLocation(program, "particleSize");
+		GLint startColor_loc = glGetUniformLocation(program, "startColor");
+		GLint endColor_loc = glGetUniformLocation(program, "endColor");
+		GLint lifetime_loc = glGetUniformLocation(program, "lifetime");
+		//assert(M_v_loc > -1);
+		assert(M_p_loc > -1);
+		assert(particleSize_loc > -1);
+		assert(startColor_loc > -1);
+		assert(endColor_loc > -1);
+		assert(lifetime_loc > -1);
+		gl_has_errors();
+
+		// Setting uniform values to the currently bound program
+		glUniformMatrix3fv(M_v_loc, 1, GL_FALSE, (float*)&transform.mat);
+		gl_has_errors();
+
+		glUniformMatrix3fv(M_p_loc, 1, GL_FALSE, (float*)&projection);
+		gl_has_errors();
+
+		auto& particle_emitter_entity = particle_emitter_registry.entities[i];
+		auto& particle_emitter_component = particle_emitter_registry.components[i];
+		auto& emitter_instance = particle_emitter_component.emitter_instance;
+
+		glUniform3fv(startColor_loc, 1, &particle_emitter_component.particle_start_color[0]);
+		gl_has_errors();
+
+		glUniform3fv(endColor_loc, 1, &particle_emitter_component.particle_end_color[0]);
+		gl_has_errors();
+
+		auto& emitter_timer_registry = registry.emitterTimers;
+		auto& emitter_timer = emitter_timer_registry.get(particle_emitter_entity);
+		
+		gl_has_errors();
+
+		glUniform1f(particleSize_loc, particle_emitter_component.particle_size);
+		gl_has_errors();
+
+		glUniform1f(lifetime_loc, emitter_instance.get_base_lifetime());
+		gl_has_errors();
+
+		emitter_instance.draw();
+
+		gl_has_errors();
+	}
+}
 
 
 const char* fontVertexShaderSource =
@@ -244,7 +297,7 @@ bool RenderSystem::fontInit_internal(const std::string& font_filename, unsigned 
 
 bool RenderSystem::initializeFonts()
 {
-	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Pixel_Square + DOT_TTF, FONT_DEFAULT_SIZE);
+	return fontInit_internal(FONT_FOLDER_PATH + Kenney_Future_Narrow + DOT_TTF, FONT_DEFAULT_SIZE);
 }
 
 void RenderSystem::renderText(const std::string& text, float x, float y, float scale, const glm::vec3& color,
@@ -320,6 +373,18 @@ void RenderSystem::renderText(const std::string& text, float x, float y, float s
 	glBindTexture(GL_TEXTURE_2D, 0);
 
 	gl_has_errors();
+}
+
+void RenderSystem::particles_step(const float& elapsed_ms)
+{
+	auto& particle_emitters = registry.particleEmitters;
+
+	for (int i = 0; i < particle_emitters.size(); i++)
+	{
+		auto& emitter_instance = particle_emitters.components[i].emitter_instance;
+		emitter_instance.update(elapsed_ms);
+		gl_has_errors();
+	}
 }
 
 void RenderSystem::handle_normal_map_uniform(Entity entity, const GLuint program)
@@ -545,6 +610,9 @@ void RenderSystem::drawTexturedMesh(Entity entity,
 	else if (render_request.used_effect == EFFECT_ASSET_ID::HEALTH_BAR)
 	{
 		handle_health_bar_rendering(render_request, program);
+	} else if (render_request.used_effect == EFFECT_ASSET_ID::PARTICLES)
+	{
+		handle_particle_rendering(render_request, program, projection, transform);
 	}
 	else
 	{
@@ -650,9 +718,11 @@ void RenderSystem::draw()
 	// Draw all textured meshes that have a position and size component
 	 // Phase 1: Draw all entities except bullets
 
+	
+
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity) || registry.cursor.has(entity))
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity))
 			continue; 
 
 		drawTexturedMesh(entity, projection_2D);
@@ -661,30 +731,16 @@ void RenderSystem::draw()
 	// Phase 2: Draw only bullet entities
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity)))
+		if (registry.is_pause||!registry.motions.has(entity) || !(registry.bullets.has(entity) || registry.powerUps.has(entity)))
 			continue; // Skip non-bullet entities in this phase
 
 		drawTexturedMesh(entity, projection_2D);
 	}
-	
 
-	for (Entity entity : registry.renderRequests.entities)
-	{
-		if (!registry.motions.has(entity) || !(registry.tooltip.has(entity) || registry.helpScreens.has(entity) || registry.panel.has(entity)))
-			continue; // Skip non-bullet entities in this phase
-
-		drawTexturedMesh(entity, projection_2D);
-	}
-	// Phase 3: Render Cursor, ALWAYS THE HIGHEST!
-	for (Entity entity : registry.renderRequests.entities) {
-		if (!registry.cursor.has(entity))
-			continue;
-		drawTexturedMesh(entity, projection_2D);
-	}
 
 	debug_fps(projection_2D);
 	display_score();
-
+	display_text();
 
 	// Rebinding dummy_vao here
 	glBindVertexArray(dummy_vao);

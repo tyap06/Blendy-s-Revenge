@@ -7,8 +7,8 @@
 #include "world_init.hpp"
 
 enum class ShooterState {
-    Approach,
-    Dodge,
+	Approach,
+	Dodge,
 };
 
 
@@ -31,6 +31,3 @@ private:
 
 	RenderSystem* renderer;
 };
-
-
-

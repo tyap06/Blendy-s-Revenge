@@ -103,7 +103,7 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 
 				// Determine the separation speed. This could be a fixed value or based on the overlap
 				float overlap = sum_radii - distance;
-				float separationSpeed = std::min(overlap / 6,80.f);
+				float separationSpeed = overlap / 6;
 
 				// Adjust the velocities to separate the minions
 				// Entity1 moves away in the direction, Entity2 in the opposite
@@ -125,8 +125,6 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		|| (registry.players.has(entity1) && registry.minions.has(entity2))
 		|| (registry.players.has(entity1) && registry.powerUps.has(entity2))
 		|| (registry.players.has(entity2) && registry.powerUps.has(entity1))
-		|| (registry.cleaners.has(entity1) && registry.powerUps.has(entity2))
-			|| (registry.cleaners.has(entity2) && registry.powerUps.has(entity1))
 		)
 	{
 		// pass
@@ -178,24 +176,24 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 				mesh_one = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
 			}
 		}
-		//else if (registry.minions.has(entity1)) {
-		//	auto& minion = registry.minions.get(entity1);
-		//	if (minion.up) {
-		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
-		//	}
-		//	else if (minion.down) {
-		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-		//	}
-		//	else if (minion.left) {
-		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
-		//	}
-		//	else if (minion.right) {
-		//		mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
-		//	}
-		//	else {
-		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-		//	}
-		//}
+		else if (registry.minions.has(entity1)) {
+			auto& minion = registry.minions.get(entity1);
+			if (minion.up) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+			}
+			else if (minion.down) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
+			else if (minion.left) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+			}
+			else if (minion.right) {
+				mesh_one = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
+			}
+			else {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
+		}
 
 		if (registry.players.has(entity2)) {
 
@@ -213,31 +211,29 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 				mesh_two = &PhysicsSystem::loaded_blendy_meshes.at(Direction::Right);
 			}
 		}
-		//else if (registry.minions.has(entity2)) {
-		//	std::cout << "Two not minion " << std::endl;
-
-		//	auto& minion = registry.minions.get(entity2);
-		//	if (minion.up) {
-		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
-		//	}
-		//	else if (minion.down) {
-		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-		//	}
-		//	else if (minion.left) {
-		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
-		//	}
-		//	else if (minion.right) {
-		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
-		//	}
-		//	else {
-		//		mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
-		//	}
-		//}
+		else if (registry.minions.has(entity2)) {
+			auto& minion = registry.minions.get(entity2);
+			if (minion.up) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Up);
+			}
+			else if (minion.down) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
+			else if (minion.left) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Left);
+			}
+			else if (minion.right) {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Right);
+			}
+			else {
+				mesh_two = &PhysicsSystem::loaded_minion_meshes.at(Direction::Down);
+			}
+		}
 		if (mesh_one != NULL && mesh_two != NULL) {
 			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 		}
 		if (mesh_one == NULL || mesh_two == NULL) {
-			std::cout << "No mesh!!" << std::endl;
+			//std::cout << "No mesh!!" << std::endl;
 		}
 	}
 	return false;
@@ -364,12 +360,12 @@ void PhysicsSystem::step(float elapsed_ms)
 			}
 			
 
-			/*Entity& mesh_entity = registry.Entity_Mesh_Entity.get(entity);
-			Motion& mesh_motion = motion;*/
+			//Entity& mesh_entity = registry.Entity_Mesh_Entity.get(entity);
+			//Motion& mesh_motion = motion;
 			//if (registry.motions.has(mesh_entity)) {
 			//	mesh_motion = registry.motions.get(mesh_entity);
-			//	mesh_motion = motion;
-			//	//mesh_motion.position = motion.position;
+			//	//mesh_motion = motion;
+			//	mesh_motion.position = motion.position;
 			//}
 
 			Minion& minion = registry.minions.get(entity);
@@ -437,16 +433,16 @@ void PhysicsSystem::step(float elapsed_ms)
 		*/
 
 		else {
-			if (!registry.Mesh_entity.has(entity)){
-				//handle bullet movement
+			if (registry.bullets.has(entity)) {
 				if (motion.position.x < 0.f || motion.position.x > window_width_px
 					|| motion.position.y < 0 || motion.position.y > window_height_px) {
 
 					registry.remove_all_components_of(motion_registry.entities[i]);
 					continue;
 				}
-				
 			}
+
+			
 			motion.position.x += motion.velocity.x * step_seconds;
 			motion.position.y += motion.velocity.y * step_seconds;
 		}
@@ -523,129 +519,78 @@ void PhysicsSystem::step(float elapsed_ms)
 
 
 
-bool checkMeshCollisionSAT(Mesh* mesh,const Motion& motion_one, Mesh* otherMesh,const Motion& motion_two, const box overlapBox) {
-	std::vector<vec2> axises;
-	std::vector<vec2> axises_copy;
-	std::vector<vec2> edges;
-	std::vector<vec2> shape;
-	std::vector<vec2> otherShape;
-	bool collision = false;
 
-	Transform transform_one;
-	Transform transform_two;
-	transform_one.translate(motion_one.position);
-	transform_one.rotate(motion_one.angle);
-	transform_one.scale(motion_one.scale);
-	transform_two.translate(motion_two.position);
-	transform_two.rotate(motion_two.angle);
-	transform_two.scale(motion_two.scale);
 
-	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
-		axises.clear();
-		edges.clear();
-		shape.clear();
-		vec2 positions[3];
-		bool is_inside_Box = false;
-		if (i + 2 < mesh->vertex_indices.size()) {
-			for (int j = 0; j < 3; j++) {
-				const ColoredVertex& v = mesh->vertices[mesh->vertex_indices[i + j]];
-				// Transform the vertex position
-				vec3 worldPos = transform_one.mat * vec3(v.position.x, v.position.y, 1.0f);
-				positions[j] = vec2(worldPos.x, worldPos.y);
-			}
-			// only check polygons with indices that inside the overlap box 
-			for (vec2 point: positions) {
-				if (isPointInBox(point, overlapBox)) {
-					is_inside_Box = true;
-				}
-			}
-			if (!is_inside_Box) {
-				return false;
-			}
 
-			vec2 v1 = positions[0];
-			vec2 v2 = positions[1];
-			vec2 v3 = positions[2];
-			shape.push_back(v1);
-			shape.push_back(v2);
-			shape.push_back(v3);
-			edges.push_back(v2 - v1);
-			edges.push_back(v3 - v2);
-			edges.push_back(v1 - v3);
-			for (const auto& edge : edges) {
-				if (axises.size() == 0) {
-					axises.push_back(normalize(edge));
-				}
-				else if (!isParallel(axises, edge)) {
-					axises.push_back(normalize(edge));
-				}
-			}
+
+Transform createTransform(const Motion& motion) {
+	Transform transform;
+	transform.translate(motion.position);
+	transform.rotate(motion.angle);
+	transform.scale(motion.scale);
+	return transform;
+}
+
+
+void appendAxesFromShape(std::vector<vec2>& axes, const std::vector<vec2>& shape) {
+	for (size_t i = 0; i < shape.size(); i++) {
+		vec2 edge = shape[(i + 1) % shape.size()] - shape[i];
+		vec2 normal = normalize(vec2(-edge.y, edge.x));
+		if (std::find(axes.begin(), axes.end(), normal) == axes.end()) {
+			axes.push_back(normal);
 		}
-		// iterate the second mesh and check the polygons
-		for (size_t index = 0; index < otherMesh->vertex_indices.size(); index += 3) {
-			vec2 positions_2[3];
-			otherShape.clear();
-			edges.clear();
-			axises_copy = axises;
-			bool is_inside_Box = false;
-			if (index + 2 < otherMesh->vertex_indices.size()) {
-				for (int j = 0; j < 3; j++) {
-					if (otherMesh->vertex_indices[index + j] < mesh->vertices.size()) {
-						const ColoredVertex& v = mesh->vertices[otherMesh->vertex_indices[index + j]];
-						// Transform the vertex position
-						vec3 worldPos = transform_two.mat * vec3(v.position.x, v.position.y, 1.0f);
-						positions_2[j] = vec2(worldPos.x, worldPos.y);
-					}
-					
-				}
-				// only check polygons with indices that inside the overlap box 
-				for (vec2 point : positions) {
-					if (isPointInBox(point, overlapBox)) {
-						is_inside_Box = true;
-					}
-				}
-			}
-
-			if (!is_inside_Box) {
-				return false;
-			}
-
-			vec2 v1 = positions_2[0];
-			vec2 v2 = positions_2[1];
-			vec2 v3 = positions_2[2];
-			otherShape.push_back(v1);
-			otherShape.push_back(v2);
-			otherShape.push_back(v3);
-			edges.push_back(v2 - v1);
-			edges.push_back(v3 - v2);
-			edges.push_back(v1 - v3);
-
-			for (const auto& edge : edges) {
-				if (axises.size() == 0) {
-					axises_copy.push_back(normalize(edge));
-				}
-				else if (!isParallel(axises, edge)) {
-					axises_copy.push_back(normalize(edge));
-				}
-			}
-			bool haveCollision = true;
-			for (const vec2 axis : axises_copy) {
-				// check projection on axises
-				std::pair<float, float> polygonProjection = projectOntoAxis(shape, axis);
-				std::pair<float, float> rectangleProjection = projectOntoAxis(otherShape, axis);
-				if (!projectionsOverlap(polygonProjection, rectangleProjection)) {
-					haveCollision = false;
-				}
-			}
-
-			if (haveCollision) {
-				return haveCollision;
-			}
+	}
+}
+std::vector<vec2> getTransformedVertices(Mesh* mesh, const Transform& transform, const box& overlapBox) {
+	std::vector<vec2> transformedVertices;
+	for (size_t i = 0; i < mesh->vertex_indices.size(); i++) {
+		const ColoredVertex& v = mesh->vertices[mesh->vertex_indices[i]];
+		vec3 worldPos = transform.mat * vec3(v.position.x, v.position.y, 1.0f);
+		vec2 pos = vec2(worldPos.x, worldPos.y);
+		if (isPointInBox(pos, overlapBox)) {
+			transformedVertices.push_back(pos);
 		}
-		
+	}
+	return transformedVertices;
+}
+
+std::vector<vec2> getUniqueAxes(const std::vector<vec2>& shape1, const std::vector<vec2>& shape2) {
+	std::vector<vec2> axes;
+	appendAxesFromShape(axes, shape1);
+	appendAxesFromShape(axes, shape2);
+
+	// Remove duplicate axes
+	std::sort(axes.begin(), axes.end(), [](const vec2& a, const vec2& b) {
+		return a.x < b.x || (a.x == b.x && a.y < b.y);
+		});
+	axes.erase(unique(axes.begin(), axes.end(), [](const vec2& a, const vec2& b) {
+		return a.x == b.x && a.y == b.y;
+		}), axes.end());
+
+	return axes;
+}
+
+
+bool checkMeshCollisionSAT(Mesh* mesh, const Motion& motion_one, Mesh* otherMesh, const Motion& motion_two, const box overlapBox) {
+	Transform transform_one = createTransform(motion_one);
+	Transform transform_two = createTransform(motion_two);
+
+	std::vector<vec2> shape = getTransformedVertices(mesh, transform_one, overlapBox);
+	std::vector<vec2> otherShape = getTransformedVertices(otherMesh, transform_two, overlapBox);
+
+	if (shape.empty() || otherShape.empty()) {
+		return false; // No collision if either shape has no vertices within the overlap box
 	}
 
-	return collision;
+	std::vector<vec2> axes = getUniqueAxes(shape, otherShape);
+
+	for (const vec2& axis : axes) {
+		if (!projectionsOverlap(projectOntoAxis(shape, axis), projectOntoAxis(otherShape, axis))) {
+			return false; 
+		}
+	}
+
+	return true; 
 }
 
 vec2 normalize(const vec2& v) {

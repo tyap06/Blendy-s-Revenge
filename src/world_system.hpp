@@ -42,8 +42,8 @@ public:
 	void window_minimized_callback();
 	void window_unminimized_callback();
 	void render_cursor();
-	
-  
+
+
 private:
 	enum class MusicState
 	{
@@ -62,6 +62,8 @@ private:
 	float elapsed_ms = 0.0f;
 	float bullet_speed = 600.f;
 	float bullet_launch_interval = 0.39f;
+	int cutscene_stage = 0;
+	float cutscene_interval = 100.f;
 	// restart level
 	void restart_game();
 	void console_debug_fps();
@@ -69,8 +71,8 @@ private:
 	MusicState game_music_state;
 
 	// Update Fps
-	
-	
+
+
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -111,6 +113,9 @@ private:
 	Entity shield_1;
 	Entity shield_2;
 	Entity shield_3;
+	bool cutscene_active;
+	bool has_restarted;
+	Entity current_cutscene;
 
 	// music references
 	Mix_Music* background_music;
@@ -136,13 +141,17 @@ private:
 	// score counter variables
 	Entity score_counter;
 
+	// Particle System
+	Entity test_particle_emitter;
+	Entity test_particle_emitter_2;
+
 	// C++ random number generator
 	std::default_random_engine rng;
 	std::uniform_real_distribution<float> uniform_dist; // number between 0..1
 
 	void hit_player(const int& damage);
 	void hit_enemy(const Entity& target, const int& damage);
-	
+
 	// Private Helpers For Initialization
 	void update_blendy_animation(float elapsed_ms_since_last_update);
 	void update_boss_animation(float elapsed_ms_since_last_update);
@@ -161,9 +170,10 @@ private:
 	void update_powerups(float elapsed_ms_since_last_update);
 	void update_health_bar();
 	void update_game_music();
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
+	void handle_cutScenes();
+	void handle_help_screen();
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff, int type);
-
-	
 
 };
 

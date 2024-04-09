@@ -11,8 +11,8 @@ const float MINION_BB_WIDTH = 0.2f * 346.f;
 const float MINION_BB_HEIGHT = 0.2f * 593.f;
 // const float BACKGROUND_BB_WIDTH = 0.62f * 2131.f;
 // const float BACKGROUND_BB_HEIGHT = 0.62f * 1563.f;
-const float BACKGROUND_BB_WIDTH = 1900.f*0.9;
-const float BACKGROUND_BB_HEIGHT = 1080.f*0.9;
+const float BACKGROUND_BB_WIDTH = 1900.f * 0.9;
+const float BACKGROUND_BB_HEIGHT = 1080.f * 0.9;
 const float DIRECTIONAL_LIGHT_BB_WIDTH = 0.1f * 512.f;
 const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
@@ -40,6 +40,10 @@ Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const ve
 Entity create_score_counter(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& color);
 
 Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+// a particle emitter that emits particles
+Entity create_particle_emitter(const vec2& position, const vec2& scale, const float& particle_lifetime, const float& centre_offset, const vec3& start_color, const vec3& end_color, const float& outward_velocity_magnitude, const float& particle_size);
+
 // the minions
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
@@ -69,7 +73,9 @@ Entity create_cherry_powerup(RenderSystem* renderer, const vec2& position, const
 Entity create_shield_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
 Entity create_shield_health(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
 Entity create_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int type);
+
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 Entity create_cursor(RenderSystem* renderer, const vec2& position);
@@ -77,7 +83,13 @@ Entity create_split_shooter(RenderSystem* renderer, const vec2& position, const 
 Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_cactus_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
+
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
 
+
+Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage);
+
 Entity create_orange_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
+
