@@ -795,8 +795,6 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, En
 	return entity;
 }
 
-	return entity;
-}
 
 Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 {
