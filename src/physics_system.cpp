@@ -150,6 +150,11 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 	if (abs(center_dis.x) < (halfBB_two.x + halfBB_one.x)
 		&& abs(center_dis.y) < (halfBB_two.y + halfBB_one.y)) {
 
+		if (registry.boss.has(entity1) || registry.boss.has(entity2)) {
+			return true;
+		}
+		//return true;
+
 		//if (it_one != registry.motions.components.end() && it_two != registry.motions.components.end()) {
 		box overlapBox = calculate_overlap_area(motion1.position, halfBB_one, motion2.position, halfBB_two);
 		//if (registry.meshPtrs.has(entity1) && registry.meshPtrs.has(entity2)) {
@@ -172,9 +177,6 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 		Mesh* mesh_two_temp = getMeshForEntity(entity2);
 		if (mesh_one_temp != nullptr) {
 			mesh_one = mesh_one_temp;
-			if (registry.motions.has(registry.Entity_to_Bullet_Mesh_Entity.get(entity1))) {
-				motion1 = registry.motions.get(registry.Entity_to_Bullet_Mesh_Entity.get(entity1));
-			}
 		}
 		if (mesh_two_temp != nullptr) {
 			mesh_two = mesh_two_temp;
