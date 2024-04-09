@@ -652,7 +652,7 @@ void RenderSystem::draw()
 
 	for (Entity entity : registry.renderRequests.entities)
 	{
-		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity) || registry.cursor.has(entity))
+		if (!registry.motions.has(entity) || registry.bullets.has(entity) || registry.powerUps.has(entity) || registry.helpScreens.has(entity) || registry.cursor.has(entity) || registry.panel.has(entity))
 			continue; 
 
 		drawTexturedMesh(entity, projection_2D);

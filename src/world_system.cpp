@@ -47,7 +47,9 @@ const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
 const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px  / 2, 0};
 const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
 const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
+const vec2 BOSS_HEALTH_BAR_POSITION = { window_width_px - 120, 40.f };
 const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
+const vec2 BOSS_HEALTH_BAR_FRAME_POSITION = { window_width_px - 110, 40.f };
 const vec2 SHIELD_POSITION_1 = { 270.f, 25.f };
 const vec2 SHIELD_POSITION_2 = { 320.f, 25.f };
 const vec2 SHIELD_POSITION_3 = { 370.f, 25.f };
@@ -60,6 +62,7 @@ const vec2 DIRECTIONAL_LIGHT_BOUNDS = { DIRECTIONAL_LIGHT_BB_WIDTH, DIRECTIONAL_
 const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 175.f, 32.f };
+const vec2 BOSS_HEALTH_BAR_BOUNDS = { 200.f, 32.f };
 const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
 const vec2 HELP_SCREEN_BOUNDS = { 1250.f, 800.f };
 const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
@@ -258,12 +261,27 @@ void WorldSystem::init(RenderSystem* renderer_arg) {
 	// Set all states to default
     restart_game();
 }
+void WorldSystem::update_boss_health() {
+	if (boss_health)
+		registry.remove_all_components_of(boss_health);
 
+	auto& boss_minion = registry.minions.get(boss);
+	float current_width = BOSS_HEALTH_BAR_BOUNDS.x * static_cast<float>(boss_minion.health) / static_cast<float>(boss_minion.max_health);
+
+	float offset_to_center = (current_width - BOSS_HEALTH_BAR_BOUNDS.x) / 2.0f;
+
+	vec2 health_bar_center = { BOSS_HEALTH_BAR_POSITION.x + offset_to_center, BOSS_HEALTH_BAR_POSITION.y };
+
+	vec2 health_bar_scale = { current_width, BOSS_HEALTH_BAR_BOUNDS.y };
+
+	boss_health = createLine(health_bar_center, health_bar_scale);
+
+}
 // Updates Health bar when blendy gets hit
 void WorldSystem::update_health_bar()
-{
-	while (registry.debugComponents.entities.size() > 0)
-		registry.remove_all_components_of(registry.debugComponents.entities.back());
+{	
+	if (blendy_health)
+		registry.remove_all_components_of(blendy_health);
 
 	auto& blendy = registry.players.get(player_blendy);
 	
@@ -275,7 +293,7 @@ void WorldSystem::update_health_bar()
 
 	vec2 health_bar_scale = { current_width, HEALTH_BAR_BOUNDS.y };
 
-	createLine(health_bar_center, health_bar_scale);
+	blendy_health = createLine(health_bar_center, health_bar_scale);
 
 	
 
@@ -442,6 +460,7 @@ void WorldSystem::spawn_minions(float elapsed_ms_since_last_update)
 	if (registry.boss_spawned == false) {
 		vec2 spawnPos = generateRandomEdgePosition(window_width_px, window_height_px, uniform_dist, rng);
 		boss = create_boss(renderer, spawnPos, BOSS_BOUNDS);
+		
 		registry.boss_spawned = true;
 	}
 
@@ -741,9 +760,14 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 	for (Entity e : registry.panel.entities) {
 		registry.remove_all_components_of(e);
 	}
-	if (registry.boss_spawned) {
+	// If boss spawned and alive
+	if (registry.boss_spawned && registry.minions.get(boss).health > 0) {
+		std::cout << "Boss Health: " << registry.minions.get(boss).health << std::endl;
 		update_boss_animation(elapsed_ms_since_last_update);
+		boss_health_bar = createBossHealthBar(renderer, BOSS_HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
+		update_boss_health();
 	}
+	
 	update_minion_animation(elapsed_ms_since_last_update);
 	update_fps(elapsed_ms_since_last_update);
 	update_score();
@@ -855,6 +879,7 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
+	boss_health_bar = createBossHealthBar(renderer, BOSS_HEALTH_BAR_FRAME_POSITION, HEALTH_BAR_FRAME_BOUNDS);
 }
 void WorldSystem::window_minimized_callback() {
 	registry.is_minimized = true;
