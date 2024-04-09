@@ -321,7 +321,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, -100.f };
+	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
@@ -352,7 +352,7 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
-	motion.velocity = { 0, -100.f };
+	motion.velocity = { 0.f, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	auto& minion = registry.minions.emplace(entity);
@@ -696,7 +696,7 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.type = Enemy_TYPE::SHOOTER;
 	minion.score = 25;
 	motion.angle = 0.f;
-	motion.velocity = { 0, -80.f };
+	motion.velocity = { 0, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	/*vec3 color = { 0.8,0.8,0.0 };
@@ -726,7 +726,7 @@ Entity create_split_shooter(RenderSystem* renderer, const vec2& position, const 
 	minion.type = Enemy_TYPE::SPLIT_SHOOTER;
 	minion.score = 40;
 	motion.angle = 0.f;
-	motion.velocity = { 0, -80.f };
+	motion.velocity = { 0, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 
@@ -758,7 +758,7 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	minion.health = 40;
 	minion.max_health = 40;
 	minion.armor = 15;
-	motion.velocity = { 0, -80.f };
+	motion.velocity = { 0, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = { 0.5,0.2,0.2 };
@@ -793,7 +793,7 @@ Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.max_health = 4000;
 	minion.armor = 0;
 	minion.speed = 200;
-	motion.velocity = { 0, -80.f };
+	motion.velocity = { 0, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	/*vec3 color = { 0.5,0.2,0.2 };
@@ -826,7 +826,7 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.health = 100;
 	minion.max_health = minion.health;
 	minion.speed = 50;
-	motion.velocity = { 0, -80.f };
+	motion.velocity = { 0, 0.f };
 	motion.position = position;
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = { 0,0,0 };
@@ -855,7 +855,7 @@ Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& b
 	minion.type = Enemy_TYPE::SNIPER;
 	minion.score = 50;
 	motion.angle = 0.f;
-	motion.velocity = { 0, -80.f };
+	motion.velocity = { 0, 0.f };
 	minion.health = 50;
 	minion.max_health = 50;
 	motion.position = position;
@@ -934,7 +934,7 @@ Entity create_cleaner(RenderSystem* renderer, const vec2& position, const vec2& 
 	auto& minion = registry.minions.emplace(entity);
 	minion.type = Enemy_TYPE::CLEANER;
 	minion.score = 50;
-	minion.health = 110;
+	minion.health = 150;
 	minion.speed = 70;
 	motion.angle = 0.f;
 
