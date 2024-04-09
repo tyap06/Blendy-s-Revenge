@@ -828,6 +828,7 @@ void WorldSystem::restart_game() {
 		cutscene_active == true;
 		handle_cutScenes();
 	}
+	registry.boss_spawned = false;
 	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
 	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
 }

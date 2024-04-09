@@ -780,11 +780,13 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
 	auto entity = Entity();
 
-	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	//Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
 	registry.mesh_collision.emplace(entity);
-	registry.meshPtrs.emplace(entity, &mesh);
+	//registry.meshPtrs.emplace(entity, &mesh);
 	auto& motion = registry.motions.emplace(entity);
 	auto& minion = registry.minions.emplace(entity);
+	auto& cleaner = registry.cleaners.emplace(entity);
+
 	auto& boss = registry.boss.emplace(entity);
 	minion.type = Enemy_TYPE::BOSS;
 	minion.score = 10000;
@@ -799,6 +801,7 @@ Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bou
 	/*vec3 color = { 0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);*/
 
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::BOSS_D0, TEXTURE_ASSET_ID::BOSS_D0_N, GEOMETRY_BUFFER_ID::BOSS, false);
 
 	registry.renderRequests.insert(
 		entity,

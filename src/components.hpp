@@ -169,6 +169,13 @@ static const std::map<Direction, std::string> minion_direction_mesh = {
 	{Direction::Right, mesh_path("minion-right.obj")}
 };
 
+static const std::map<Direction, std::string> boss_direction_mesh = {
+	{Direction::Up, mesh_path("boss_up.obj")},
+	{Direction::Down, mesh_path("boss_down.obj")},
+	{Direction::Left, mesh_path("boss_left.obj")},
+	{Direction::Right, mesh_path("boss_right.obj")}
+};
+
 
 
 struct Mesh_entity {
@@ -778,9 +785,10 @@ enum class GEOMETRY_BUFFER_ID {
 	LEMON = GRAPE + 1,
 	ORANGE = LEMON + 1,
 	PROTEIN_POWER = ORANGE + 1,
-	BATTERY = PROTEIN_POWER + 1
+	BATTERY = PROTEIN_POWER + 1,
+	BOSS = BATTERY + 1
 };
-const int geometry_count = (int)GEOMETRY_BUFFER_ID::BATTERY + 1;
+const int geometry_count = (int)GEOMETRY_BUFFER_ID::BOSS + 1;
 
 struct RenderRequest {
 	TEXTURE_ASSET_ID used_texture = TEXTURE_ASSET_ID::TEXTURE_COUNT;
