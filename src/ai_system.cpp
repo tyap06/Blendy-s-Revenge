@@ -124,7 +124,7 @@ void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up
 void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, float elapsed_ms) {
 	if (!boss.is_shooting) return;
 	boss.time_since_last_shot_ms += elapsed_ms;
-	std::cout << boss.time_since_last_shot_ms << std::endl;
+	/*std::cout << boss.time_since_last_shot_ms << std::endl;*/
 	if (boss.time_since_last_shot_ms < boss.shoot_interval_ms / 4) return;
 	vec2 bullet_direction = normalize(player_pos - motion.position);
 	vec2 up_vector{ 0.0f, -1.0f };
