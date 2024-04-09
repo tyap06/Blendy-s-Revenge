@@ -502,7 +502,7 @@ void AISystem::step(float elapsed_ms)
 			vec2 direction = normalize(motion.velocity);
 			motion.velocity = direction * (original_speed);
 		}
-		else if (enemy.type == Enemy_TYPE::SHOOTER) {
+		else if (enemy.type == Enemy_TYPE::SHOOTER || enemy.type == Enemy_TYPE::SPLIT_SHOOTER) {
 			ShooterState state = decideShooterState(motion.position, predicted_player_pos, ideal_range_from_player);
 			switch (state) {
 			case ShooterState::Approach:

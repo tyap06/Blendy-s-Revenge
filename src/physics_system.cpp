@@ -16,8 +16,6 @@ bool checkMeshCollisionSAT(Mesh*, const Motion&, Mesh*, const Motion&, const box
 std::vector<vec2> getRectangleEdge(const Motion&, std::vector<vec2>&);
 box calculate_overlap_area(const vec2&, const vec2&, const vec2&, const vec2&);
 bool isPointInBox(const vec2&, const box&);
-void calculateMeshAxes(const std::vector<vec2>& vertices, std::vector<vec2>& axes);
-bool checkForCollision(const std::vector<vec2>& shape1, const std::vector<vec2>& shape2, const std::vector<vec2>& axes);
 //extern Grid grid;
 
 // Returns the local bounding coordinates scaled by the current size of the entity
@@ -235,7 +233,7 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 		}
 		if (mesh_one == NULL || mesh_two == NULL) {
-			std::cout << "No mesh!!" << std::endl;
+			//std::cout << "No mesh!!" << std::endl;
 		}
 	}
 	return false;
@@ -260,7 +258,6 @@ void PhysicsSystem::step(float elapsed_ms)
 		float step_seconds = elapsed_ms / 1000.f;
 
 		if (registry.players.has(entity)) {
-			// Vicky M1: idle animation
 			// blendy animation
 			Player& blendy = registry.players.get(entity);
 			if (!registry.is_dead) {
@@ -284,6 +281,7 @@ void PhysicsSystem::step(float elapsed_ms)
 
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
 			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
+			
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
@@ -315,11 +313,10 @@ void PhysicsSystem::step(float elapsed_ms)
 		else if(registry.minions.has(entity)){
 			/*applyBoidsRuleSeparation(entity, motion);*/
 			float new_x = motion.velocity.x * step_seconds + motion.position.x;
-			float new_y = motion.velocity.y * step_seconds + motion.position.y;
+			float new_y = motion.velocity.y * step_seconds + motion.position.y + motion.y_animate;
 			vec2 bounding_box = { abs(motion.scale.x), abs(motion.scale.y) };
 			float half_width = bounding_box.x / 2.f;
 			float half_height = bounding_box.y / 2.f;
-			
 			
 			if (new_x - half_width <= 0) {
 				if (registry.roamers.has(entity) && motion.velocity.x < 0) {
@@ -525,90 +522,75 @@ void PhysicsSystem::step(float elapsed_ms)
 
 
 
-bool checkMeshCollisionSAT(Mesh* mesh, const Motion& motion_one, Mesh* otherMesh, const Motion& motion_two, const box overlapBox) {
-	std::vector<vec2> axes;
-	std::vector<vec2> shape;
-	std::vector<vec2> otherShape;
-	bool collision = false;
-	Transform transform_one;
-	Transform transform_two;
-	transform_one.translate(motion_one.position);
-	transform_one.rotate(motion_one.angle);
-	transform_one.scale(motion_one.scale);
-	transform_two.translate(motion_two.position);
-	transform_two.rotate(motion_two.angle);
-	transform_two.scale(motion_two.scale);
 
-	for (size_t i = 0; i < mesh->vertex_indices.size(); i += 3) {
-		if (i + 2 >= mesh->vertex_indices.size()) {
-			continue;
-		}
-
-		shape.clear();
-		for (int j = 0; j < 3; j++) {
-			const ColoredVertex& v = mesh->vertices[mesh->vertex_indices[i + j]];
-			vec3 worldPos = transform_one.mat * vec3(v.position.x, v.position.y, 1.0f);
-			vec2 pos = vec2(worldPos.x, worldPos.y);
-			if (isPointInBox(pos, overlapBox)) {
-				shape.push_back(pos);
-			}
-		}
-
-		if (shape.empty()) {
-			continue;
-		}
-
-		axes.clear();
-		calculateMeshAxes(shape, axes);
-
-		for (size_t index = 0; index < otherMesh->vertex_indices.size(); index += 3) {
-			if (index + 2 >= otherMesh->vertex_indices.size()) {
-				continue;
-			}
-
-			otherShape.clear();
-			for (int j = 0; j < 3; j++) {
-				const ColoredVertex& v = otherMesh->vertices[otherMesh->vertex_indices[index + j]];
-				vec3 worldPos = transform_two.mat * vec3(v.position.x, v.position.y, 1.0f);
-				vec2 pos = vec2(worldPos.x, worldPos.y);
-				if (isPointInBox(pos, overlapBox)) {
-					otherShape.push_back(pos);
-				}
-			}
-
-			if (otherShape.empty()) {
-				continue;
-			}
-
-			calculateMeshAxes(otherShape, axes);
-
-			if (checkForCollision(shape, otherShape, axes)) {
-				return true;
-			}
-		}
-	}
-	return collision;
+Transform createTransform(const Motion& motion) {
+	Transform transform;
+	transform.translate(motion.position);
+	transform.rotate(motion.angle);
+	transform.scale(motion.scale);
+	return transform;
 }
 
-void calculateMeshAxes(const std::vector<vec2>& vertices, std::vector<vec2>& axes) {
-	for (size_t i = 0; i < vertices.size(); i++) {
-		vec2 edge = vertices[(i + 1) % vertices.size()] - vertices[i];
+
+void appendAxesFromShape(std::vector<vec2>& axes, const std::vector<vec2>& shape) {
+	for (size_t i = 0; i < shape.size(); i++) {
+		vec2 edge = shape[(i + 1) % shape.size()] - shape[i];
 		vec2 normal = normalize(vec2(-edge.y, edge.x));
-		if (!isParallel(axes, normal)) {
+		if (std::find(axes.begin(), axes.end(), normal) == axes.end()) {
 			axes.push_back(normal);
 		}
 	}
 }
-
-bool checkForCollision(const std::vector<vec2>& shape1, const std::vector<vec2>& shape2, const std::vector<vec2>& axes) {
-	for (const vec2& axis : axes) {
-		std::pair<float, float> projection1 = projectOntoAxis(shape1, axis);
-		std::pair<float, float> projection2 = projectOntoAxis(shape2, axis);
-		if (!projectionsOverlap(projection1, projection2)) {
-			return false;
+std::vector<vec2> getTransformedVertices(Mesh* mesh, const Transform& transform, const box& overlapBox) {
+	std::vector<vec2> transformedVertices;
+	for (size_t i = 0; i < mesh->vertex_indices.size(); i++) {
+		const ColoredVertex& v = mesh->vertices[mesh->vertex_indices[i]];
+		vec3 worldPos = transform.mat * vec3(v.position.x, v.position.y, 1.0f);
+		vec2 pos = vec2(worldPos.x, worldPos.y);
+		if (isPointInBox(pos, overlapBox)) {
+			transformedVertices.push_back(pos);
 		}
 	}
-	return true;
+	return transformedVertices;
+}
+
+std::vector<vec2> getUniqueAxes(const std::vector<vec2>& shape1, const std::vector<vec2>& shape2) {
+	std::vector<vec2> axes;
+	appendAxesFromShape(axes, shape1);
+	appendAxesFromShape(axes, shape2);
+
+	// Remove duplicate axes
+	std::sort(axes.begin(), axes.end(), [](const vec2& a, const vec2& b) {
+		return a.x < b.x || (a.x == b.x && a.y < b.y);
+		});
+	axes.erase(unique(axes.begin(), axes.end(), [](const vec2& a, const vec2& b) {
+		return a.x == b.x && a.y == b.y;
+		}), axes.end());
+
+	return axes;
+}
+
+
+bool checkMeshCollisionSAT(Mesh* mesh, const Motion& motion_one, Mesh* otherMesh, const Motion& motion_two, const box overlapBox) {
+	Transform transform_one = createTransform(motion_one);
+	Transform transform_two = createTransform(motion_two);
+
+	std::vector<vec2> shape = getTransformedVertices(mesh, transform_one, overlapBox);
+	std::vector<vec2> otherShape = getTransformedVertices(otherMesh, transform_two, overlapBox);
+
+	if (shape.empty() || otherShape.empty()) {
+		return false; // No collision if either shape has no vertices within the overlap box
+	}
+
+	std::vector<vec2> axes = getUniqueAxes(shape, otherShape);
+
+	for (const vec2& axis : axes) {
+		if (!projectionsOverlap(projectOntoAxis(shape, axis), projectOntoAxis(otherShape, axis))) {
+			return false; 
+		}
+	}
+
+	return true; 
 }
 
 vec2 normalize(const vec2& v) {

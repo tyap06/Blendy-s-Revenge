@@ -18,11 +18,22 @@ enum class EntityType {
 
 enum class POWERUP_TYPE {
 
-	PAC_FRUIT = 0,
-	BATTERY = PAC_FRUIT + 1,
+	BATTERY = 0,
 	PROTEIN = BATTERY + 1,
 	GRAPE = PROTEIN + 1,
-	LEMON = GRAPE + 1
+	LEMON = GRAPE + 1,
+	CHERRY = LEMON + 1,
+	CACTUS = CHERRY + 1,
+	SHIELD = CACTUS + 1,
+};
+
+enum class Bullet_State {
+	Default = 0,
+	Protein = Default+ 1,
+	Grape = Protein +1,
+	Lemon = Grape + 1,
+	Cherry = Lemon + 1,
+	Cactus = Cherry +1,
 };
 
 enum class Sniper_State {
@@ -45,8 +56,10 @@ enum class Enemy_TYPE {
 	HEALER = CHARGER + 1,
 	GIANT = HEALER + 1,
 	SNIPER = GIANT + 1,
-	TANK = SNIPER +1,
-	Manager = TANK +1,
+	TANK = SNIPER + 1,
+	CLEANER = TANK + 1,
+	SPLIT_SHOOTER = CLEANER + 1,
+	BOSS = SPLIT_SHOOTER + 1,
 };
 
 enum class Charger_State {
@@ -102,7 +115,6 @@ struct ToolTip {
 struct Cursor {
 
 };
-
 
 enum class Direction {
 	Up,
@@ -731,7 +743,6 @@ enum class TEXTURE_ASSET_ID {
 	BOSS_UR3_N = BOSS_UR3 + 1,
 
 	TEXTURE_COUNT = BOSS_UR3_N + 1
-
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
