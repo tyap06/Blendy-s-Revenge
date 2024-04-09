@@ -7,7 +7,7 @@
 Story of the game displaying before starting the game and custscens when beat the boss or killed by minions.
 ### Game Balance 10%
 We adjust the game balance make it feel rewarding and fun, thereby improving the overall quality of the game.
-Note: Boss with one shot player with melee attack because we don't want the player just steal the power up from boss
+Note: Boss will one shot player with melee attack because we don't want the player just walk to and steal the power up from boss 
 ### Asset creation tools 10%
 We created a vast array of visual content for game. Added lots of new graphic assets. 
 
