@@ -374,7 +374,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn cherry powerup
-	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 0.f) {
+	if (registry.powerUps.components.size() <= MAX_CHERRY_POWERUPS && next_cherry_powerup_spawn < 1000.f) {
 		next_cherry_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -398,7 +398,7 @@ void WorldSystem::update_powerups(float elapsed_ms_since_last_update)
 	}
 
 	// Spawn cactus powerup
-	if (registry.powerUps.components.size() <= MAX_CACTUS_POWERUPS && next_cactus_powerup_spawn < 0.f && registry.score > 0) {
+	if (registry.powerUps.components.size() <= MAX_CACTUS_POWERUPS && next_cactus_powerup_spawn < 0.f && registry.score >1000) {
 		next_cactus_powerup_spawn = POWERUP_DELAY_MS * 20 + uniform_dist(rng) * POWERUP_DELAY_MS;
 
 		vec2 random_pos;
@@ -689,40 +689,66 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				}
 
 				if (blendy.pattern_type == 0) {
-					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
+					create_bullet(renderer, blendy_pos, bullet_direction * bullet_speed, angle_diff, blendy.bullet_type);
+					bullet_timer = bullet_launch_interval;
 				}
 				else if (blendy.pattern_type == 1) {
+					angle_diff = -3.02989;
 					shootGrapeBullets(renderer, blendy_pos, bullet_direction, angle_diff, up_angle, blendy.bullet_type);
+					bullet_timer = bullet_launch_interval;
 				}
 				else {
 					//todo: cherry
-					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
-					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
-					create_bullet(renderer, blendy_pos, bullet_direction, angle_diff, blendy.bullet_type);
+					blendy.bullet_type = 0;
+					float new_bullet_speed = bullet_speed * cherry_coef;
+
+					// Calculate bullet directions for triple shot
+					vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x); // Perpendicular direction
+
+					create_bullet(renderer, blendy_pos, bullet_direction * new_bullet_speed, angle_diff, blendy.bullet_type);
+					create_bullet(renderer, blendy_pos, (bullet_direction + side_direction * 0.2f) * new_bullet_speed, angle_diff, blendy.bullet_type);
+					create_bullet(renderer, blendy_pos, (bullet_direction - side_direction * 0.2f) * new_bullet_speed, angle_diff, blendy.bullet_type);
+					bullet_timer = bullet_launch_interval;
 				}
 
+				if (blendy.bullet_type != 0) {
+					blendy.bullet_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				}
+				if (blendy.bullet_powerup_duration_ms < 0) {
+					blendy.bullet_type = 0;
+				}
 
-				if(blendy.bullet_type != 0) blendy.bullet_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-				if (blendy.bullet_powerup_duration_ms < 0) blendy.bullet_type = 0;
-
-				if (blendy.pattern_type != 0) blendy.pattern_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
-				if (blendy.pattern_powerup_duration_ms < 0) blendy.pattern_type = 0;
-
-
-
+				if (blendy.pattern_type != 0) {
+					blendy.pattern_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+				}
+				if (blendy.pattern_powerup_duration_ms < 0) {
+					blendy.pattern_type = 0;
+				}
 				
 			}
 			else if (bullet_timer > 0.0f) {
 				float multi_1 = 1;
 				float multi_2 = 1;
-				if (blendy.pattern_type == 1) multi_1 = 0.6;
-				if (blendy.pattern_type == 1) multi_1 = 0.8;
+				if (blendy.pattern_type == 1) {
+					multi_1 = 0.6; 
+				}
+				if (blendy.pattern_type == 1) {
+					multi_1 = 0.8;
+				}
+
 				if (blendy.protein_powerup_duration_ms > 0) {
-					multi_2 = 1.5;
+					//multi_2 = 1.5;
+					bullet_speed = bullet_speed * 1.2;
+					bullet_timer = bullet_launch_interval / 1.2;
 					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
 				}
+
 				bullet_timer -= elapsed_ms_since_last_update / 1000.0f * multi_1 * multi_2;
+				//bullet_timer -= elapsed_ms_since_last_update / 1000.0f;
 			}
+
+			std::cout << "Blendy protein powerup duration: " << blendy.protein_powerup_duration_ms << std::endl;
+			//std::cout << "Bullet_timer:" << bullet_timer << std::endl;
 	}
 	return;
 }
@@ -993,7 +1019,9 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
-					blendy.protein_powerup_duration_ms = 300.f;
+					blendy.bullet_type = 0;
+					blendy.pattern_type = 0;
+					blendy.protein_powerup_duration_ms = 500.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::GRAPE) {
@@ -1008,11 +1036,12 @@ void WorldSystem::handle_collisions() {
 				}
 				else if (powerup.type == POWERUP_TYPE::CHERRY) {
 					blendy.pattern_type = 2;
+					blendy.bullet_type = 0;
 					blendy.pattern_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::CACTUS) {
-					blendy.bullet_type = 1;
+					blendy.bullet_type = 3;
 					blendy.bullet_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
 					
