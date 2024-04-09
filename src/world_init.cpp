@@ -667,16 +667,14 @@ Entity create_cactus_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, flo
 	motion.position = pos;
 	motion.angle = angle;
 	motion.velocity = velocity;
-	motion.scale = vec2(60.f, 100.0f);
+	motion.scale = vec2(50.f, 50.f);
 	auto& bullet = registry.bullets.emplace(entity);
 
-	vec3 color = { 0, 1, 0 };
-	registry.colors.insert(entity, color);
 	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale.y }, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
 
 	registry.renderRequests.insert(
 		entity,
-		{ TEXTURE_ASSET_ID::BULLET,
+		{ TEXTURE_ASSET_ID::CACTUS_BULLET,
 			TEXTURE_ASSET_ID::BULLET_NM,
 		 EFFECT_ASSET_ID::TEXTURED,
 		 GEOMETRY_BUFFER_ID::SPRITE });
