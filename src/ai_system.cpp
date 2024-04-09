@@ -100,7 +100,9 @@ void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float ela
 			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.2f) * 280.0f, angle_diff);
 			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.2f) * 280.0f, angle_diff);
 		}
-		create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
+		else {
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff);
+		}
 		shooter.time_since_last_shot_ms = static_cast<float>(distr(gen));
 	}
 }
@@ -164,7 +166,7 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 	case Bullet_State::Cactus: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 1.5) {
 			//todo:change_shape
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 1280.0f, angle_diff, 100, { 1,0,0 });
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 580.0f, angle_diff, 25, { 1,0,0 });
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;
@@ -172,9 +174,9 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 	case Bullet_State::Cherry: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
 			vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x);
-			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.2f) * 320.0f, angle_diff, 25, { 1,0.5,0 });
-			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.2f) * 320.0f, angle_diff, 25, { 1,0.5,0 });
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff, 25, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.4f) * 320.0f, angle_diff, 5, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.4f) * 320.0f, angle_diff, 5, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff, 5, { 1,0.5,0 });
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;
@@ -188,7 +190,7 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 	}
 	case Bullet_State::Lemon: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms / 2) {
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.f, angle_diff, 50, { 0.3,1,0 });
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.f, angle_diff, 50, { 0.5,1,0 });
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;

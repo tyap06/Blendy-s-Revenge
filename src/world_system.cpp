@@ -1026,7 +1026,7 @@ void WorldSystem::hit_enemy(const Entity& target, const int& damage) {
 	// blendy has cactus powerup
 	if (blendy.bullet_type != 1 && blendy.bullet_type != 0) {
 		Mix_PlayChannel(-1, minion_hurt, 0);
-		int new_damage = damage * 10;
+		int new_damage = damage * 2;
 		minion.health -= std::max((new_damage - minion.armor), 1.f);
 	}
 	// blendy does not have cactus powerup regular attack
