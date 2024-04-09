@@ -18,7 +18,7 @@ We created a vast array of visual content for game. Added lots of new graphic as
 - protein
 - cactus - NEW
 - cherry - NEW
-- Nuts - NEW
+- Powerup  - NEW
 ##### Others
 - player hurt_sound
 - minion_hurt_sound
@@ -48,7 +48,7 @@ We created a vast array of visual content for game. Added lots of new graphic as
 
 ### Game settings
 - Game should pause and cutscenes should be displayed without any layering issues.
-
+- Text will be displayed on the main game background after: “Press “H” for Help” 
 
 - Tank attempts to shield the Sniper from the player based on sniper and player position when possible. One sniper can be most protected by one tank.
 
