@@ -384,6 +384,7 @@ class RenderSystem {
 			textures_path("Boss_ur2_n.png"),
 			textures_path("Boss_ur3.png"),
 			textures_path("Boss_ur3_n.png"),
+			textures_path("Boss_healthBar.png")
 
 	};
 
