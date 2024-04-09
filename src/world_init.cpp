@@ -223,6 +223,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	
 	// Create an (empty) Blendy component to be able to refer to Blendy
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
@@ -1060,7 +1061,6 @@ Entity create_cursor(RenderSystem* renderer, const vec2& position)
 
 	return entity;
 }
-
 
 Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 {
