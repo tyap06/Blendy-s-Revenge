@@ -22,7 +22,6 @@ std::random_device rd;
 std::mt19937 gen(rd());
 std::uniform_real_distribution<> angleDistr(-M_PI / 2, M_PI / 2);
 std::uniform_int_distribution<> distr(-2000, 100); 
-std::uniform_real_distribution<float> spread(-5.0f, 5.0f);
 
 float calculateDistance(const vec2& pos1, const vec2& pos2) {
 	vec2 diff = pos1 - pos2;
@@ -100,6 +99,8 @@ void AISystem::shoot(Entity shooterEntity, const vec2& playerPosition, float ela
 	}
 }
 
+
+
 void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff) {
 	const int num_bullets = 12;
 	const float angle_increment = 2 * M_PI / num_bullets; 
@@ -147,7 +148,8 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 		return;
 	}
 	case Bullet_State::Grape: {
-		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms) {
+			angle_diff = -3.02989;
 			shootGrapeBullets(renderer, motion.position, bullet_direction, up_angle, angle_diff);
 			boss.time_since_last_shot_ms = 0;
 		}
