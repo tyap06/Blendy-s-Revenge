@@ -1,6 +1,6 @@
 # Team-11---Blendy-s-Revenge-
 
-# Milestone 3: Features Implemented
+# Milestone 4: Features Implemented
 
 ## Creative Features Basic (10% + 10%)
 ### Simple rendering effects    basic    Fragment shaders, OpenGL uniforms. 
@@ -20,12 +20,7 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 
 #### Music
 - regular game music but sped up
-### Animation
-#### Blendy
-- 8-directional movement animation
-- Persistent Blendy‘ s facing direction after stop moving
-#### Minions
-- 4-directional movement animation
+
 ### New minions ai
 - new enemy charger(in light red color)
 - new enemy sniper(in blue color) 
@@ -33,5 +28,9 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 - new enemy giant (in rainbow color)
 ## Creative Features Advanced (20%)
 ### cooperative ai 
-
+### Animation
+#### Boss
+- 8-directional Boss Animation
+### UI
+- Add HelpToolTip
 Tank attempts to shield the Sniper from the player based on sniper and player position when possible. One sniper can be most protected by one tank.
