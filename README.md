@@ -7,9 +7,9 @@
 Story of the game displaying before starting the game and custscens when beat the boss or killed by minions.
 
 ### Game Balance 10%
-We adjust the game balance make it 
+We adjust the game balance make it feel rewarding and fun, thereby improving the overall quality of the game.
 ### Asset creation tools 10%
-We have 
+We created a vast array of visual content for game. Added lots of new graphic assets. 
 
 #### New Effects:
 ##### Powerup pickup
@@ -19,6 +19,7 @@ We have
 - protein
 - cactus - NEW
 - cherry - NEW
+- Nuts - NEW
 ##### Others
 - player hurt_sound
 - minion_hurt_sound
@@ -35,6 +36,7 @@ We have
 #### BOSS -- NEW
 - 8-directional movement animation
 - Persistent BOSS‘ s facing direction after stop moving
+- Be able to pickup the power ups
 ### New minions ai
 - new enemy charger(in light red color)
 - new enemy sniper(in blue color) 
