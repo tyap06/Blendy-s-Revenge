@@ -341,7 +341,7 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	minion.max_health = score/2;
 	minion.speed = 50;
 	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
-
+	registry.loots.emplace(entity);
 	registry.giants.emplace(entity);
 	registry.renderRequests.insert(
 		entity,
@@ -574,6 +574,34 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 	return entity;
 }
 
+Entity create_split_shooter(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
+	auto entity = Entity();
+
+
+	registry.mesh_collision.emplace(entity);
+	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	minion.type = Enemy_TYPE::SPLIT_SHOOTER;
+	minion.score = 40;
+	motion.angle = 0.f;
+	motion.velocity = { 0, -80.f };
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y });
+
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
+	auto& dodger = registry.shooters.emplace(entity);
+	registry.splitShooters.emplace(entity);
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::MINION,
+		  TEXTURE_ASSET_ID::MINION_NM,
+		  EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
 	auto entity = Entity();
 
@@ -607,6 +635,39 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	return entity;
 }
 
+Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bounds) {
+	auto entity = Entity();
+
+	Mesh& mesh = renderer->getMesh(GEOMETRY_BUFFER_ID::MINION);
+	registry.mesh_collision.emplace(entity);
+	registry.meshPtrs.emplace(entity, &mesh);
+	auto& motion = registry.motions.emplace(entity);
+	auto& minion = registry.minions.emplace(entity);
+	auto& boss = registry.boss.emplace(entity);
+	minion.type = Enemy_TYPE::BOSS;
+	minion.score = 10000;
+	motion.angle = 0.f;
+	minion.health = 4000;
+	minion.max_health = 4000;
+	minion.armor = 0;
+	minion.speed = 200;
+	motion.velocity = { 0, -80.f };
+	motion.position = position;
+	motion.scale = vec2({ -bounds.x, bounds.y });
+	/*vec3 color = { 0.5,0.2,0.2 };
+	registry.colors.insert(entity, color);*/
+
+
+	registry.renderRequests.insert(
+		entity,
+		{ TEXTURE_ASSET_ID::BOSS_D0,
+		  TEXTURE_ASSET_ID::BOSS_D0_N,
+		  EFFECT_ASSET_ID::TEXTURED,
+		  GEOMETRY_BUFFER_ID::SPRITE });
+
+	return entity;
+}
+
 Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bounds)
 {
 	auto entity = Entity();
@@ -629,7 +690,6 @@ Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bou
 	vec3 color = { 0,0,0 };
 	registry.colors.insert(entity, color);
 	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
-
 	auto& tank = registry.tanks.emplace(entity);
 
 	registry.renderRequests.insert(
