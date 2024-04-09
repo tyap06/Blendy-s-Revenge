@@ -135,7 +135,7 @@ Entity createBullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle
 	motion.scale = vec2(100.0f, 100.0f);
 	registry.bullets.emplace(entity);
 
-	create_mesh(renderer, pos, velocity, { 0.4 * motion.scale.x, 0.8 * motion.scale .y}, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, false);
+	create_mesh(renderer, pos, velocity, { 0.35 * motion.scale.x, 0.65 * motion.scale .y}, angle, entity, TEXTURE_ASSET_ID::BULLET, TEXTURE_ASSET_ID::BULLET_NM, GEOMETRY_BUFFER_ID::BULLET, true);
 	registry.renderRequests.insert(
 		entity,
 		{ TEXTURE_ASSET_ID::BULLET,
@@ -197,6 +197,7 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
+	
 	// Create an (empty) Blendy component to be able to refer to Blendy
 	registry.players.emplace(entity);
 	registry.renderRequests.insert(
@@ -854,7 +855,6 @@ Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 scale, float angle, En
 	}
 	return entity;
 }
-
 
 Entity createCutScene(RenderSystem* renderer, vec2 pos, vec2 bounds, int stage)
 {
