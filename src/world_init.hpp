@@ -40,6 +40,10 @@ Entity create_fps_counter(RenderSystem* renderer, const vec2& position, const ve
 Entity create_score_counter(RenderSystem* renderer, const vec2& position, const vec2& bounds, const vec3& color);
 
 Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+// a particle emitter that emits particles
+Entity create_particle_emitter(const vec2& position, const vec2& scale, const float& particle_lifetime, const float& centre_offset, const vec3& start_color, const vec3& end_color, const float& outward_velocity_magnitude, const float& particle_size);
+
 // the minions
 Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
