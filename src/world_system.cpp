@@ -816,6 +816,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
+	registry.boss_spawned = false;
 	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
@@ -865,7 +866,8 @@ void WorldSystem::update_score()
 void WorldSystem::hit_player(const int& damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
 		auto& player = registry.players.get(player_blendy);
-		if (player.health - damage <= 0) {
+
+		if (player.health - damage <= 0 || damage == 1000) {
 			player.health = 0;
 			update_health_bar();
 			is_dead = true;
@@ -926,8 +928,10 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other)) {
 				int damage = registry.minions.get(entity_other).damage;
 				hit_player(damage);
-				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
-				registry.remove_all_components_of(entity_other);
+				if (!registry.boss.has(entity_other)) {
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+					registry.remove_all_components_of(entity_other);
+				}
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {
@@ -1021,20 +1025,27 @@ void WorldSystem::handle_collisions() {
 						if (m.health > m.max_health) m.health = m.max_health;
 						break;
 					case POWERUP_TYPE::LEMON:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.powerup_duration_ms = 100;
+						break;
 					case POWERUP_TYPE::CHERRY:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.powerup_duration_ms = 60;
+						boss.powerup_duration_ms = 100;
 						break;
 					case POWERUP_TYPE::GRAPE:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.state = BossState::Shooting;
+						boss.powerup_duration_ms = 300;
+						break;
 					case POWERUP_TYPE::	PROTEIN:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 100;
+						boss.powerup_duration_ms = 130;
 						break;
 					case POWERUP_TYPE::CACTUS:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 150;
+						boss.powerup_duration_ms = 200;
 						break;
 					default:
 						break;
