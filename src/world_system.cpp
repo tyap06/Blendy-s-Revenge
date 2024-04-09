@@ -815,6 +815,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
+	registry.boss_spawned = false;
 	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
@@ -868,7 +869,8 @@ void WorldSystem::update_score()
 void WorldSystem::hit_player(const int& damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
 		auto& player = registry.players.get(player_blendy);
-		if (player.health - damage <= 0) {
+
+		if (player.health - damage <= 0 || damage == 1000) {
 			player.health = 0;
 			update_health_bar();
 			is_dead = true;
@@ -929,8 +931,10 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other)) {
 				int damage = registry.minions.get(entity_other).damage;
 				hit_player(damage);
-				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
-				registry.remove_all_components_of(entity_other);
+				if (!registry.boss.has(entity_other)) {
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+					registry.remove_all_components_of(entity_other);
+				}
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {

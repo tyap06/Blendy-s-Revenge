@@ -789,6 +789,7 @@ Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.type = Enemy_TYPE::BOSS;
 	minion.score = 10000;
 	motion.angle = 0.f;
+	minion.damage = 1000;
 	minion.health = 4000;
 	minion.max_health = 4000;
 	minion.armor = 0;
