@@ -736,9 +736,8 @@ void WorldSystem::update_bullets(float elapsed_ms_since_last_update) {
 				}
 
 				if (blendy.protein_powerup_duration_ms > 0) {
-					//multi_2 = 1.5;
-					bullet_timer = bullet_launch_interval / 1.2;
-					blendy.protein_powerup_duration_ms -= elapsed_ms_since_last_update * current_speed;
+					
+					multi_2 = 10;
 				}
 
 				bullet_timer -= elapsed_ms_since_last_update / 1000.0f * multi_1 * multi_2;
@@ -1017,8 +1016,6 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::PROTEIN) {
-					blendy.bullet_type = 0;
-					blendy.pattern_type = 0;
 					blendy.protein_powerup_duration_ms = 500.f;
 					registry.remove_all_components_of(entity_other);
 				}
@@ -1033,13 +1030,12 @@ void WorldSystem::handle_collisions() {
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::CHERRY) {
-					blendy.pattern_type = 2;
-					blendy.bullet_type = 0;
+					blendy.pattern_type = 2;	
 					blendy.pattern_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
 				}
 				else if (powerup.type == POWERUP_TYPE::CACTUS) {
-					blendy.bullet_type = 3;
+					blendy.bullet_type = 2;
 					blendy.bullet_powerup_duration_ms = 300.f;
 					registry.remove_all_components_of(entity_other);
 					
