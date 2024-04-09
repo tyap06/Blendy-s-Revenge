@@ -174,9 +174,9 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 	case Bullet_State::Cherry: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
 			vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x);
-			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.4f) * 320.0f, angle_diff, 5, { 1,0.5,0 });
-			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.4f) * 320.0f, angle_diff, 5, { 1,0.5,0 });
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff, 5, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.3f) * 320.0f, angle_diff, 15, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.3f) * 320.0f, angle_diff, 15, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff, 15, { 1,0.5,0 });
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;
