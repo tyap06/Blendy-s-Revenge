@@ -192,7 +192,7 @@ GLFWwindow* WorldSystem::create_window() {
 		fprintf(stderr, "Failed to glfwCreateWindow");
 		return nullptr;
 	}
-
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
 	// Setting callbacks to member functions (that's why the redirect is needed)
 	// Input is handled using GLFW, for more info see
 	// http://www.glfw.org/docs/latest/input_guide.html
@@ -787,7 +787,21 @@ bool WorldSystem::step(float elapsed_ms_since_last_update) {
 
 	return true;
 }
+void WorldSystem::render_cursor() {
+	vec2 mouse_position = getCurrentMousePosition();
+	if (mouse_position.x > window_width_px || mouse_position.x < 0 || mouse_position.y > window_height_px || mouse_position.y < 0) {
+		return;
+	}
+	registry.motions.get(cursor).position = mouse_position;
+	registry.renderRequests.remove(cursor);
+	registry.renderRequests.insert(
+		cursor,
+		{ TEXTURE_ASSET_ID::CURSOR,
+			TEXTURE_ASSET_ID::TEXTURE_COUNT,
+		 EFFECT_ASSET_ID::TEXTURED,
+		GEOMETRY_BUFFER_ID::SPRITE });
 
+}
 // Reset the world state to its initial state
 void WorldSystem::restart_game() {
 	game_music_state = MusicState::Ordinary;
@@ -816,6 +830,7 @@ void WorldSystem::restart_game() {
 
 	is_dead = false;
 	registry.is_dead = false;
+	registry.boss_spawned = false;
 	registry.score = 0;
 	game_background = create_background(renderer, CENTER_OF_SCREEN, BACKGROUND_BOUNDS);
 	player_blendy = create_blendy(renderer, BLENDY_START_POSITION, BLENDY_BOUNDS);
@@ -823,20 +838,23 @@ void WorldSystem::restart_game() {
 	directional_light = create_directional_light(renderer, BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT, DIRECTIONAL_LIGHT_BOUNDS, CAMERA_POSITION);
 	fps_counter = create_fps_counter(renderer, FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, FPS_COUNTER_SCALE, FPS_TEXT_COLOR);
 	score_counter = create_score_counter(renderer, SCORE_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN, SCORE_COUNTER_SCALE, SCORE_TEXT_COLOR);
-	registry.is_pause = false;
-	// score_component.show = true;
-	if (!has_restarted) {
-		cutscene_active == true;
-		handle_cutScenes();
-	}
+
 	registry.boss_spawned = false;
 
 	test_particle_emitter = create_particle_emitter(CENTER_OF_SCREEN, BACKGROUND_BOUNDS, 2000.f, 30.f, RED, WHITE, 0.05f, 5);
 	test_particle_emitter_2 = create_particle_emitter(CENTER_OF_SCREEN - vec2{200.f, 200.f}, BACKGROUND_BOUNDS, 2000.f, 50.f, MAGENTA, RED, 0.25f, 10);
 	cutscene_active == true;
+	cursor = create_cursor(renderer, { window_width_px / 2,window_height_px / 2 });
 	handle_cutScenes();
 }
-
+void WorldSystem::window_minimized_callback() {
+	registry.is_minimized = true;
+	Mix_PauseMusic();
+}
+void WorldSystem::window_unminimized_callback() {
+	Mix_ResumeMusic();
+	registry.is_minimized = false;
+}
 void WorldSystem::console_debug_fps()
 {
 	if (debugging.show_game_fps)
@@ -873,7 +891,8 @@ void WorldSystem::update_score()
 void WorldSystem::hit_player(const int& damage) {
 	if (!registry.deathTimers.has(player_blendy)) {
 		auto& player = registry.players.get(player_blendy);
-		if (player.health - damage <= 0) {
+
+		if (player.health - damage <= 0 || damage == 1000) {
 			player.health = 0;
 			update_health_bar();
 			is_dead = true;
@@ -934,8 +953,10 @@ void WorldSystem::handle_collisions() {
 			if (registry.minions.has(entity_other)) {
 				int damage = registry.minions.get(entity_other).damage;
 				hit_player(damage);
-				registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
-				registry.remove_all_components_of(entity_other);
+				if (!registry.boss.has(entity_other)) {
+					registry.remove_all_components_of(registry.Entity_Mesh_Entity.get(entity_other));
+					registry.remove_all_components_of(entity_other);
+				}
 			}
 			else if (registry.bullets.has(entity_other)) {
 				if (!registry.bullets.get(entity_other).friendly) {
@@ -1034,20 +1055,27 @@ void WorldSystem::handle_collisions() {
 						if (m.health > m.max_health) m.health = m.max_health;
 						break;
 					case POWERUP_TYPE::LEMON:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.powerup_duration_ms = 100;
+						break;
 					case POWERUP_TYPE::CHERRY:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.powerup_duration_ms = 60;
+						boss.powerup_duration_ms = 100;
 						break;
 					case POWERUP_TYPE::GRAPE:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.state = BossState::Shooting;
+						boss.powerup_duration_ms = 300;
+						break;
 					case POWERUP_TYPE::	PROTEIN:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 100;
+						boss.powerup_duration_ms = 130;
 						break;
 					case POWERUP_TYPE::CACTUS:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 150;
+						boss.powerup_duration_ms = 200;
 						break;
 					default:
 						break;

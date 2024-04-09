@@ -78,13 +78,13 @@ enum class BossState {
 };
 
 struct Boss {
-	BossState state = BossState::Default;
-	Bullet_State bstate = Bullet_State::Cherry;
+	BossState state = BossState::Shooting;
+	Bullet_State bstate = Bullet_State::Grape;
 	float aim_timer = 0;
 	float shoot_interval_ms = 20.0f;
 	float time_since_last_shot_ms = 0.0f;
 	bool is_shooting = true;
-	float powerup_duration_ms = 300.f;
+	float powerup_duration_ms = 200.f;
 	vec2 charge_direction;
 	float rest_timer = 30;
 	int isAngry = 0;
