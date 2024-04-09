@@ -27,6 +27,6 @@
 ### Physics System
 - collision
 ## Creative Features Advanced (20%)
-
-
-Tank attempts to shield the Sniper from the player based on sniper and player position when possible. One sniper can be most protected by one tank.
+- Cutscene
+- Game Balance
+- Main Story
