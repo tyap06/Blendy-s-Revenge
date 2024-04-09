@@ -21,13 +21,18 @@ const size_t MAX_TANK = 2;
 const size_t MAX_SNIPER = 2;
 const size_t MAX_HEALER = 1;
 const size_t MAX_GIANT = 1;
+const size_t MAX_CLEANER = 1;
 const size_t MINION_DELAY_MS = 200 * 6;
 const float LIGHT_SOURCE_MOVEMENT_DISTANCE = 50.0f;
 const size_t MAX_BATTERY_POWERUPS = 2;
 const size_t MAX_PROTEIN_POWDER_POWERUPS = 2;
 const size_t MAX_GRAPE_POWERUPS = 2;
 const size_t MAX_LEMON_POWERUPS = 2;
+const size_t MAX_CHERRY_POWERUPS = 2;
+const size_t MAX_SHIELD_POWERUPS = 2;
+const size_t MAX_CACTUS_POWERUPS = 2;
 const size_t POWERUP_DELAY_MS = 200 * 3;
+const int boss_spawn_score = 5000;
 const float PLAYER_POWERUP_SPAWN_DISTANCE = 150.0f;
 
 // UI
@@ -42,10 +47,13 @@ const vec2 TOP_LEFT_OF_SCREEN = { 0.f,0.f };
 const vec2 CENTER_OF_SCREEN = { window_width_px / 2, window_height_px / 2 };
 const vec2 BOTTOM_RIGHT_OF_SCREEN = { window_width_px, window_height_px };
 const vec2 BOTTOM_LEFT_OF_SCREEN = { 0, window_height_px };
-const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT	 = { window_width_px - DIRECTIONAL_LIGHT_BB_WIDTH / 2, window_height_px - DIRECTIONAL_LIGHT_BB_HEIGHT / 2};
-const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px/2 };
+const vec2 BOTTOM_RIGHT_OF_SCREEN_DIRECTIONAL_LIGHT = { window_width_px / 2, 0 };
+const vec2 BLENDY_START_POSITION = { window_width_px / 2, window_height_px / 2 };
 const vec2 HEALTH_BAR_POSITION = { 140.f, 25.f };
-const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f};
+const vec2 HEALTH_BAR_FRAME_POSITION = { 120.f, 25.f };
+const vec2 SHIELD_POSITION_1 = { 270.f, 25.f };
+const vec2 SHIELD_POSITION_2 = { 320.f, 25.f };
+const vec2 SHIELD_POSITION_3 = { 370.f, 25.f };
 
 // BOUNDS
 const vec2 BLENDY_BOUNDS = { BLENDY_BB_WIDTH, BLENDY_BB_HEIGHT };
@@ -54,11 +62,14 @@ const vec2 BACKGROUND_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 MINION_BOUNDS = { MINION_BB_WIDTH, MINION_BB_HEIGHT };
 const vec2 HEALTH_BAR_BOUNDS = { 175.f, 32.f };
 const vec2 HEALTH_BAR_FRAME_BOUNDS = { 230.f, 55.f };
-const vec2 HELP_SCREEN_BOUNDS = {BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT};
+const vec2 HELP_SCREEN_BOUNDS = { BACKGROUND_BB_WIDTH, BACKGROUND_BB_HEIGHT };
 const vec2 BATTERY_POWERUP_BOUNDS = { 60.f, 80.f };
 const vec2 PROTEIN_POWDER_POWERUP_BOUNDS = { 70.f, 80.f };
 const vec2 LEMON_POWERUP_BOUNDS = { 70.f, 70.f };
 const vec2 GRAPE_POWERUP_BOUNDS = { 80.f, 70.f };
+const vec2 SHIELD_POWERUP_BOUNDS = { 70.f, 70.f };
+const vec2 CACTUS_POWERUP_BOUNDS = { 70.f, 70.f };
+const vec2 SHIELD_HEALTH_BOUNDS = { 40.f, 40.f };
 bool is_dead = false;
 const vec2 dead_velocity = { 0, 100.0f };
 const float dead_angle = 3.0f;
@@ -70,10 +81,10 @@ const size_t MINION_FRAME_DELAY = 20 * 6;
 
 // EYE POSITION (For Lighting Purposes)
 const float CAMERA_Z_DEPTH = 1500.f;
-const vec3 CAMERA_POSITION = {window_width_px / 2, window_height_px / 2, CAMERA_Z_DEPTH};
+const vec3 CAMERA_POSITION = { window_width_px / 2, window_height_px / 2, CAMERA_Z_DEPTH };
 
 // FPS COUNTER
-const vec2 FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { 0.f, 0.f};
+const vec2 FPS_COUNTER_TRANSLATION_FROM_BOTTOM_LEFT_OF_SCREEN = { 0.f, 0.f };
 const vec2 FPS_COUNTER_SCALE = { 1.f,1.f };
 const vec3 FPS_TEXT_COLOR = BLENDY_COLOR;
 
@@ -459,7 +470,7 @@ void WorldSystem::update_blendy_animation(float elapsed_ms_since_last_update) {
 }
 
 void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
-	
+
 	for (int j = 0; j < registry.minions.entities.size(); j++) {
 		Minion& minion = registry.minions.get(registry.minions.entities[j]);
 		Motion& minion_motion = registry.motions.get(registry.minions.entities[j]);
@@ -467,18 +478,16 @@ void WorldSystem::update_minion_animation(float elapsed_ms_since_last_update) {
 		// if minion is not moving, render original image
 		if (minion_motion.velocity.x == 0 && minion_motion.velocity.y == 0) {
 			// just keep the current image
+			RenderRequest request = registry.renderRequests.get(registry.minions.entities[j]);
 			registry.renderRequests.remove(registry.minions.entities[j]);
 			registry.renderRequests.insert(
 				registry.minions.entities[j],
-				{ TEXTURE_ASSET_ID::MINION,
-					TEXTURE_ASSET_ID::MINION_NM,
-				 EFFECT_ASSET_ID::TEXTURED,
-				 GEOMETRY_BUFFER_ID::SPRITE });
+				{ request.used_texture, request.used_normal_map,request.used_effect,request.used_geometry });
 		}
 		else {
 			// minion is moving - calculate appropriate frame to put in render request
 			registry.renderRequests.remove(registry.minions.entities[j]);
-			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage, registry.minions.entities[j]);
+			get_minion_render_request(minion.up, minion.down, minion.right, minion.left, minion.frame_stage, minion.type, registry.minions.entities[j]);
 		}
 	}
 }

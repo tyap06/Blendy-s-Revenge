@@ -38,9 +38,12 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
+	// Callback For minimize the Window
+	void window_minimized_callback();
+	void window_unminimized_callback();
+	void render_cursor();
 
-	
-  
+
 private:
 	enum class MusicState
 	{
@@ -68,8 +71,8 @@ private:
 	MusicState game_music_state;
 
 	// Update Fps
-	
-	
+
+
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -84,7 +87,6 @@ private:
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
-	Entity current_cutscene;
 	float next_minion_spawn = 100;
 	Entity health_bar_frame;
 	Entity help_screen;
@@ -97,13 +99,21 @@ private:
 	float next_tank_spawn = 100;
 	float next_giant_spawn = 100;
 	float next_healer_spawn = 100;
-	float next_battery_powerup_spawn;
-	float next_protein_powerup_spawn;
-	float next_grape_powerup_spawn;
-	float next_lemon_powerup_spawn;
+	float next_cleaner_spawn = 100;
+	float next_battery_powerup_spawn = 100;
+	float next_protein_powerup_spawn = 100;
+	float next_grape_powerup_spawn = 100;
+	float next_lemon_powerup_spawn = 100;
+	float next_cherry_powerup_spawn = 100;
+	float next_shield_powerup_spawn = 100;
+	float next_cactus_powerup_spawn = 100;
 	Entity health_bar_box;
+	Entity shield_1;
+	Entity shield_2;
+	Entity shield_3;
 	bool cutscene_active;
 	bool has_restarted;
+	Entity current_cutscene;
 
 	// music references
 	Mix_Music* background_music;

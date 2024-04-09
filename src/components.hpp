@@ -56,6 +56,54 @@ enum class Charger_State {
 	Resting = Charging + 1,
 };
 
+enum class BossState {
+	Default,
+	Aiming,
+	Charging,
+	PowerUpSeeking,
+	Shooting,
+};
+
+struct Boss {
+	BossState state = BossState::Default;
+	Bullet_State bstate = Bullet_State::Cherry;
+	float aim_timer = 0;
+	float shoot_interval_ms = 20.0f;
+	float time_since_last_shot_ms = 0.0f;
+	bool is_shooting = true;
+	float powerup_duration_ms = 300.f;
+	vec2 charge_direction;
+	float rest_timer = 30;
+	int isAngry = 0;
+	int going_up = -1;
+};
+
+struct SplitShooter {
+
+};
+
+struct Loot {
+
+};
+
+struct Cleaner {
+
+};
+
+// A component to represent shield
+struct Shield {
+
+};
+
+struct ToolTip {
+
+};
+
+struct Cursor {
+
+};
+
+
 enum class Direction {
 	Up,
 	Down,
@@ -72,9 +120,13 @@ struct Player {
 	int current_effect = 0;
 	bool pac_mode = false;
 	bool protein_powerup = false;
+	int shield = 0;
+	int max_shield = 3;
 	float protein_powerup_duration_ms = 0.f;
 	float grape_powerup_duration_ms = 0.f;
 	float lemon_powerup_duration_ms = 0.f;
+	float cherry_powerup_duration_ms = 0.f;
+	float cactus_powerup_duration_ms = 0.f;
 	float counter_ms = 50.f;
 	int frame_stage = 0;
 	bool up = false;
@@ -500,8 +552,186 @@ enum class TEXTURE_ASSET_ID {
 	BLT_1_N = BLT_0_N + 1,
 	BLT_2_N = BLT_1_N + 1,
 	BLT_3_N = BLT_2_N + 1,
+	HEALER_D0 = BLT_3_N + 1,
+	HEALER_D0_N = HEALER_D0 + 1,
+	HEALER_D1 = HEALER_D0_N + 1,
+	HEALER_D1_N = HEALER_D1 + 1,
+	HEALER_D2 = HEALER_D1_N + 1,
+	HEALER_D2_N = HEALER_D2 + 1,
+	HEALER_L0 = HEALER_D2_N + 1,
+	HEALER_L0_N = HEALER_L0 + 1,
+	HEALER_L1 = HEALER_L0_N + 1,
+	HEALER_L1_N = HEALER_L1 + 1,
+	HEALER_L2 = HEALER_L1_N + 1,
+	HEALER_L2_N = HEALER_L2 + 1,
+	HEALER_R0 = HEALER_L2_N + 1,
+	HEALER_R0_N = HEALER_R0 + 1,
+	HEALER_R1 = HEALER_R0_N + 1,
+	HEALER_R1_N = HEALER_R1 + 1,
+	HEALER_R2 = HEALER_R1_N + 1,
+	HEALER_R2_N = HEALER_R2 + 1,
+	HEALER_U0 = HEALER_R2_N + 1,
+	HEALER_U0_N = HEALER_U0 + 1,
+	HEALER_U1 = HEALER_U0_N + 1,
+	HEALER_U1_N = HEALER_U1 + 1,
+	HEALER_U2 = HEALER_U1_N + 1,
+	HEALER_U2_N = HEALER_U2 + 1,
 
-	TEXTURE_COUNT = BLT_3_N + 1,
+	ROAMER_D0 = HEALER_U2_N + 1,
+	ROAMER_D0_N = ROAMER_D0 + 1,
+	ROAMER_D1 = ROAMER_D0_N + 1,
+	ROAMER_D1_N = ROAMER_D1 + 1,
+	ROAMER_D2 = ROAMER_D1_N + 1,
+	ROAMER_D2_N = ROAMER_D2 + 1,
+	ROAMER_L0 = ROAMER_D2_N + 1,
+	ROAMER_L0_N = ROAMER_L0 + 1,
+	ROAMER_L1 = ROAMER_L0_N + 1,
+	ROAMER_L1_N = ROAMER_L1 + 1,
+	ROAMER_L2 = ROAMER_L1_N + 1,
+	ROAMER_L2_N = ROAMER_L2 + 1,
+	ROAMER_R0 = ROAMER_L2_N + 1,
+	ROAMER_R0_N = ROAMER_R0 + 1,
+	ROAMER_R1 = ROAMER_R0_N + 1,
+	ROAMER_R1_N = ROAMER_R1 + 1,
+	ROAMER_R2 = ROAMER_R1_N + 1,
+	ROAMER_R2_N = ROAMER_R2 + 1,
+	ROAMER_U0 = ROAMER_R2_N + 1,
+	ROAMER_U0_N = ROAMER_U0 + 1,
+	ROAMER_U1 = ROAMER_U0_N + 1,
+	ROAMER_U1_N = ROAMER_U1 + 1,
+	ROAMER_U2 = ROAMER_U1_N + 1,
+	ROAMER_U2_N = ROAMER_U2 + 1,
+
+
+	SHOOTER_D0 = ROAMER_U2_N + 1,
+	SHOOTER_D0_N = SHOOTER_D0 + 1,
+	SHOOTER_D1 = SHOOTER_D0_N + 1,
+	SHOOTER_D1_N = SHOOTER_D1 + 1,
+	SHOOTER_D2 = SHOOTER_D1_N + 1,
+	SHOOTER_D2_N = SHOOTER_D2 + 1,
+	SHOOTER_L0 = SHOOTER_D2_N + 1,
+	SHOOTER_L0_N = SHOOTER_L0 + 1,
+	SHOOTER_L1 = SHOOTER_L0_N + 1,
+	SHOOTER_L1_N = SHOOTER_L1 + 1,
+	SHOOTER_L2 = SHOOTER_L1_N + 1,
+	SHOOTER_L2_N = SHOOTER_L2 + 1,
+	SHOOTER_R0 = SHOOTER_L2_N + 1,
+	SHOOTER_R0_N = SHOOTER_R0 + 1,
+	SHOOTER_R1 = SHOOTER_R0_N + 1,
+	SHOOTER_R1_N = SHOOTER_R1 + 1,
+	SHOOTER_R2 = SHOOTER_R1_N + 1,
+	SHOOTER_R2_N = SHOOTER_R2 + 1,
+	SHOOTER_U0 = SHOOTER_R2_N + 1,
+	SHOOTER_U0_N = SHOOTER_U0 + 1,
+	SHOOTER_U1 = SHOOTER_U0_N + 1,
+	SHOOTER_U1_N = SHOOTER_U1 + 1,
+	SHOOTER_U2 = SHOOTER_U1_N + 1,
+	SHOOTER_U2_N = SHOOTER_U2 + 1,
+
+	SNIPER_D0 = SHOOTER_U2_N + 1,
+	SNIPER_D0_N = SNIPER_D0 + 1,
+	SNIPER_D1 = SNIPER_D0_N + 1,
+	SNIPER_D1_N = SNIPER_D1 + 1,
+	SNIPER_D2 = SNIPER_D1_N + 1,
+	SNIPER_D2_N = SNIPER_D2 + 1,
+	SNIPER_L0 = SNIPER_D2_N + 1,
+	SNIPER_L0_N = SNIPER_L0 + 1,
+	SNIPER_L1 = SNIPER_L0_N + 1,
+	SNIPER_L1_N = SNIPER_L1 + 1,
+	SNIPER_L2 = SNIPER_L1_N + 1,
+	SNIPER_L2_N = SNIPER_L2 + 1,
+	SNIPER_R0 = SNIPER_L2_N + 1,
+	SNIPER_R0_N = SNIPER_R0 + 1,
+	SNIPER_R1 = SNIPER_R0_N + 1,
+	SNIPER_R1_N = SNIPER_R1 + 1,
+	SNIPER_R2 = SNIPER_R1_N + 1,
+	SNIPER_R2_N = SNIPER_R2 + 1,
+	SNIPER_U0 = SNIPER_R2_N + 1,
+	SNIPER_U0_N = SNIPER_U0 + 1,
+	SNIPER_U1 = SNIPER_U0_N + 1,
+	SNIPER_U1_N = SNIPER_U1 + 1,
+	SNIPER_U2 = SNIPER_U1_N + 1,
+	SNIPER_U2_N = SNIPER_U2 + 1,
+
+	CURSOR = SNIPER_U2_N + 1,
+	CHERRY_POWERUP = CURSOR + 1,
+	SHIELD_POWERUP = CHERRY_POWERUP + 1,
+	CACTUS_POWERUP = SHIELD_POWERUP + 1,
+
+	BOSS_D0 = CACTUS_POWERUP + 1,
+	BOSS_D0_N = BOSS_D0 + 1,
+	BOSS_D1 = BOSS_D0_N + 1,
+	BOSS_D1_N = BOSS_D1 + 1,
+	BOSS_D2 = BOSS_D1_N + 1,
+	BOSS_D2_N = BOSS_D2 + 1,
+	BOSS_D3 = BOSS_D2_N + 1,
+	BOSS_D3_N = BOSS_D3 + 1,
+
+	BOSS_L0 = BOSS_D3_N + 1,
+	BOSS_L0_N = BOSS_L0 + 1,
+	BOSS_L1 = BOSS_L0_N + 1,
+	BOSS_L1_N = BOSS_L1 + 1,
+	BOSS_L2 = BOSS_L1_N + 1,
+	BOSS_L2_N = BOSS_L2 + 1,
+	BOSS_L3 = BOSS_L2_N + 1,
+	BOSS_L3_N = BOSS_L3 + 1,
+
+	BOSS_R0 = BOSS_L3_N + 1,
+	BOSS_R0_N = BOSS_R0 + 1,
+	BOSS_R1 = BOSS_R0_N + 1,
+	BOSS_R1_N = BOSS_R1 + 1,
+	BOSS_R2 = BOSS_R1_N + 1,
+	BOSS_R2_N = BOSS_R2 + 1,
+	BOSS_R3 = BOSS_R2_N + 1,
+	BOSS_R3_N = BOSS_R3 + 1,
+
+	BOSS_U0 = BOSS_R3_N + 1,
+	BOSS_U0_N = BOSS_U0 + 1,
+	BOSS_U1 = BOSS_U0_N + 1,
+	BOSS_U1_N = BOSS_U1 + 1,
+	BOSS_U2 = BOSS_U1_N + 1,
+	BOSS_U2_N = BOSS_U2 + 1,
+	BOSS_U3 = BOSS_U2_N + 1,
+	BOSS_U3_N = BOSS_U3 + 1,
+
+	BOSS_DL0 = BOSS_U3_N + 1,
+	BOSS_DL0_N = BOSS_DL0 + 1,
+	BOSS_DL1 = BOSS_DL0_N + 1,
+	BOSS_DL1_N = BOSS_DL1 + 1,
+	BOSS_DL2 = BOSS_DL1_N + 1,
+	BOSS_DL2_N = BOSS_DL2 + 1,
+	BOSS_DL3 = BOSS_DL2_N + 1,
+	BOSS_DL3_N = BOSS_DL3 + 1,
+
+	BOSS_DR0 = BOSS_DL3_N + 1,
+	BOSS_DR0_N = BOSS_DR0 + 1,
+	BOSS_DR1 = BOSS_DR0_N + 1,
+	BOSS_DR1_N = BOSS_DR1 + 1,
+	BOSS_DR2 = BOSS_DR1_N + 1,
+	BOSS_DR2_N = BOSS_DR2 + 1,
+	BOSS_DR3 = BOSS_DR2_N + 1,
+	BOSS_DR3_N = BOSS_DR3 + 1,
+
+	BOSS_UL0 = BOSS_DR3_N + 1,
+	BOSS_UL0_N = BOSS_UL0 + 1,
+	BOSS_UL1 = BOSS_UL0_N + 1,
+	BOSS_UL1_N = BOSS_UL1 + 1,
+	BOSS_UL2 = BOSS_UL1_N + 1,
+	BOSS_UL2_N = BOSS_UL2 + 1,
+	BOSS_UL3 = BOSS_UL2_N + 1,
+	BOSS_UL3_N = BOSS_UL3 + 1,
+
+	BOSS_UR0 = BOSS_UL3_N + 1,
+	BOSS_UR0_N = BOSS_UR0 + 1,
+	BOSS_UR1 = BOSS_UR0_N + 1,
+	BOSS_UR1_N = BOSS_UR1 + 1,
+	BOSS_UR2 = BOSS_UR1_N + 1,
+	BOSS_UR2_N = BOSS_UR2 + 1,
+	BOSS_UR3 = BOSS_UR2_N + 1,
+	BOSS_UR3_N = BOSS_UR3 + 1,
+
+	TEXTURE_COUNT = BOSS_UR3_N + 1
+
 };
 const int texture_count = (int)TEXTURE_ASSET_ID::TEXTURE_COUNT;
 
