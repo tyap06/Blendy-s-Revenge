@@ -1089,14 +1089,18 @@ void WorldSystem::handle_collisions() {
 					case POWERUP_TYPE::LEMON:
 					case POWERUP_TYPE::CHERRY:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.powerup_duration_ms = 30;
+						boss.powerup_duration_ms = 60;
 						break;
 					case POWERUP_TYPE::GRAPE:
 					case POWERUP_TYPE::	PROTEIN:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.state = BossState::Shooting;
+						boss.powerup_duration_ms = 100;
+						break;
 					case POWERUP_TYPE::CACTUS:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 30;
+						boss.powerup_duration_ms = 150;
 						break;
 					default:
 						break;

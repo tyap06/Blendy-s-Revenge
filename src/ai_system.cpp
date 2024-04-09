@@ -149,8 +149,8 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 	}
 	case Bullet_State::Cactus: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
-			//todo:
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 1280.0f, angle_diff, 50, {1,0,0});
+			//todo:change_shape
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 1280.0f, angle_diff, 100, {1,0,0});
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;

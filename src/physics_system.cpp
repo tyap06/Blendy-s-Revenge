@@ -237,7 +237,7 @@ bool collides(const Entity& entity1, const Entity& entity2, Motion& motion1, Mot
 			return checkMeshCollisionSAT(mesh_one, motion1, mesh_two, motion2, overlapBox);
 		}
 		if (mesh_one == NULL || mesh_two == NULL) {
-			std::cout << "No mesh!!" << std::endl;
+			//std::cout << "No mesh!!" << std::endl;
 		}
 	}
 	return false;
