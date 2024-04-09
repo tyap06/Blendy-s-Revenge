@@ -1,18 +1,24 @@
 # Team-11---Blendy-s-Revenge-
 
-# Milestone 3: Features Implemented
+# Milestone 4: Features Implemented
 
-## Creative Features Basic (10% + 10%)
-### Simple rendering effects    basic    Fragment shaders, OpenGL uniforms. 
-Added shading to the minion giant so that its color varies with time with a rainbow colored pattern that works with the Blinn-Phong Illumination.
-### Audio feedback    basic    General coding skills.
-Added new sound effects and a change in tone after a score of 1000 is reached.
-#### New Sound Effects:
+## Creative Features Basic (30%)
+### Story Cutscence 10%
+Story of the game displaying before starting the game and custscens when beat the boss or killed by minions.
+
+### Game Balance 10%
+We adjust the game balance make it 
+### Asset creation tools 10%
+We have 
+
+#### New Effects:
 ##### Powerup pickup
 - battery
 - grape
 - lemon
 - protein
+- cactus - NEW
+- cherry - NEW
 ##### Others
 - player hurt_sound
 - minion_hurt_sound
@@ -26,6 +32,9 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 - Persistent Blendy‘ s facing direction after stop moving
 #### Minions
 - 4-directional movement animation
+#### BOSS -- NEW
+- 8-directional movement animation
+- Persistent BOSS‘ s facing direction after stop moving
 ### New minions ai
 - new enemy charger(in light red color)
 - new enemy sniper(in blue color) 
@@ -33,5 +42,10 @@ Added new sound effects and a change in tone after a score of 1000 is reached.
 - new enemy giant (in rainbow color)
 ## Creative Features Advanced (20%)
 ### cooperative ai 
+
+
+## New AI System features
+- Boss 
+Chasing the player and will pick up the power ups. 
 
 Tank attempts to shield the Sniper from the player based on sniper and player position when possible. One sniper can be most protected by one tank.
