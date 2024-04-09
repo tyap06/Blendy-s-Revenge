@@ -306,7 +306,7 @@ Entity create_minion(RenderSystem* renderer, const vec2& position, const vec2& b
 	motion.position = position;
 	// Setting initial values, scale is negative to make it face the opposite way
 	motion.scale = vec2({ -bounds.x, bounds.y });
-	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, true);
+	create_mesh(renderer, motion.position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 	// Create and (empty) Minion component to be able to refer to all minions
 	registry.minions.emplace(entity);
@@ -594,7 +594,7 @@ Entity create_charger(RenderSystem* renderer, const vec2& position, const vec2& 
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	vec3 color = {0.5,0.2,0.2 };
 	registry.colors.insert(entity, color);
-	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, true);
+	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 
 	auto& charger = registry.chargers.emplace(entity);
 
