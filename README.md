@@ -10,6 +10,9 @@ We adjust the game balance make it feel rewarding and fun, thereby improving the
 ### Asset creation tools 10%
 We created a vast array of visual content for game. Added lots of new graphic assets. 
 
+
+
+
 #### New Effects:
 ##### Powerup pickup
 - battery
@@ -39,6 +42,9 @@ We created a vast array of visual content for game. Added lots of new graphic as
 ### New minions ai
 - NEW Cleaner ( it will approach the power and remove it )
 - NEW Split shooter (It acts like a normal ranger but it will have split shots)
+
+### New Particle system
+Respawning particles 
 
 ## New Button actions
 ### Cutscenes
