@@ -173,6 +173,8 @@ private:
 	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff);
 	void handle_cutScenes();
 	void handle_help_screen();
+	void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up_angle, float angle_diff, int type);
+
 };
 
 
