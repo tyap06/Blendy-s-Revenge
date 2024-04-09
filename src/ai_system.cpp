@@ -104,6 +104,12 @@ void shootGrapeBullets(RenderSystem* renderer, vec2 pos, vec2 velocity, float up
 	const int num_bullets = 12;
 	const float angle_increment = 2 * M_PI / num_bullets; 
 	for (int i = 0; i < num_bullets; ++i) {
+		if (angle_diff < -M_PI) {
+			angle_diff += 2 * M_PI;
+		}
+		else if (angle_diff > M_PI) {
+			angle_diff -= 2 * M_PI;
+		}
 		float angle = i * angle_increment;
 		vec2 velocity = { cos(angle) * grape_bullet_speed, sin(angle) * grape_bullet_speed };
 		float final_angle = up_angle + angle_diff + angle;
@@ -141,14 +147,14 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 		return;
 	}
 	case Bullet_State::Grape: {
-		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms*2) {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
 			shootGrapeBullets(renderer, motion.position, bullet_direction, up_angle, angle_diff);
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	case Bullet_State::Cactus: {
-		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 1.5) {
 			//todo:change_shape
 			create_enemy_bullet(renderer, motion.position, bullet_direction * 1280.0f, angle_diff, 100, {1,0,0});
 			boss.time_since_last_shot_ms = 0;
@@ -156,29 +162,25 @@ void AISystem::boss_shoot(Boss& boss, Motion& motion, const vec2& player_pos, fl
 		break;
 	}
 	case Bullet_State::Cherry: {
-		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms) {
+		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms * 2) {
 			vec2 side_direction = vec2(-bullet_direction.y, bullet_direction.x);
-			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.2f) * 320.0f, angle_diff);
-			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.2f) * 320.0f, angle_diff);
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff);
+			create_enemy_bullet(renderer, motion.position, (bullet_direction + side_direction * 0.2f) * 320.0f, angle_diff, 25, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, (bullet_direction - side_direction * 0.2f) * 320.0f, angle_diff, 25, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.0f, angle_diff, 25, { 1,0.5,0 });
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	case Bullet_State::Protein: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms/4) {
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 280.0f, angle_diff, 10, { 1,0.5,0 });
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 290.0f, angle_diff, 10, { 1,0.5,0 });
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;
 	}
 	case Bullet_State::Lemon: {
 		if (boss.time_since_last_shot_ms >= boss.shoot_interval_ms/2) {
-			//todo:
-			float spread_degrees = distr(gen);
-			float spread_radians = spread_degrees * (M_PI / 180.0f);
-			angle_diff += spread_radians;
-			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.f, angle_diff);
+			create_enemy_bullet(renderer, motion.position, bullet_direction * 320.f, angle_diff, 50, {0.3,1,0});
 			boss.time_since_last_shot_ms = 0;
 		}
 		break;

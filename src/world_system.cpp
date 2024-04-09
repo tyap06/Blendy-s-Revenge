@@ -1087,20 +1087,27 @@ void WorldSystem::handle_collisions() {
 						if (m.health > m.max_health) m.health = m.max_health;
 						break;
 					case POWERUP_TYPE::LEMON:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.powerup_duration_ms = 100;
+						break;
 					case POWERUP_TYPE::CHERRY:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
-						boss.powerup_duration_ms = 60;
+						boss.powerup_duration_ms = 100;
 						break;
 					case POWERUP_TYPE::GRAPE:
+						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
+						boss.state = BossState::Shooting;
+						boss.powerup_duration_ms = 300;
+						break;
 					case POWERUP_TYPE::	PROTEIN:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 100;
+						boss.powerup_duration_ms = 130;
 						break;
 					case POWERUP_TYPE::CACTUS:
 						boss.bstate = static_cast<Bullet_State>((int)powerup.type);
 						boss.state = BossState::Shooting;
-						boss.powerup_duration_ms = 150;
+						boss.powerup_duration_ms = 200;
 						break;
 					default:
 						break;
