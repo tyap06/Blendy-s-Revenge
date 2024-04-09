@@ -11,8 +11,8 @@ const float MINION_BB_WIDTH = 0.2f * 346.f;
 const float MINION_BB_HEIGHT = 0.2f * 593.f;
 // const float BACKGROUND_BB_WIDTH = 0.62f * 2131.f;
 // const float BACKGROUND_BB_HEIGHT = 0.62f * 1563.f;
-const float BACKGROUND_BB_WIDTH = 1900.f * 0.9;
-const float BACKGROUND_BB_HEIGHT = 1080.f * 0.9;
+const float BACKGROUND_BB_WIDTH = 1900.f*0.9;
+const float BACKGROUND_BB_HEIGHT = 1080.f*0.9;
 const float DIRECTIONAL_LIGHT_BB_WIDTH = 0.1f * 512.f;
 const float DIRECTIONAL_LIGHT_BB_HEIGHT = 0.1f * 512.f;
 
@@ -54,7 +54,8 @@ Entity create_dodger(RenderSystem* renderer, const vec2& position, const vec2& b
 Entity create_enemy_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle, int damage = 25, vec3 color = { 0,40,0 });
 
 Entity create_roamer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
-Entity create_cleaner(RenderSystem* renderer, const vec2& position, const vec2& bounds);
+
+Entity create_healer(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_sniper(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_tank(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
@@ -68,11 +69,6 @@ Entity create_grape_powerup(RenderSystem* renderer, const vec2& position, const 
 
 Entity create_lemon_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 
-Entity create_cherry_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
-
-Entity create_shield_powerup(RenderSystem* renderer, const vec2& position, const vec2& bounds);
-
-Entity create_shield_health(RenderSystem* renderer, const vec2& position, const vec2& bounds);
 Entity create_lemon_bullet(RenderSystem* renderer, vec2 pos, vec2 velocity, float angle);
 
 Entity create_mesh(RenderSystem* renderer, vec2 pos, vec2 velocity, vec2 scale, float angle, Entity object_entity, TEXTURE_ASSET_ID texture_id_one, TEXTURE_ASSET_ID texture_id_two, GEOMETRY_BUFFER_ID geometry_id, bool display);
