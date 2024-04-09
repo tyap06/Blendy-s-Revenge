@@ -38,9 +38,12 @@ public:
 	// Should the game be over ?
 	bool is_over()const;
 
+	// Callback For minimize the Window
+	void window_minimized_callback();
+	void window_unminimized_callback();
+	void render_cursor();
 
-	
-  
+
 private:
 	enum class MusicState
 	{
@@ -68,8 +71,8 @@ private:
 	MusicState game_music_state;
 
 	// Update Fps
-	
-	
+
+
 
 	// OpenGL window handle
 	GLFWwindow* window;
@@ -81,10 +84,11 @@ private:
 	RenderSystem* renderer;
 	float current_speed;
 	Entity player_blendy;
+	Entity boss;
+	Entity cursor;
 	Entity game_background;
 	Entity directional_light;
 	Entity fps_counter;
-	Entity current_cutscene;
 	float next_minion_spawn = 100;
 	Entity health_bar_frame;
 	Entity help_screen;
@@ -97,12 +101,20 @@ private:
 	float next_tank_spawn = 100;
 	float next_giant_spawn = 100;
 	float next_healer_spawn = 100;
-	float next_battery_powerup_spawn;
-	float next_protein_powerup_spawn;
-	float next_grape_powerup_spawn;
-	float next_lemon_powerup_spawn;
+	float next_cleaner_spawn = 100;
+	float next_battery_powerup_spawn = 100;
+	float next_protein_powerup_spawn = 100;
+	float next_grape_powerup_spawn = 100;
+	float next_lemon_powerup_spawn = 100;
+	float next_cherry_powerup_spawn = 100;
+	float next_shield_powerup_spawn = 100;
+	float next_cactus_powerup_spawn = 100;
 	Entity health_bar_box;
+	Entity shield_1;
+	Entity shield_2;
+	Entity shield_3;
 	bool cutscene_active;
+	Entity current_cutscene;
 
 	// music references
 	Mix_Music* background_music;
@@ -141,14 +153,15 @@ private:
 
 	// Private Helpers For Initialization
 	void update_blendy_animation(float elapsed_ms_since_last_update);
+	void update_boss_animation(float elapsed_ms_since_last_update);
 	void update_minion_animation(float elapsed_ms_since_last_update);
 	void spawn_minions(float elapsed_ms_since_last_update);
 	void handlePlayerMovement(int key, int action);
 	void update_player_movement();
 	void move_player(vec2 direction);
 	void get_blendy_render_request(bool up, bool down, bool left, bool right, int stage);
-	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Entity minion);
-	float get_y_animate(int stage, int going_up);
+	void get_minion_render_request(bool up, bool down, bool right, bool left, int stage, Enemy_TYPE type, Entity minion);
+	float get_y_animate(int stage, int going_up, Entity entity);
 	void update_fps(float elapsed_ms_since_last_update);
 	void update_score();
 	vec2 getCurrentMousePosition();
