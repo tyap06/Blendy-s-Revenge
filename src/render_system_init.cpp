@@ -13,6 +13,11 @@
 #include <iostream>
 #include <sstream>
 
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+#include "ai_system.hpp"
+
 // World initialization
 bool RenderSystem::init(GLFWwindow* window_arg)
 {
@@ -48,17 +53,20 @@ bool RenderSystem::init(GLFWwindow* window_arg)
 	// code to use OpenGL 4.3 (not suported on mac) and add additional .h and .cpp
 	// glDebugMessageCallback((GLDEBUGPROC)errorCallback, nullptr);
 
+	
+
 	// We are not really using VAO's but without at least one bound we will crash in
 	// some systems.
-	GLuint vao;
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
+	glGenVertexArrays(1, &dummy_vao);
+	glBindVertexArray(dummy_vao);
 	gl_has_errors();
 
 	initScreenTexture();
     initializeGlTextures();
 	initializeGlEffects();
 	initializeGlGeometryBuffers();
+	//initializeParticleSystem();
+	initializeFonts();
 
 	return true;
 }
@@ -129,7 +137,7 @@ void RenderSystem::initializeGlMeshes()
 			meshes[(int)geom_index].vertices,
 			meshes[(int)geom_index].vertex_indices,
 			meshes[(int)geom_index].original_size);
-
+	
 		bindVBOandIBO(geom_index,
 			meshes[(int)geom_index].vertices, 
 			meshes[(int)geom_index].vertex_indices);
@@ -205,6 +213,11 @@ void RenderSystem::initializeGlGeometryBuffers()
 		{{ 0.5,-0.5, depth}, red},
 	};
 
+	// 0 = bottom left
+	// 1 = top left
+	// 2 = top right
+	// 3 = bottom right
+
 	// Two triangles
 	line_indices = {0, 1, 3, 1, 2, 3};
 	
@@ -224,6 +237,11 @@ void RenderSystem::initializeGlGeometryBuffers()
 	const std::vector<uint16_t> screen_indices = { 0, 1, 2 };
 	bindVBOandIBO(GEOMETRY_BUFFER_ID::SCREEN_TRIANGLE, screen_vertices, screen_indices);
 }
+
+//void RenderSystem::initializeParticleSystem()
+//{
+//	emitter.init();
+//}
 
 RenderSystem::~RenderSystem()
 {
@@ -246,6 +264,58 @@ RenderSystem::~RenderSystem()
 	// remove all entities created by the render system
 	while (registry.renderRequests.entities.size() > 0)
 	    registry.remove_all_components_of(registry.renderRequests.entities.back());
+}
+
+void RenderSystem::debug_fps(const mat3& projection)
+{
+	if (debugging.show_game_fps)
+	{
+		for (Entity entity : registry.fpsCounters.entities)
+		{
+			auto& fps_component = registry.fpsCounters.get(entity);
+			std::string display_text = std::to_string(fps_component.current_fps);
+
+			auto& color_component = registry.colors.get(entity);
+
+			auto& motion = registry.motions.get(entity);
+
+			renderText(display_text, motion.position.x, motion.position.y, fps_component.scale, color_component, glm::mat4(1.f));
+		}
+
+	}
+}
+
+void RenderSystem::display_score()
+{
+	for (Entity entity : registry.scoreCounters.entities)
+	{
+		auto& score_component = registry.scoreCounters.get(entity);
+		std::string display_text = "Score: " + std::to_string(score_component.current_score);
+
+		auto& color_component = registry.colors.get(entity);
+
+		auto& motion = registry.motions.get(entity);
+		if (score_component.show) {
+			renderText(display_text, motion.position.x, motion.position.y, score_component.scale, color_component, glm::mat4(1.f));
+		}
+	}
+}
+
+void RenderSystem::display_text()
+{
+	for (Entity entity : registry.cutScenes.entities)
+	{
+		auto& cutscene = registry.cutScenes.get(entity);
+		for (int i = 0; i < 4; i++) {
+			if (cutscene.text_position[i].x != 0) {
+				std::string cutscene_text(cutscene.text[i]);
+				// std::cout << cutscene_text << std::endl;
+				renderText(cutscene_text, cutscene.text_position[i].x, cutscene.text_position[i].y, cutscene.text_scale[i], cutscene.text_color[i], glm::mat4(1.f));
+			}
+		}
+		// 		renderText("Press 'C' to  skip", 1520, window_height_px - 50, 0.8, vec3(0.4f, 0.f, 0.3f), glm::mat4(1.f));
+	}
+
 }
 
 // Initialize the screen texture from a standard sprite

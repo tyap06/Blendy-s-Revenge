@@ -16,6 +16,11 @@
 #include <glm/ext/vector_int2.hpp>  // ivec2
 #include <glm/vec3.hpp>             // vec3
 #include <glm/mat3x3.hpp>           // mat3
+
+// matrices
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
 using namespace glm;
 
 #include "tiny_ecs.hpp"
@@ -30,8 +35,10 @@ inline std::string textures_path(const std::string& name) {return data_path() + 
 inline std::string audio_path(const std::string& name) {return data_path() + "/audio/" + std::string(name);};
 inline std::string mesh_path(const std::string& name) {return data_path() + "/meshes/" + std::string(name);};
 
-const int window_width_px = 1800;
-const int window_height_px = 1000;
+//const int window_width_px = 0.62f * 2131.f;
+//const int window_height_px = 0.62f * 1563.f;
+const int window_width_px = 1900.f*0.90;
+const int window_height_px = 1080.f*0.90;
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846f
@@ -41,10 +48,14 @@ const int window_height_px = 1000;
 // (similar to the gl Immediate mode equivalent, e.g., glTranslate()...)
 // We recomment making all components non-copyable by derving from ComponentNonCopyable
 struct Transform {
-	mat3 mat = { { 1.f, 0.f, 0.f }, { 0.f, 1.f, 0.f}, { 0.f, 0.f, 1.f} }; // start with the identity
+	mat3 mat = {
+		{ 1.f, 0.f, 0.f },
+		{ 0.f, 1.f, 0.f}, {
+			0.f, 0.f, 1.f} }; // start with the identity
 	void scale(vec2 scale);
 	void rotate(float radians);
 	void translate(vec2 offset);
 };
+
 
 bool gl_has_errors();
