@@ -117,7 +117,7 @@ const unsigned int SNIPER_SPAWN_SCORE = 1300 * MULTIPLIER;
 const unsigned int TANK_SPAWN_SCORE = 1700 * MULTIPLIER;
 const unsigned int GIANT_SPAWN_SCORE = 2000 * MULTIPLIER;
 const unsigned int SPLIT_SHOOTER_SPAWN_SCORE = 2500 * MULTIPLIER;
-const unsigned int BOSS_SPAWN_SCORE = 7500 * MULTIPLIER;
+const unsigned int BOSS_SPAWN_SCORE = 6000 * MULTIPLIER;
 
 const unsigned int BATTERY_SPAWN_SCORE = 0 * MULTIPLIER;
 const unsigned int PROTEIN_SPAWN_SCORE = 300 * MULTIPLIER;

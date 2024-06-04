@@ -214,7 +214,6 @@ Entity create_blendy(RenderSystem* renderer, const vec2& position, const vec2& b
 	registry.mesh_collision.emplace(entity);
 	registry.meshPtrs.emplace(entity, &mesh);
 
-
 	// Initialize the motion
 	auto& motion = registry.motions.emplace(entity);
 	motion.angle = 0.f;
@@ -357,8 +356,8 @@ Entity create_giant(RenderSystem* renderer, const vec2& position, const vec2& bo
 	motion.scale = vec2({ -bounds.x, bounds.y });
 	auto& minion = registry.minions.emplace(entity);
 	minion.score = 200;
-	minion.health = score / 2;
-	minion.max_health = score / 2;
+	minion.health = score / 7;
+	minion.max_health = score / 7;
 	minion.speed = 50;
 	create_mesh(renderer, position, motion.velocity, motion.scale, motion.angle, entity, TEXTURE_ASSET_ID::MINION, TEXTURE_ASSET_ID::MINION_NM, GEOMETRY_BUFFER_ID::MINION, false);
 	registry.loots.emplace(entity);
@@ -816,8 +815,8 @@ Entity create_boss(RenderSystem* renderer, const vec2& position, const vec2& bou
 	minion.score = 10000;
 	motion.angle = 0.f;
 	minion.damage = 1000;
-	minion.health = 4000;
-	minion.max_health = 4000;
+	minion.health = 2500;
+	minion.max_health = 2500;
 	minion.armor = 0;
 	minion.speed = 200;
 	motion.velocity = { 0, 0.f };
